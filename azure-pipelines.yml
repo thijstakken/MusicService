@@ -5,26 +5,27 @@
 
 trigger:
 - main
+jobs:
+- job: 'Test_MusicService'
+  pool:
+    vmImage: ubuntu-latest
 
-pool:
-  vmImage: ubuntu-latest
+  steps:
+  - task: UsePythonVersion@0
+    inputs:
+     versionSpec: '3.7'
+    displayName: 'Use Python 3.10.2'
 
-steps:
-- task: UsePythonVersion@0
-  inputs:
-    versionSpec: '3.10.2'
-  displayName: 'Use Python 3.10.2'
+  - script: |
+     cp example-database database
+    displayName: 'Configure database'
 
-- script: |
-    cp example-database database
-  displayName: 'Configure database'
+  - script: |
+     python -m pip install --upgrade pip
+     pip install -r requirements.txt
+    displayName: 'Install dependencies'
 
-- script: |
-    python -m pip install --upgrade pip
-    pip install -r requirements.txt
-  displayName: 'Install dependencies'
-
-- script: |
-    pip install pytest pytest-azurepipelines
-    pytest
-  displayName: 'pytest'
+  - script: |
+     pip install pytest pytest-azurepipelines
+     pytest
+    displayName: 'pytest'
