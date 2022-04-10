@@ -4,8 +4,13 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/python
 
 trigger:
-- main
-
+  branches:
+    include:
+     - main
+  paths:
+    exclude:
+    - README.MD
+  
 pool:
   vmImage: windows-2022
 
@@ -29,6 +34,7 @@ steps:
     pip install -r requirements.txt
   displayName: 'Install dependencies'
 
-- script: |
-    python downloader.py
-  displayName: 'Validate MP3 download function'
+# Temporarly turned of to safe time and test other things
+#- script: |
+#    python downloader.py
+#  displayName: 'Validate MP3 download function'
