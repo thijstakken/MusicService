@@ -31,15 +31,15 @@ ydl_opts = {
     ],
     'logger': MyLogger(),
     'progress_hooks': [my_hook],
-    'outtmpl': '.\Music\%(playlist)s\%(title)s.%(ext)s',
+    'outtmpl': '.\music\%(playlist)s\%(title)s.%(ext)s',
     'simulate': False,                                  #Droog oefenen indien True, niks downloaden, opties zijn True/False
     'cachedir': False,                                  #Zet caching uit om 403 Forbidden errors te voorkomen
-    'download_archive': '.\Database\downloaded.txt',    #Vastleggen of een muziekje als gedownload is
+    'download_archive': '.\database\downloaded.txt',    #Vastleggen of een muziekje als gedownload is
     'nocheckcertificate': True,                         #Verifiërt niet of het SSL certificaat geldig is, dit voorkomt een onterechte foutmelding die ik een keer had
 }
 
 #Haalt playlist URL's op en zet ze in een lijst
-with open('./Database/playlists.txt') as file:
+with open('./database/playlists.txt') as file:
     lines = [line.rstrip() for line in file]        #Leest lijn voor lijn de playlists in van playlist.txt
 
 print(lines)
