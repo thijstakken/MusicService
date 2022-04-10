@@ -8,4 +8,4 @@ Made to run on Windows with Python
 1. Install the requirements with: pip3 install -r requirements.txt
 2. Copy the "example-database" folder and name it "database"
 3. Put your own Youtube playlists URL's in the /database/playlists.txt file
-4. Run the script and see your song appear in the /music folder
+4. Run the script and see your songs appear in the /music folder
