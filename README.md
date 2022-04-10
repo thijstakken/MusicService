@@ -4,7 +4,7 @@ Automatically download your YouTube playlists as MP3 with the highest quality po
 WORK IN PROGRESS
 
 
-###Installation
+## Installation
 
 1. Install the requirements with: pip3 install -r requirements.txt
 2. Copy the "example-database" folder and name it "database"
