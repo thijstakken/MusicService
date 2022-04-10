@@ -4,8 +4,9 @@ Automatically download your YouTube playlists as MP3 with the highest quality po
 WORK IN PROGRESS
 
 
-##Installation
+###Installation
 
-1. Copy the "example-database" and name it to "database"
-2. Put your own Youtube playlists URL's in the database/playlists.txt file
-3. Run the script and see your song appear in the /music folder
+1. Install the requirements with: pip3 install -r requirements.txt
+2. Copy the "example-database" folder and name it "database"
+3. Put your own Youtube playlists URL's in the /database/playlists.txt file
+4. Run the script and see your song appear in the /music folder
