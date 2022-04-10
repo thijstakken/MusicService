@@ -1,9 +1,6 @@
 # MusicService
 Automatically download your YouTube playlists as MP3 with the highest quality possible using as few conversions as possible
 
-WORK IN PROGRESS
-
-
 ## Installation
 
 1. Install the requirements with: pip3 install -r requirements.txt
