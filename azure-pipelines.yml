@@ -22,7 +22,7 @@ steps:
 - script: |
     python -m pip install --upgrade pip
     pip install -r requirements.txt
-  displayName: 'Install & verify requirements'
+  displayName: 'Install requirements'
 
 # Temporarly turned of to safe time and test other things
 #- script: |
