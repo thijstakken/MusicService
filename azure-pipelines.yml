@@ -16,7 +16,7 @@ steps:
   displayName: 'Use Python 3.10.2'
 
 - script: |
-    Copy-Item 'example-database' 'database'
+    Xcopy /E /I example-database database
   displayName: 'Configure database'
 
 - script: |
