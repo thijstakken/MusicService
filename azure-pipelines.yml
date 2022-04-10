@@ -7,7 +7,7 @@ trigger:
 - main
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: windows-2019
 
 steps:
 - task: UsePythonVersion@0
@@ -16,7 +16,7 @@ steps:
   displayName: 'Use Python 3.10.2'
 
 - script: |
-    cp --recursive example-database database
+    Copy-Item 'example-database' 'database'
   displayName: 'Configure database'
 
 - script: |
@@ -27,8 +27,3 @@ steps:
 - script: |
     python downloader.py
   displayName: 'Validate MP3 download function'
-
-#- script: |
-#    pip install pytest pytest-azurepipelines
-#    pytest
-#  displayName: 'pytest'
