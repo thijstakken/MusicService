@@ -36,10 +36,10 @@ ydl_opts = {
     ],
     'logger': MyLogger(),
     'progress_hooks': [my_hook],
-    'outtmpl': '.\music\%(playlist)s\%(title)s.%(ext)s',
+    'outtmpl': './music/%(playlist)s/%(title)s.%(ext)s',
     'simulate': False,                                  #Droog oefenen indien True, niks downloaden, opties zijn True/False
     'cachedir': False,                                  #Zet caching uit om 403 Forbidden errors te voorkomen
-    'download_archive': '.\database\downloaded.txt',    #Vastleggen of een muziekje als gedownload is
+    'download_archive': './database/downloaded.txt',    #Vastleggen of een muziekje als gedownload is
     'nocheckcertificate': True,                         #Verifiërt niet of het SSL certificaat geldig is, dit voorkomt een onterechte foutmelding die ik een keer had
 }
 
