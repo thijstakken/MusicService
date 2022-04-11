@@ -7,16 +7,16 @@ trigger:
 - main
   
 pool:
-  vmImage: ubuntu-latest
+  vmImage: windows-2022
 
 steps:
 - task: UsePythonVersion@0
   inputs:
-    versionSpec: '3.8.10'
-  displayName: 'Use Python 3.8.10'
+    versionSpec: '3.9.12'
+  displayName: 'Use Python 3.9.12'
 
 - script: |
-    cp example-database database
+    Xcopy /E /I example-database database
   displayName: 'Configure database'
 
 - script: |
@@ -24,7 +24,7 @@ steps:
     pip install -r requirements.txt
   displayName: 'Install requirements'
 
-#Temporarly turned of to safe time and test other things
-- script: |
-    python downloader.py
-  displayName: 'Validate MP3 download function'
+# Temporarly turned of to safe time and test other things
+#- script: |
+#    python downloader.py
+#  displayName: 'Validate MP3 download function'
