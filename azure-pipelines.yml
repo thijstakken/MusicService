@@ -16,7 +16,7 @@ steps:
   displayName: 'Use Python 3.10.4'
 
 - script: |
-    cp example-database database
+    cp --recursive example-database database
   displayName: 'Configure database'
 
 - script: |
