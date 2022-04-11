@@ -1,3 +1,5 @@
 youtube_dl==2021.12.17
+ffmpeg==1.4
+ffprobe==0.5
 #ffmpeg-python==0.2.0
 #ffprobe-python==1.0.3
