@@ -25,4 +25,7 @@ https://www.codegrepper.com/code-examples/shell/install+ffprobe+ubuntu
 This is also possible: sudo apt install ffmpeg
 https://www.tecmint.com/install-ffmpeg-in-linux/
 
+Official maintained by Ubuntu developers:
+https://launchpad.net/ubuntu/+source/ffmpeg
+
 What's the difference?
