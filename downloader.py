@@ -1,11 +1,5 @@
 from __future__ import unicode_literals
 import youtube_dl
-#import ffmpeg
-#import ffprobe
-
-#import ffmpeg
-#from .ffprobe import FFProbe
-
 
 class MyLogger(object):
     def debug(self, msg):   #Debug printen
