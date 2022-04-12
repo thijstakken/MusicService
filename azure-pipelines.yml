@@ -16,15 +16,18 @@ steps:
   displayName: 'Use Python 3.10.4'
 
 - script: |
-    cp --recursive example-database database
-  displayName: 'Configure database'
+    sudo apt update
+    sudo apt install ffmpeg
 
 - script: |
     python -m pip install --upgrade pip
     pip install -r requirements.txt
-  displayName: 'Install requirements'
+  displayName: 'Install requirements'    
 
-#Temporarly turned of to safe time and test other things
+- script: |
+    cp --recursive example-database database
+  displayName: 'Configure database'
+
 - script: |
     python downloader.py
   displayName: 'Validate MP3 download function'
