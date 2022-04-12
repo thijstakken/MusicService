@@ -16,3 +16,6 @@ Made to run on Ubuntu with Python and FFmpeg
 4. Put your own Youtube playlists URL's in the /database/playlists.txt file
 
 5. Run the script and see your songs appear in the /music folder
+
+See the Docker release here at Docker Hub:
+https://hub.docker.com/repository/docker/tsivim/musicservice
