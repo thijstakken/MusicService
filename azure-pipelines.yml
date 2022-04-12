@@ -51,6 +51,7 @@ steps:
   displayName: Build and Push
   inputs:
     command: buildAndPush
+    dockerfile: dockerfile
     repository: tsivim/musicservice # username/contosoRepository for DockerHub
     tags: |
       latest
