@@ -18,11 +18,12 @@ steps:
 - script: |
     sudo apt update
     sudo apt install ffmpeg
+  displayName: 'Install Ubuntu packages'
 
 - script: |
     python -m pip install --upgrade pip
     pip install -r requirements.txt
-  displayName: 'Install requirements'    
+  displayName: 'Install pip requirements'    
 
 - script: |
     cp --recursive example-database database
@@ -31,3 +32,26 @@ steps:
 - script: |
     python downloader.py
   displayName: 'Validate MP3 download function'
+
+
+# Docker time
+- task: Docker@2
+  displayName: Login to ACR
+  inputs:
+    command: login
+    containerRegistry: musicregistry
+
+#- task: Docker@2
+#  displayName: Login to Docker Hub
+#  inputs:
+#    command: login
+#    containerRegistry: dockerRegistryServiceConnection2
+
+- task: Docker@2
+  displayName: Build and Push
+  inputs:
+    command: buildAndPush
+    repository: musicservice # username/contosoRepository for DockerHub
+    tags: |
+      latest
+#    arguments: --secret id=mysecret,src=mysecret.txt
