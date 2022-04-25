@@ -52,6 +52,6 @@ steps:
   inputs:
     command: buildAndPush
     dockerfile: dockerfile
-    repository: tsivim/musicservice # username/contosoRepository for DockerHub
+    repository: thijstakken/musicservice # username/contosoRepository for DockerHub
     tags: |
       latest
