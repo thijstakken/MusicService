@@ -1,3 +1,6 @@
+This program is still in development and not usable yet...
+Some functionality is missing and some bugs need to be fixed first.
+
 # MusicService
 Automatically download your YouTube playlists as MP3 with the highest quality possible using as few conversions as possible
 
