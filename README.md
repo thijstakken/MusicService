@@ -28,11 +28,11 @@ See the Docker release here at Docker Hub:
 https://hub.docker.com/r/thijstakken/musicservice
 
 To install, run this command at your CLI when Docker is installed:
-'''
+```
 docker run -d \
  --name musicservice \
  --restart=no \
  -v musicservice:/usr/app/src/ \
  --network=host \
 thijstakken/musicservice:latest
-'''
+```
