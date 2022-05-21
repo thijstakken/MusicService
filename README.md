@@ -27,5 +27,10 @@ or a Docker container
 See the Docker release here at Docker Hub:
 https://hub.docker.com/r/thijstakken/musicservice
 
-1. docker pull tsivim/musicservice
-2. docker run musicservice
+To install, run this command at your CLI when Docker is installed:
+docker run -d \
+ --name musicservice \
+ --restart=no \
+ -v musicservice:/usr/app/src/ \
+ --network=host \
+thijstakken/musicservice:latest
