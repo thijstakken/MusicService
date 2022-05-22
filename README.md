@@ -33,6 +33,7 @@ docker run -d \
  --name musicservice \
  --restart=no \
  -v musicservice:/usr/app/src/ \
+ -e REBOOT_TIMER=300 \
  --network=host \
 thijstakken/musicservice:latest
 ```
