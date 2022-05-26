@@ -1,24 +1,32 @@
-#Deriving the latest base image
+# using the latest Python image
 FROM python:latest
 
-# Any working directory can be chosen as per choice like '/' or '/home' etc
-# i have chosen /usr/app/src
+# any working directory can be chosen as per choice like '/' or '/home' etc
 WORKDIR /usr/app/src
 
-#to COPY the remote file at working directory in container
+# to COPY the remote file at working directory in container
 COPY example-database ./database
 COPY music ./music
-COPY downloader.py ./
+COPY main.py ./
 COPY requirements.txt ./
 
+# install Python module requirements
 RUN pip install -r requirements.txt
+
+# update the enviroment
 RUN apt-get update
+
+# install ffmpeg, this is needed for .m4a/.mp4 to mp3 conversion
 RUN apt-get install ffmpeg -y
 
-#CMD instruction should be used to run the software
-#contained by your image, along with any arguments.
+# run the program with Python
+CMD [ "python", "./main.py"]
 
-CMD [ "python", "./downloader.py"]
+# test to check if local env is present
+#ENTRYPOINT echo $REBOOT_TIMER
 
-#After the music has been downloaded the Python script will end
-#Therefore the container will stop
+# sleep for reboot_timer time
+#CMD [ "sleep", "REBOOT_TIMER"]
+
+# after the the script is done with downloading and uploading the music it exits
+# therefore the container will stop

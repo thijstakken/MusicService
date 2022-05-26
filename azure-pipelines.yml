@@ -29,9 +29,10 @@ steps:
     cp --recursive example-database database
   displayName: 'Configure database'
 
-- script: |
-    python downloader.py
-  displayName: 'Validate MP3 download function'
+# this has been disabled, automated testing got more complicated, this could be fixed later  
+#- script: |
+#    python main.py
+#  displayName: 'Validate MP3 download function'
 
 
 # Docker time
@@ -41,17 +42,19 @@ steps:
 #    command: login
 #    containerRegistry: musicregistry
 
+# Login to the DockerHub
 - task: Docker@2
   displayName: Login to Docker Hub
   inputs:
     command: login
     containerRegistry: DockerHubConnect
 
+# Build and push the new image to the DockerHub
 - task: Docker@2
   displayName: Build and Push
   inputs:
     command: buildAndPush
-    dockerfile: dockerfile
+    dockerfile: Dockerfile
     repository: thijstakken/musicservice # username/contosoRepository for DockerHub
     tags: |
       latest
