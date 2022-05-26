@@ -57,4 +57,3 @@ thijstakken/musicservice:latest
 
 6. Run the main.py script and see your songs appear in the /music folder
 
-
