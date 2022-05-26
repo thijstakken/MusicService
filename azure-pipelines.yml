@@ -54,7 +54,7 @@ steps:
   displayName: Build and Push
   inputs:
     command: buildAndPush
-    dockerfile: .pipeline/Dockerfile
+    #dockerfile: Dockerfile              # without specifying the location, the pipeline will search on itself
     repository: thijstakken/musicservice # username/contosoRepository for DockerHub
     tags: |
       latest
