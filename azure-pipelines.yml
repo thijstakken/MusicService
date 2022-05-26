@@ -54,7 +54,7 @@ steps:
   displayName: Build and Push
   inputs:
     command: buildAndPush
-    dockerfile: Dockerfile
+    dockerfile: ./Dockerfile
     repository: thijstakken/musicservice # username/contosoRepository for DockerHub
     tags: |
       latest
