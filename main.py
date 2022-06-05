@@ -102,7 +102,6 @@ def upload_music():
 
 
 if __name__ == '__main__':
-
     # get the OS enviroment variabels and save them to local variabels
     # these enviroment variabels get passed by the docker run command
     localDirectory = os.getenv('LOCAL_DIRECTORY')              #'music' always use music as local, this can't be changed at the moment, due to some hardcoding
@@ -110,13 +109,6 @@ if __name__ == '__main__':
     url = os.getenv('URL')                                     # Nextcloud URL
     username = os.getenv('NCUSERNAME')                         # Nextcloud username
     password = os.getenv('NCPASSWORD')                         # Nextcloud password
-
-    #print("SHOWING VARIABELS, for debugging:")
-    #print(localDirectory)
-    #print(remoteDirectory)
-    #print(url)
-    #print(username)
-    #print(password)
 
     print("Fetching playlist URL's...")
     lines = getPlaylistURLs()
@@ -130,6 +122,3 @@ if __name__ == '__main__':
 
     print('Uploading music into the cloud folders...')
     upload_music()
-
-
-# print "Here is your link to the file: " + link_info.get_link()
