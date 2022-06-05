@@ -39,7 +39,7 @@ ydl_opts = {
     'outtmpl': './music/%(playlist)s/%(title)s.%(ext)s',# save music to the /music folder. and it's corrosponding folder which will be named after the playlist name
     'simulate': False,                                  # to dry test the YT-DL, if set to True, it will skip the downloading. Can be True/False
     'cachedir': False,                                  # turn off caching, this should mitigate 403 errors which are commonly seen when downloading from Youtube
-    'download_archive': './downloaded.txt',    # this will update the .txt file which serves as a database for which files have already been downloaded
+    'download_archive': './database/downloaded.txt',    # this will update the .txt file which serves as a database for which files have already been downloaded
     'nocheckcertificate': True,                         # mitigates YT-DL bug where it wrongly examins the server certificate, so therefore, ignore invalid certificates for now, to mitigate this bug
 }
 
