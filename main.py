@@ -46,7 +46,7 @@ ydl_opts = {
 
 def getPlaylistURLs():
 # reads and saves playlist URL's in a list
-    with open('./playlists.txt') as file:
+    with open('./database/playlists.txt') as file:
         lines = [line.rstrip() for line in file]
     return(lines)
 
