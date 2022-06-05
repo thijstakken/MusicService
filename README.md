@@ -27,7 +27,7 @@ https://hub.docker.com/r/thijstakken/musicservice
 docker run -d \
  --name musicservice \
  --restart=no \
- -v musicservice:/usr/app/src/ \
+ -v musicdatabase:/usr/app/src/database/ \
  -e REBOOT_TIMER=300 \
  -e LOCAL_DIRECTORY=music \
  -e REMOTE_DIRECTORY= \
