@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 from re import L
-from pyparsing import line
 import youtube_dl
 import requests
 import os
