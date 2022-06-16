@@ -12,8 +12,8 @@ pool:
 steps:
 - task: UsePythonVersion@0
   inputs:
-    versionSpec: '3.10.4'
-  displayName: 'Use Python 3.10.4'
+    versionSpec: '3.10'
+  displayName: 'Use latest Python 3.10.x'
 
 - script: |
     sudo apt update
