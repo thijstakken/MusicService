@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 from re import L
 import youtube_dl
+import shutil
 import requests
 import os
 from pathlib import Path
@@ -99,11 +100,22 @@ def upload_music():
             print("and the url used:")
             print(r.url)
 
+def clear_local_music_folder():
+    # when uploading the files is done, the local music folder should be cleared to save space
+    # this clears the local music folder so MP3's do not pile up locally, there is no point in storing them anymore since they have been uploaded to cloud storage already
+    dir = './music/'
+    for files in os.listdir(dir):
+        path = os.path.join(dir, files)
+        try:
+            shutil.rmtree(path)
+        except OSError:
+            os.remove(path)
+
 
 if __name__ == '__main__':
     # get the OS enviroment variabels and save them to local variabels
     # these enviroment variabels get passed by the docker run command
-    localDirectory = os.getenv('LOCAL_DIRECTORY')              #'music' always use music as local, this can't be changed at the moment, due to some hardcoding
+    localDirectory = os.getenv('LOCAL_DIRECTORY')              # 'music' always use music as local, this can't be changed at the moment, due to some hardcoding
     remoteDirectory = os.getenv('REMOTE_DIRECTORY')            # Nextcloud folder where you want to save your music
     url = os.getenv('URL')                                     # Nextcloud URL
     username = os.getenv('NCUSERNAME')                         # Nextcloud username

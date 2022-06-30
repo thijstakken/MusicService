@@ -28,6 +28,7 @@ docker run -d \
  --name musicservice \
  --restart=no \
  -v musicdatabase:/usr/app/src/database/ \
+ -v musiccache:/usr/app/src/music/ \
  -e REBOOT_TIMER=300 \
  -e LOCAL_DIRECTORY=music \
  -e REMOTE_DIRECTORY= \
