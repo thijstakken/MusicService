@@ -133,3 +133,6 @@ if __name__ == '__main__':
 
     print('Uploading music into the cloud folders...')
     upload_music()
+
+    print("Clearing local MP3 files since they are no longer needed")
+    clear_local_music_folder()
