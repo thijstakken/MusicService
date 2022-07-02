@@ -60,44 +60,62 @@ def downloadPlaylists(ydl_opts, lines):
 # create directories in the cloud based on the local structure
 # first create the initial music folder
 def create_folders(localDirectory):
-    # create the "music" folder in cloud storage
-    fullurl = url + 'music'
-    r = requests.request('MKCOL', fullurl, auth=(username, password))
-    print(r.text)
-    print("and the url used:")
-    print(r.url)
-
-    # and for every subfolder (genre) create it inside of the music folder
+    
+    # for every (music) playlist create an directory at the users remote directory
     for localDirectory, dirs, files in os.walk(localDirectory):
         for subdir in dirs:
             #print('localdir ' + localDirectory)
             print(os.path.join(localDirectory, subdir))
             #print('subdir ' + subdir)
-        
-            fullurl = url + 'music' + '/' + subdir
+
+            fullurl = url + remoteDirectory + subdir
+
             r = requests.request('MKCOL', fullurl, auth=(username, password))
             print(r.text)
-            print("and the url used:")
+            print("And the url used:")
             print(r.url)
 
 
 # after the neccessary directories have been created we can start to put the music into the folders
 # iterate over files and upload them to the corrosponding folder in the cloud
-def upload_music():
+def upload_music(remoteDirectory):
+    
     for root, dirs, files in os.walk(localDirectory):
         for filename in files:
+            
+            # get full path to the file (example: 'music/example playlist/DEAF KEV - Invincible [NCS Release].mp3')
             path = os.path.join(root, filename)
+            
+            # get the folder name in which the file is located (example: 'example playlist')
+            subfoldername = os.path.basename(os.path.dirname(path))
+            
+            # if the subfoldername is music, is appears that it's a file at that directory
+            # in order to mitigate the file getting lost, because there does not exist an music folder in the cloud directory
+            # set is to an empty string so that the file will end up at the root of the remote_directory in de cloud
+            # this is a shitty mitigation, have to implement a better one, if somebodies playlist is called 'music', all files will go to the wrong place also...
+            if subfoldername == 'music':
+                subfoldername = ''
 
-            print(root)
-            fullurl = url + root + '/' + filename
+
+            #print("This is REMOTE_DIRECTORY")
+            #print(remoteDirectory)
+
+            #print("This is ROOT:")
+            #print(root)
+
+            # construct the full url so we can PUT the file there
+            fullurl = url + remoteDirectory + subfoldername + '/' + filename
+            
             #path = root+'/'+filename
-            print('to ' + fullurl + '\n' + path)
+            #print('to ' + fullurl + '\n' + path)
             #openBin = {'file':(filename,open(path,'rb').read())}
             #headers = {'Content-type': 'text/plain', 'Slug': filename}
+            
             headers = {'Slug': filename}
             r = requests.put(fullurl, data=open(path, 'rb'), headers=headers, auth=(username, password))
+            
             print(r.text)
-            print("and the url used:")
+            print("And the url used:")
             print(r.url)
 
 def clear_local_music_folder():
@@ -132,7 +150,7 @@ if __name__ == '__main__':
     create_folders(localDirectory)
 
     print('Uploading music into the cloud folders...')
-    upload_music()
+    upload_music(remoteDirectory)
 
     print("Clearing local MP3 files since they are no longer needed")
     clear_local_music_folder()

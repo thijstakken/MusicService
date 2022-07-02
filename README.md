@@ -31,7 +31,7 @@ docker run -d \
  -v musiccache:/usr/app/src/music/ \
  -e REBOOT_TIMER=300 \
  -e LOCAL_DIRECTORY=music \
- -e REMOTE_DIRECTORY= \
+ -e REMOTE_DIRECTORY=some/folder/ \
  -e URL=https://demo2.nextcloud.com/remote.php/dav/files/43LiaqqEGjD6b8xB/ \
  -e NCUSERNAME=43LiaqqEGjD6b8xB \
  -e NCPASSWORD=demo \
