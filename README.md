@@ -32,8 +32,8 @@ docker run -d \
  -e REBOOT_TIMER=300 \
  -e LOCAL_DIRECTORY=music \
  -e REMOTE_DIRECTORY= \
- -e URL=https://demo1.nextcloud.com/remote.php/dav/files/ \
- -e NCUSERNAME=Y89H7g978bpBoFLf \
+ -e URL=https://demo2.nextcloud.com/remote.php/dav/files/43LiaqqEGjD6b8xB/ \
+ -e NCUSERNAME=43LiaqqEGjD6b8xB \
  -e NCPASSWORD=demo \
  --network=host \
 thijstakken/musicservice:latest

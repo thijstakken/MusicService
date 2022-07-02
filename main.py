@@ -61,7 +61,7 @@ def downloadPlaylists(ydl_opts, lines):
 # first create the initial music folder
 def create_folders(localDirectory):
     # create the "music" folder in cloud storage
-    fullurl = url + username + '/' + 'music'
+    fullurl = url + 'music'
     r = requests.request('MKCOL', fullurl, auth=(username, password))
     print(r.text)
     print("and the url used:")
@@ -74,7 +74,7 @@ def create_folders(localDirectory):
             print(os.path.join(localDirectory, subdir))
             #print('subdir ' + subdir)
         
-            fullurl = url + username + '/' + 'music' + '/' + subdir
+            fullurl = url + 'music' + '/' + subdir
             r = requests.request('MKCOL', fullurl, auth=(username, password))
             print(r.text)
             print("and the url used:")
@@ -89,7 +89,7 @@ def upload_music():
             path = os.path.join(root, filename)
 
             print(root)
-            fullurl = url + username + '/' + root + '/' + filename
+            fullurl = url + root + '/' + filename
             #path = root+'/'+filename
             print('to ' + fullurl + '\n' + path)
             #openBin = {'file':(filename,open(path,'rb').read())}
@@ -136,3 +136,5 @@ if __name__ == '__main__':
 
     print("Clearing local MP3 files since they are no longer needed")
     clear_local_music_folder()
+
+    print("Finished running music service")
