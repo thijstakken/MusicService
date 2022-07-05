@@ -115,12 +115,6 @@ def upload_music(remoteDirectory):
 
             # construct the full url so we can PUT the file there
             fullurl = url + remoteDirectory + subfoldername + '/' + filename
-            
-            #path = root+'/'+filename
-            #print('to ' + fullurl + '\n' + path)
-            #openBin = {'file':(filename,open(path,'rb').read())}
-            #headers = {'Content-type': 'text/plain', 'Slug': filename}
-            
             headers = {'Slug': filename}
             
             # error handling, when an error occurs, it will print the error and stop the script from running
