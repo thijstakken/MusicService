@@ -58,26 +58,43 @@ def downloadPlaylists(ydl_opts, lines):
 # Nextcloud uses a webdav API, and therefore you must create the folder structure first
 # only after creating the folder, you can then put the music files into them
 # create directories in the cloud based on the local structure
-# first create the initial music folder
 def create_folders(localDirectory):
     
-    # for every (music) playlist create an directory at the users remote directory
+    # for every (music) playlist create a directory at the users remote directory
     for localDirectory, dirs, files in os.walk(localDirectory):
         for subdir in dirs:
-            #print('localdir ' + localDirectory)
             print(os.path.join(localDirectory, subdir))
-            #print('subdir ' + subdir)
-
             fullurl = url + remoteDirectory + subdir
 
-            r = requests.request('MKCOL', fullurl, auth=(username, password))
-            print(r.text)
-            print("And the url used:")
-            print(r.url)
+            # error handling, when an error occurs, it will print the error information and stop the script from running
+            try:
+                r = requests.request('MKCOL', fullurl, auth=(username, password))
+                print("")
+                print(r.text)
+                print("And the url used:")
+                print(r.url)
+                r.raise_for_status()
+            except requests.exceptions.HTTPError as erra:           # handle 4xx and 5xx HTTP errors
+                print("HTTP Error: ",erra)
+                status_code = erra.response.status_code
+                if not status_code == 405:                          # only allow 405, all other status codes wil go to SystemExit
+                    raise SystemExit(erra)  
+            except requests.exceptions.ConnectionError as errb:     # handle network problems, DNS, refused connections
+                print("Error Connecting: ",errb)
+                raise SystemExit(erra)
+            except requests.exceptions.Timeout as errc:             # handle requests that timed out
+                print("Timeout Error: ",errc)
+                raise SystemExit(erra)
+            except requests.exceptions.TooManyRedirects as eerd:    # handle too many redirects, when a webserver is wrongly configured
+                print("Too many redirects, the website redirected you too many times: ")
+                raise SystemExit(eerd)
+            except requests.exceptions.RequestException as erre:    # handle all other exceptions which are not handled exclicitly
+                print("Something went wrong: ",erre)
+                raise SystemExit(erre)
 
 
 # after the neccessary directories have been created we can start to put the music into the folders
-# iterate over files and upload them to the corrosponding folder in the cloud
+# iterate over files and upload them to the corrosponding directory in the cloud
 def upload_music(remoteDirectory):
     
     for root, dirs, files in os.walk(localDirectory):
@@ -96,13 +113,6 @@ def upload_music(remoteDirectory):
             if subfoldername == 'music':
                 subfoldername = ''
 
-
-            #print("This is REMOTE_DIRECTORY")
-            #print(remoteDirectory)
-
-            #print("This is ROOT:")
-            #print(root)
-
             # construct the full url so we can PUT the file there
             fullurl = url + remoteDirectory + subfoldername + '/' + filename
             
@@ -112,15 +122,35 @@ def upload_music(remoteDirectory):
             #headers = {'Content-type': 'text/plain', 'Slug': filename}
             
             headers = {'Slug': filename}
-            r = requests.put(fullurl, data=open(path, 'rb'), headers=headers, auth=(username, password))
             
-            print(r.text)
-            print("And the url used:")
-            print(r.url)
+            # error handling, when an error occurs, it will print the error and stop the script from running
+            try:
+                r = requests.put(fullurl, data=open(path, 'rb'), headers=headers, auth=(username, password))
+                print("")
+                print(r.text)
+                print("And the url used:")
+                print(r.url)
+                r.raise_for_status()
+            except requests.exceptions.HTTPError as erra:           # handle 4xx and 5xx HTTP errors
+                print("HTTP Error: ",erra)
+                raise SystemExit(erra)  
+            except requests.exceptions.ConnectionError as errb:     # handle network problems, DNS, refused connections
+                print("Error Connecting: ",errb)
+                raise SystemExit(erra)
+            except requests.exceptions.Timeout as errc:             # handle requests that timed out
+                print("Timeout Error: ",errc)
+                raise SystemExit(erra)
+            except requests.exceptions.TooManyRedirects as eerd:    # handle too many redirects, when a webserver is wrongly configured
+                print("Too many redirects, the website redirected you too many times: ")
+                raise SystemExit(eerd)
+            except requests.exceptions.RequestException as erre:    # handle all other exceptions which are not handled exclicitly
+                print("Something went wrong: ",erre)
+                raise SystemExit(erre)
 
+# when the script makes it this far, all went good, and local MP3's can now be deleted
+# when uploading the files is done, the local music folder should be cleared to save space
+# this clears the local music folder so MP3's do not pile up locally, there is no point in storing them anymore since they have been uploaded to cloud storage already
 def clear_local_music_folder():
-    # when uploading the files is done, the local music folder should be cleared to save space
-    # this clears the local music folder so MP3's do not pile up locally, there is no point in storing them anymore since they have been uploaded to cloud storage already
     dir = './music/'
     for files in os.listdir(dir):
         path = os.path.join(dir, files)
@@ -139,20 +169,28 @@ if __name__ == '__main__':
     username = os.getenv('NCUSERNAME')                         # Nextcloud username
     password = os.getenv('NCPASSWORD')                         # Nextcloud password
 
+    print("Music Service")
+
+    print("")
     print("Fetching playlist URL's...")
     lines = getPlaylistURLs()
     print(lines)
-
+    
+    print("")
     print("Downloading playlists...")
     downloadPlaylists(ydl_opts, lines)
 
+    print("")
     print('Creating cloud folder structure based on local directories...')
     create_folders(localDirectory)
 
+    print("")
     print('Uploading music into the cloud folders...')
     upload_music(remoteDirectory)
-
+    
+    print("")
     print("Clearing local MP3 files since they are no longer needed")
     clear_local_music_folder()
 
+    print("")
     print("Finished running music service")
