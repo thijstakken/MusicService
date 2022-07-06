@@ -42,6 +42,14 @@ steps:
 #    command: login
 #    containerRegistry: musicregistry
 
+# remove unneeded .gitkeep file from music directory
+
+- task: DeleteFiles@1
+  displayName: 'Remove unneeded .gitkeep file'
+  inputs:
+    contents: |
+      /example-music/.gitkeep
+
 # Login to the DockerHub
 - task: Docker@2
   displayName: Login to Docker Hub
