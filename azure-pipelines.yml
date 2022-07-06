@@ -14,20 +14,24 @@ steps:
   inputs:
     versionSpec: '3.10'
   displayName: 'Use latest Python 3.10.x'
+  
+  # needed for manual testing, will re-enable and re write tests later
+  #
+  #
+  # disabled for now
+#- script: |
+#    sudo apt update
+#    sudo apt install ffmpeg
+#  displayName: 'Install Ubuntu packages'
 
-- script: |
-    sudo apt update
-    sudo apt install ffmpeg
-  displayName: 'Install Ubuntu packages'
+#- script: |
+#    python -m pip install --upgrade pip
+#    pip install -r requirements.txt
+#  displayName: 'Install pip requirements'    
 
-- script: |
-    python -m pip install --upgrade pip
-    pip install -r requirements.txt
-  displayName: 'Install pip requirements'    
-
-- script: |
-    cp --recursive example-database database
-  displayName: 'Configure database'
+#- script: |
+#    cp --recursive example-database database
+#  displayName: 'Configure database'
 
 # this has been disabled, automated testing got more complicated, this could be fixed later  
 #- script: |
@@ -43,7 +47,6 @@ steps:
 #    containerRegistry: musicregistry
 
 # remove unneeded .gitkeep file from music directory
-
 - task: DeleteFiles@1
   displayName: 'Remove unneeded .gitkeep file'
   inputs:
