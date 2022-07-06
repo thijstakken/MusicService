@@ -18,18 +18,18 @@ class MyLogger(object):
     def error(self, msg):   # always print errors
         print(msg)
 
-
+# shows progress of the downloads
 def my_hook(d):
     if d['status'] == 'finished':
         print('Done downloading, now converting ...')
 
-
+# Configure YouTube DL options
 ydl_opts = {
     'writethumbnail': True,
     'format': 'bestaudio[asr<=44100]/best[asr<=44100]',         # using asr 44100 as max, this mitigates exotic compatibility issues with certain mediaplayers
-    'postprocessors': [{
-        'key': 'FFmpegExtractAudio',
-        'preferredcodec': 'mp3',
+    'postprocessors': [{    
+        'key': 'FFmpegExtractAudio',                            # use FFMPEG and only save audio
+        'preferredcodec': 'mp3',                                # convert to MP3 format
         #'preferredquality': '192',                             # with not specifying a preffered quality, the original bitrate will be used, therefore skipping one unnecessary conversion and keeping more quality
         },
     {'key': 'EmbedThumbnail',},                                 # embed the Youtube thumbnail with the MP3 as coverart.
@@ -43,58 +43,66 @@ ydl_opts = {
     'nocheckcertificate': True,                                 # mitigates YT-DL bug where it wrongly examins the server certificate, so therefore, ignore invalid certificates for now, to mitigate this bug
 }
 
-
-def getPlaylistURLs():
 # reads and saves playlist URL's in a list
+def getPlaylistURLs():
     with open('./database/playlists.txt') as file:
         lines = [line.rstrip() for line in file]
     return(lines)
 
+# downloads the playlists with the specified options in ydl_opts
 def downloadPlaylists(ydl_opts, lines):
-# downloads the playlists one by one
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
                 ydl.download(lines)
 
-# Nextcloud uses a webdav API, and therefore you must create the folder structure first
-# only after creating the folder, you can then put the music files into them
-# create directories in the cloud based on the local structure
+# creates directories in the cloud based on the local directory structure
 def create_folders(localDirectory):
     
-    # for every (music) playlist create a directory at the users remote directory
+    # for every local directory create a directory at the users remote cloud directory
     for localDirectory, dirs, files in os.walk(localDirectory):
         for subdir in dirs:
+            
+            # construct URl to make calls to
             print(os.path.join(localDirectory, subdir))
             fullurl = url + remoteDirectory + subdir
 
-            # error handling, when an error occurs, it will print the error information and stop the script from running
-            try:
-                r = requests.request('MKCOL', fullurl, auth=(username, password))
-                print("")
-                print(r.text)
-                print("And the url used:")
-                print(r.url)
-                r.raise_for_status()
-            except requests.exceptions.HTTPError as erra:           # handle 4xx and 5xx HTTP errors
-                print("HTTP Error: ",erra)
-                status_code = erra.response.status_code
-                if not status_code == 405:                          # only allow 405, all other status codes wil go to SystemExit
+            # first check if the folder already exists
+            existCheck = requests.get(fullurl, auth=(username, password))
+
+            # if the folder does not yet exist (everything except 200 code) then create that directory
+            if not existCheck.status_code == 200:
+                
+            # create directory and do error handling, when an error occurs, it will print the error information and stop the script from running
+                try:
+                    r = requests.request('MKCOL', fullurl, auth=(username, password))
+                    print("")
+                    print(r.text)
+                    print("Created directory: ")
+                    print(r.url)
+                    r.raise_for_status()
+                except requests.exceptions.HTTPError as erra:           # handle 4xx and 5xx HTTP errors
+                    print("HTTP Error: ",erra)
                     raise SystemExit(erra)  
-            except requests.exceptions.ConnectionError as errb:     # handle network problems, DNS, refused connections
-                print("Error Connecting: ",errb)
-                raise SystemExit(erra)
-            except requests.exceptions.Timeout as errc:             # handle requests that timed out
-                print("Timeout Error: ",errc)
-                raise SystemExit(erra)
-            except requests.exceptions.TooManyRedirects as eerd:    # handle too many redirects, when a webserver is wrongly configured
-                print("Too many redirects, the website redirected you too many times: ")
-                raise SystemExit(eerd)
-            except requests.exceptions.RequestException as erre:    # handle all other exceptions which are not handled exclicitly
-                print("Something went wrong: ",erre)
-                raise SystemExit(erre)
+                except requests.exceptions.ConnectionError as errb:     # handle network problems, DNS, refused connections
+                    print("Error Connecting: ",errb)
+                    raise SystemExit(erra)
+                except requests.exceptions.Timeout as errc:             # handle requests that timed out
+                    print("Timeout Error: ",errc)
+                    raise SystemExit(erra)
+                except requests.exceptions.TooManyRedirects as eerd:    # handle too many redirects, when a webserver is wrongly configured
+                    print("Too many redirects, the website redirected you too many times: ")
+                    raise SystemExit(eerd)
+                except requests.exceptions.RequestException as erre:    # handle all other exceptions which are not handled exclicitly
+                    print("Something went wrong: ",erre)
+                    raise SystemExit(erre)
+            
+            # if directory exists print message that is exists and it will skip it
+            else:
+                print("Directory already exists, skipping: " + fullurl)
+
 
 
 # after the neccessary directories have been created we can start to put the music into the folders
-# iterate over files and upload them to the corrosponding directory in the cloud
+# iterates over files and uploads them to the corrosponding directory in the cloud
 def upload_music(remoteDirectory):
     
     for root, dirs, files in os.walk(localDirectory):
@@ -106,6 +114,11 @@ def upload_music(remoteDirectory):
             # get the folder name in which the file is located (example: 'example playlist')
             subfoldername = os.path.basename(os.path.dirname(path))
             
+            # HAVE TO FIX
+            #
+            #
+            #
+            #
             # if the subfoldername is music, is appears that it's a file at that directory
             # in order to mitigate the file getting lost, because there does not exist an music folder in the cloud directory
             # set is to an empty string so that the file will end up at the root of the remote_directory in de cloud
@@ -116,36 +129,40 @@ def upload_music(remoteDirectory):
             # construct the full url so we can PUT the file there
             fullurl = url + remoteDirectory + subfoldername + '/' + filename
             
-            #path = root+'/'+filename
-            #print('to ' + fullurl + '\n' + path)
-            #openBin = {'file':(filename,open(path,'rb').read())}
-            #headers = {'Content-type': 'text/plain', 'Slug': filename}
+            # first check if the folder already exists
+            existCheck = requests.get(fullurl, auth=(username, password))
             
             headers = {'Slug': filename}
             
+            # if the file does not yet exist (everything except 200 code) then create that file
+            if not existCheck.status_code == 200:
             # error handling, when an error occurs, it will print the error and stop the script from running
-            try:
-                r = requests.put(fullurl, data=open(path, 'rb'), headers=headers, auth=(username, password))
-                print("")
-                print(r.text)
-                print("And the url used:")
-                print(r.url)
-                r.raise_for_status()
-            except requests.exceptions.HTTPError as erra:           # handle 4xx and 5xx HTTP errors
-                print("HTTP Error: ",erra)
-                raise SystemExit(erra)  
-            except requests.exceptions.ConnectionError as errb:     # handle network problems, DNS, refused connections
-                print("Error Connecting: ",errb)
-                raise SystemExit(erra)
-            except requests.exceptions.Timeout as errc:             # handle requests that timed out
-                print("Timeout Error: ",errc)
-                raise SystemExit(erra)
-            except requests.exceptions.TooManyRedirects as eerd:    # handle too many redirects, when a webserver is wrongly configured
-                print("Too many redirects, the website redirected you too many times: ")
-                raise SystemExit(eerd)
-            except requests.exceptions.RequestException as erre:    # handle all other exceptions which are not handled exclicitly
-                print("Something went wrong: ",erre)
-                raise SystemExit(erre)
+                try:
+                    r = requests.put(fullurl, data=open(path, 'rb'), headers=headers, auth=(username, password))
+                    print("")
+                    print(r.text)
+                    print("Uploading file: ")
+                    print(r.url)
+                    r.raise_for_status()
+                except requests.exceptions.HTTPError as erra:           # handle 4xx and 5xx HTTP errors
+                    print("HTTP Error: ",erra)
+                    raise SystemExit(erra)  
+                except requests.exceptions.ConnectionError as errb:     # handle network problems, DNS, refused connections
+                    print("Error Connecting: ",errb)
+                    raise SystemExit(erra)
+                except requests.exceptions.Timeout as errc:             # handle requests that timed out
+                    print("Timeout Error: ",errc)
+                    raise SystemExit(erra)
+                except requests.exceptions.TooManyRedirects as eerd:    # handle too many redirects, when a webserver is wrongly configured
+                    print("Too many redirects, the website redirected you too many times: ")
+                    raise SystemExit(eerd)
+                except requests.exceptions.RequestException as erre:    # handle all other exceptions which are not handled exclicitly
+                    print("Something went wrong: ",erre)
+                    raise SystemExit(erre)
+            
+            # if file exists print message that is exists and it will skip it
+            else:
+                print("File already exists, skipping: " + fullurl)
 
 # when the script makes it this far, all went good, and local MP3's can now be deleted
 # when uploading the files is done, the local music folder should be cleared to save space
