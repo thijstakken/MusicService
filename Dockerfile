@@ -6,7 +6,7 @@ WORKDIR /usr/app/src
 
 # to COPY the remote file at working directory in container
 COPY example-database ./database
-COPY music ./music
+COPY example-music ./music
 COPY main.py ./
 COPY requirements.txt ./
 
