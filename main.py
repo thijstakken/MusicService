@@ -4,6 +4,8 @@ import youtube_dl
 import shutil
 import requests
 import os
+import time
+import sys
 from pathlib import Path
 
 class MyLogger(object):
@@ -173,35 +175,52 @@ def clear_local_music_folder():
 
 if __name__ == '__main__':
     # get the OS enviroment variabels and save them to local variabels
-    # these enviroment variabels get passed by the docker run command
+    # these enviroment variabels get passed by the docker run command and default variables are passed through the Dockerfile
     localDirectory = os.getenv('LOCAL_DIRECTORY')              # 'music' always use music as local, this can't be changed at the moment, due to some hardcoding
     remoteDirectory = os.getenv('REMOTE_DIRECTORY')            # Nextcloud folder where you want to save your music
     url = os.getenv('URL')                                     # Nextcloud URL
     username = os.getenv('NCUSERNAME')                         # Nextcloud username
     password = os.getenv('NCPASSWORD')                         # Nextcloud password
-
+    interval = int(os.getenv('INTERVAL'))*60                   # How often the the program should check for updated playlists, times 60 to put it into seconds
+    
+    # welcome
     print("Started Music Service")
 
-    print("")
-    print("Fetching playlist URL's...")
-    lines = getPlaylistURLs()
-    print(lines)
-    
-    print("")
-    print("Downloading playlists...")
-    downloadPlaylists(ydl_opts, lines)
+    # print Python version for informational purposes
+    print("Python version: "+ sys.version)
 
-    print("")
-    print('Creating cloud folder structure based on local directories...')
-    create_folders(localDirectory)
+    # endless loop which will repeat every x minutes determined by the interval variable
+    while True:
+        print("")
+        print("Fetching playlist URL's...")
+        lines = getPlaylistURLs()
+        print(lines)
+        
+        print("")
+        print("Downloading playlists...")
+        downloadPlaylists(ydl_opts, lines)
 
-    print("")
-    print('Uploading music into the cloud folders...')
-    upload_music(remoteDirectory)
-    
-    print("")
-    print("Clearing local MP3 files since they are no longer needed...")
-    clear_local_music_folder()
+        print("")
+        print('Creating cloud folder structure based on local directories...')
+        create_folders(localDirectory)
 
-    print("")
-    print("Finished running Music Service")
+        print("")
+        print('Uploading music into the cloud folders...')
+        upload_music(remoteDirectory)
+        
+        print("")
+        print("Clearing local MP3 files since they are no longer needed...")
+        clear_local_music_folder()
+        
+        # script will run again every x minutes based on user input (INTERVAL variable)
+        # default is set to 5 minutes, users can put in whatever they like to overrule the defaulft value
+        # if a user only wants to run the scripts one time (development purposes or whatnot) the number 0 can be used to do that
+        print("")
+        if not interval == 0:
+            print("Music Service ran successfully")
+            print("Run again after " + str(int(interval/60)) + " minute(s)")
+            time.sleep(interval)
+        else:
+            print("Music Service ran one time successfully")
+            print("Finished running Music Service")
+            sys.exit()

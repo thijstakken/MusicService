@@ -19,5 +19,13 @@ RUN apt-get update
 # install ffmpeg, this is needed for .m4a/.mp4 to mp3 conversion
 RUN apt-get install ffmpeg -y
 
+# configure default environment variabels
+# Python buffers it log output, this created a delayed output on the console
+# to mitigate slow log ouput of the application, disable the buffer with:
+ENV PYTHONUNBUFFERED=1
+# by default the script will use 5, which means that the script will rerun every 5 minutes
+# users can overrule the default by simply providing their own INTERVAL variable
+ENV INTERVAL=5
+
 # run the Music Service with Python
 CMD [ "python", "./main.py"]
