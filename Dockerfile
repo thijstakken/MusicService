@@ -19,14 +19,5 @@ RUN apt-get update
 # install ffmpeg, this is needed for .m4a/.mp4 to mp3 conversion
 RUN apt-get install ffmpeg -y
 
-# run the program with Python
+# run the Music Service with Python
 CMD [ "python", "./main.py"]
-
-# test to check if local env is present
-#ENTRYPOINT echo $REBOOT_TIMER
-
-# sleep for reboot_timer time
-#CMD [ "sleep", "REBOOT_TIMER"]
-
-# after the the script is done with downloading and uploading the music it exits
-# therefore the container will stop
