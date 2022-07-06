@@ -111,20 +111,11 @@ def upload_music(remoteDirectory):
             # get full path to the file (example: 'music/example playlist/DEAF KEV - Invincible [NCS Release].mp3')
             path = os.path.join(root, filename)
             
+            # removes the first 6 characters "music/" from the path, beacause that piece of the path is not needed and should be ignored
+            reduced_path = path[6:]
+
             # get the folder name in which the file is located (example: 'example playlist')
-            subfoldername = os.path.basename(os.path.dirname(path))
-            
-            # HAVE TO FIX
-            #
-            #
-            #
-            #
-            # if the subfoldername is music, is appears that it's a file at that directory
-            # in order to mitigate the file getting lost, because there does not exist an music folder in the cloud directory
-            # set is to an empty string so that the file will end up at the root of the remote_directory in de cloud
-            # this is a shitty mitigation, have to implement a better one, if somebodies playlist is called 'music', all files will go to the wrong place also...
-            if subfoldername == 'music':
-                subfoldername = ''
+            subfoldername = os.path.basename(os.path.dirname(reduced_path))
 
             # construct the full url so we can PUT the file there
             fullurl = url + remoteDirectory + subfoldername + '/' + filename
@@ -132,6 +123,7 @@ def upload_music(remoteDirectory):
             # first check if the folder already exists
             existCheck = requests.get(fullurl, auth=(username, password))
             
+            # configure header
             headers = {'Slug': filename}
             
             # if the file does not yet exist (everything except 200 code) then create that file
