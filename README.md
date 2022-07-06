@@ -35,12 +35,14 @@ docker run -d \
  -e URL=https://demo2.nextcloud.com/remote.php/dav/files/43LiaqqEGjD6b8xB/ \
  -e NCUSERNAME=43LiaqqEGjD6b8xB \
  -e NCPASSWORD=demo \
+ -e INTERVAL=8 \
  --network=host \
 thijstakken/musicservice:latest
 ```
 3. That's all! After the container stops, you should now see that you have an MP3 in your Nextcloud account in a folder called "music" at the root of your account.
 4. You can update which playlists to download here: ./database/playlists.txt. The recommended way is to update that file when the container is turned off. Go to your Docker volumes location and find the file there.
 
+(the INTERVAL variable is optional, by default it's set to 5 if you dont specify anthting. if you want to run the script more often or slower, you can just punt in a number. It's in minutes, so 10 will be 10 minutes. If you only want to run the script one time. You can set the number to 0 and then the script will not run on shedule and just stop after one run)
 
 ## OLD manual installation for Linux/Ubuntu, (not recommended)
 
