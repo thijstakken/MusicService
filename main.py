@@ -99,7 +99,7 @@ def create_folders(localDirectory):
             else:
                 print("Directory already exists, skipping: " + fullurl)
 
-
+    print("Finished creating directories")
 
 # after the neccessary directories have been created we can start to put the music into the folders
 # iterates over files and uploads them to the corrosponding directory in the cloud
@@ -155,6 +155,8 @@ def upload_music(remoteDirectory):
             # if file exists print message that is exists and it will skip it
             else:
                 print("File already exists, skipping: " + fullurl)
+    
+    print("Finished uploading music files")
 
 # when the script makes it this far, all went good, and local MP3's can now be deleted
 # when uploading the files is done, the local music folder should be cleared to save space
@@ -167,7 +169,7 @@ def clear_local_music_folder():
             shutil.rmtree(path)
         except OSError:
             os.remove(path)
-
+    print("Finished clearing local music directory")
 
 if __name__ == '__main__':
     # get the OS enviroment variabels and save them to local variabels
@@ -178,7 +180,7 @@ if __name__ == '__main__':
     username = os.getenv('NCUSERNAME')                         # Nextcloud username
     password = os.getenv('NCPASSWORD')                         # Nextcloud password
 
-    print("Music Service")
+    print("Started Music Service")
 
     print("")
     print("Fetching playlist URL's...")
@@ -198,8 +200,8 @@ if __name__ == '__main__':
     upload_music(remoteDirectory)
     
     print("")
-    print("Clearing local MP3 files since they are no longer needed")
+    print("Clearing local MP3 files since they are no longer needed...")
     clear_local_music_folder()
 
     print("")
-    print("Finished running music service")
+    print("Finished running Music Service")
