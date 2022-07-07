@@ -176,7 +176,7 @@ def clear_local_music_folder():
 if __name__ == '__main__':
     # get the OS enviroment variabels and save them to local variabels
     # these enviroment variabels get passed by the docker run command and default variables are passed through the Dockerfile
-    localDirectory = os.getenv('LOCAL_DIRECTORY')              # 'music' always use music as local, this can't be changed at the moment, due to some hardcoding
+    localDirectory = 'music'                                   # 'music' always use music as local, this can't be changed at the moment, due to some hardcoding
     remoteDirectory = os.getenv('REMOTE_DIRECTORY')            # Nextcloud folder where you want to save your music
     url = os.getenv('URL')                                     # Nextcloud URL
     username = os.getenv('NCUSERNAME')                         # Nextcloud username
