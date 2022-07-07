@@ -37,7 +37,7 @@ Feel free to contribute, you can [submit issues here](https://github.com/thijsta
 
 ### Developer instructions 👩🏻‍💻👨🏻‍💻
 System requirements: Have [Docker (Desktop or Engine)](https://www.docker.com/) installed on your system <br/>
-Familiar with: [Python](https://www.python.org/), [Docker](https://www.docker.com/), [youtube-dl](https://youtube-dl.org/) and [WebDAV](http://www.webdav.org/)
+Techniques: [Python](https://www.python.org/), [Docker](https://www.docker.com/), [youtube-dl](https://youtube-dl.org/) and [WebDAV](http://www.webdav.org/)
 
 1. 🤠 Git clone the project with `git clone https://github.com/thijstakken/MusicService.git`
 2. 🐛 [Pick a issue from the list or create a new issue and use that one](https://github.com/thijstakken/MusicService/issues)
