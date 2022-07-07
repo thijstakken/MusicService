@@ -1,21 +1,10 @@
-This program is currently in its experimental phase
-All functionality is present and could be used
-Now it comes down to see if there are any bugs, testing, testing, testing...
+# Music sync Service
 
-Use at your own risk, never trust the code of a random dude on the internet without first checking it yourself :)
+An container application that automatically downloads your YouTube music to your Nextcloud!
 
-Feel free to submit issues, and pull requests!
-
-# MusicService
-This container will download your Youtube Playlists and upload the MP3's to your Nextcloud cloud storage!
+This application will monitor your playlists, and when you added a new song, it will detect it, download it and upload it to your Nextcloud account!
 
 It downloads your YouTube playlists as MP3 with the highest quality possible using as few conversions as possible. It will then upload those files to your Nextcloud account.
-
-
-## Testing recommendation
-To test this container, it's recommended to test it with a free Nextcloud trial account. Go to: https://try.nextcloud.com/ and use the instant trial. You will recieve an account which will be valid for 60 minutes. When the account is created, copy the username into the NCUSERNAME variable and start the container.
-This way we can safely experiment with the container program. It supposed to only upload files, so the risk of files getting deleted is very low, but just in case this is the recommended way.
-
 
 ## Installation for Docker (recommended)
 See the Docker release here at Docker Hub:
@@ -42,19 +31,21 @@ thijstakken/musicservice:latest
 
 (the INTERVAL variable is optional, by default it's set to 5 if you dont specify anthting. if you want to run the script more often or slower, you can just punt in a number. It's in minutes, so 10 will be 10 minutes. If you only want to run the script one time. You can set the number to 0 and then the script will not run on shedule and just stop after one run)
 
-## OLD manual installation for Linux/Ubuntu, (not recommended)
 
-1. Install ffmpeg package with: 
-- sudo apt update
-- sudo apt install ffmpeg
+## Testing recommendation
 
-2. Install the requirements with: pip3 install -r requirements.txt
 
-3. Copy the "example-database" folder and name it "database"
+## Join the team 👪
+Feel free to submit issues, and pull requests!
 
-4. Put your own Youtube playlists URL's in the /database/playlists.txt file
+### Developer instructions
+It's a simple Python program running inside an container.
 
-5. Cpoy the .env into your local enviroment and change the variabels to your liking
+To do development and testing, it's recommended to test it with a free Nextcloud trial account. Go to: https://try.nextcloud.com/ and use the instant trial. You will recieve an account which will be valid for 60 minutes. When the account is created, copy the username into the NCUSERNAME variable and start the container.
+This way we can safely experiment with the container program. It supposed to only upload files, so the risk of files getting deleted is very low, but just in case this is the recommended way.
 
-6. Run the main.py script and see your songs appear in the /music folder
+Build from source
+
+
+Use at your own risk, never trust the code of a random dude on the internet without first checking it yourself :)
 
