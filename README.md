@@ -44,7 +44,8 @@ Techniques: [Python](https://www.python.org/), [Docker](https://www.docker.com/)
 3. 🐍 Start editing the code (Python)
 4. 🏗 To build your new image, open a command line in the project folder and run `docker build -t musicservice:dev .`
 5. 🧪 For testing, there is a good tool to use. [Nextcloud has a website](https://try.nextcloud.com/) where it will create a Nextcloud test environment. Select the "Instant trial" and you get a fresh environment for 60 minutes to play around. This way we can safely experiment with new code and functions. Copy the username into NCUSERNAME and the password is always: demo <br/>
-Use this base developer Docker command, and change it to your liking:
+
+You can use this base developer Docker command, and change it to your needs to get started:
 ```
 docker run \
  --name musicservice \
