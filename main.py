@@ -177,11 +177,11 @@ if __name__ == '__main__':
     # get the OS enviroment variabels and save them to local variabels
     # these enviroment variabels get passed by the docker run command and default variables are passed through the Dockerfile
     localDirectory = 'music'                                   # 'music' always use music as local, this can't be changed at the moment, due to some hardcoding
-    remoteDirectory = os.getenv('REMOTE_DIRECTORY')            # Nextcloud folder where you want to save your music
-    url = os.getenv('URL')                                     # Nextcloud URL
-    username = os.getenv('NCUSERNAME')                         # Nextcloud username
-    password = os.getenv('NCPASSWORD')                         # Nextcloud password
-    interval = int(os.getenv('INTERVAL'))*60                   # How often the the program should check for updated playlists, times 60 to put it into seconds
+    url = os.getenv('URL')                                     # WebDAV URL
+    remoteDirectory = os.getenv('REMOTE_DIRECTORY')            # WebDAV directory where you want to save your music
+    username = os.getenv('USERNAME')                           # WebDAV username
+    password = os.getenv('PASSWORD')                           # WebDAV password
+    interval = int(os.getenv('INTERVAL'))*60                   # How often the the program should check for updated playlists, (did it times 60 to put it into seconds, so users can put it in minutes)
     
     # welcome
     print("Started Music Service")
