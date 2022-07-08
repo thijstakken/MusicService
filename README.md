@@ -19,7 +19,7 @@ docker run -d \
  -v musicdatabase:/usr/app/src/database/ \
  -v musiccache:/usr/app/src/music/ \
  -e URL=https://demo2.nextcloud.com/remote.php/dav/files/43LiaqqEGjD6b8xB/ \
- -e REMOTE_DIRECTORY=some/folder/ \
+ -e DIRECTORY=some/folder/ \
  -e USERNAME=43LiaqqEGjD6b8xB \
  -e PASSWORD=demo \
  -e INTERVAL=8 \
@@ -53,7 +53,7 @@ docker run \
  -v musicdatabase:/usr/app/src/database/ \
  -v musiccache:/usr/app/src/music/ \
  -e URL=https://demo1.nextcloud.com/remote.php/dav/files/wpS97kPjnDJo6gGQ/ \
- -e REMOTE_DIRECTORY= \
+ -e DIRECTORY= \
  -e USERNAME=wpS97kPjnDJo6gGQ \
  -e PASSWORD=demo \
  -e INTERVAL=0 \
