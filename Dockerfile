@@ -5,7 +5,7 @@ FROM python:latest
 WORKDIR /
 
 # to COPY the remote file at working directory in container
-COPY example-database ./database
+COPY example-config ./config
 COPY example-music ./music
 COPY main.py ./
 COPY requirements.txt ./

@@ -41,13 +41,13 @@ ydl_opts = {
     'outtmpl': './music/%(playlist)s/%(title)s-%(id)s.%(ext)s', # save music to the /music folder. and it's corrosponding folder which will be named after the playlist name
     'simulate': False,                                          # to dry test the YT-DL, if set to True, it will skip the downloading. Can be True/False
     'cachedir': False,                                          # turn off caching, this should mitigate 403 errors which are commonly seen when downloading from Youtube
-    'download_archive': './database/downloaded',            # this will update the downloads file which serves as a database/archive for which songs have already been downloaded, so it don't downloads them again
+    'download_archive': './config/downloaded',                  # this will update the downloads file which serves as a database/archive for which songs have already been downloaded, so it don't downloads them again
     'nocheckcertificate': True,                                 # mitigates YT-DL bug where it wrongly examins the server certificate, so therefore, ignore invalid certificates for now, to mitigate this bug
 }
 
 # reads and saves playlist URL's in a list
 def getPlaylistURLs():
-    with open('./database/playlists') as file:
+    with open('./config/playlists') as file:
         lines = [line.rstrip() for line in file]
     return(lines)
 

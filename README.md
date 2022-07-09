@@ -49,7 +49,7 @@ ment to run on a server 24/7, it monitors your playlists, takes care of the down
 docker run -d \
  --name musicservice \
  --restart=no \
- -v musicdatabase:/database \
+ -v config:/config \
  -v musiccache:/music \
  -e URL=https://demo2.nextcloud.com/remote.php/dav/files/kA2kSpbk2tMwCPpB/ \
  -e DIRECTORY=some/01%20my%20music/ \
@@ -166,7 +166,7 @@ You can use this base developer Docker command, and change it to your needs to g
 docker run \
  --name musicservice \
  --restart=no \
- -v musicdatabase:/database \
+ -v config:/config \ \
  -v musiccache:/music \
  -e URL=https://demo1.nextcloud.com/remote.php/dav/files/wpS97kPjnDJo6gGQ/ \
  -e DIRECTORY= \
