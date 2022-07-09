@@ -65,7 +65,7 @@ thijstakken/musicservice:latest
     4. Copy the whole WebDAV URL you see there
     5. And place it after the "URL="
 
-![WebDAV URL](images\WebDAVURL.png)
+![WebDAV URL](images/WebDAVURL.png)
 
 3. Configure DIRECTORY (required) (⚠ WORK IN PROGRESS): <br/>
 You can leave it empty, then it will go to the root off your cloud storage.
@@ -80,7 +80,7 @@ so you leave out the first "/" (maybe a bit confusing)
 
 and you have to manually add an "/" at the end and then it's done. (not very nice)
 
-![Find directory location](images\DirectoryLocation.png)
+![Find directory location](images/DirectoryLocation.png)
 
 
 4. Configure USERNAME (required): <br/>
@@ -103,17 +103,17 @@ and you have to manually add an "/" at the end and then it's done. (not very nic
     2. Click on `Settings`
     3. In the left bar, go to "Security" 
     
-    ![Security navigation](images\securityNavigation.png)
+    ![Security navigation](images/securityNavigation.png)
     
     4. Scroll down to the bottom where you will find `Devices & sessions`
 
-    ![Generate app password](images\generateAppPassword.png)
+    ![Generate app password](images/generateAppPassword.png)
 
     5. Fill in an app name like `musicservice`
     6. Click `Create new app password`
     7. Copy the code that appears (53Xqg-...) into the PASSWORD variable
 
-![Copy this app password](images\CredentialGenerated.png)
+![Copy this app password](images/CredentialGenerated.png)
 
 9. Configure Interval (optional): <br/>
 The INTERVAL variable is optional, by default it's set to 5 if you dont specify anthting. if you want to run the script more often or less often, you can just punt in a number. It's in minutes, so a `10` will represent 10 minutes. The program will then run with intervals of 10 minutes. If you only want to run the script one time. You can set the number to 0 and then the script will not run on shedule and just stop after one run.
