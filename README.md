@@ -49,8 +49,8 @@ ment to run on a server 24/7, it monitors your playlists, takes care of the down
 docker run -d \
  --name musicservice \
  --restart=no \
- -v musicdatabase:/usr/app/src/database/ \
- -v musiccache:/usr/app/src/music/ \
+ -v musicdatabase:/database \
+ -v musiccache:/music \
  -e URL=https://demo2.nextcloud.com/remote.php/dav/files/kA2kSpbk2tMwCPpB/ \
  -e DIRECTORY=some/01%20my%20music/ \
  -e USERNAME=kA2kSpbk2tMwCPpB \
@@ -166,8 +166,8 @@ You can use this base developer Docker command, and change it to your needs to g
 docker run \
  --name musicservice \
  --restart=no \
- -v musicdatabase:/usr/app/src/database/ \
- -v musiccache:/usr/app/src/music/ \
+ -v musicdatabase:/database \
+ -v musiccache:/music \
  -e URL=https://demo1.nextcloud.com/remote.php/dav/files/wpS97kPjnDJo6gGQ/ \
  -e DIRECTORY= \
  -e USERNAME=wpS97kPjnDJo6gGQ \
@@ -179,5 +179,9 @@ musicservice:dev
 6. 🎉 Create a branch and make your changes. When committing changes please use [Gitmoji](https://gitmoji.dev/) and [close the corresponding issue with "fixed"](https://github.com/gitbucket/gitbucket/wiki/How-to-Close-Reference-issues-and-pull-request) and the number of the issue `git commit -m ":bug: fixed #21 Your commit message"`
 7. ⬆ Create a [pull request](https://github.com/thijstakken/MusicService/pulls)
 8. 🚀 Wait for it to be reviewed and merged!
+
+(cleaning up, or starting over with testing)
+delete container with: ...
+delete volumes with: docker volume rm my-vol
 
 Use at your own risk, never trust the code of a random dude on the internet without first checking it yourself :)

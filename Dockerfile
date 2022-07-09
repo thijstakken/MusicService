@@ -2,7 +2,7 @@
 FROM python:latest
 
 # any working directory can be chosen as per choice like '/' or '/home' etc
-WORKDIR /usr/app/src
+WORKDIR /
 
 # to COPY the remote file at working directory in container
 COPY example-database ./database
