@@ -12,7 +12,7 @@
 - 🖼 Adds coverart to your MP3s automatically (picture needed yt and local next to each other)
 - 🗃 It's aware of the songs that have already been downloaded. This saves a lot of time since they don't get redownloaded every time the application runs again.
 
-<img src="images/syncShowcase.png)" alt="syncShowcase" width="300"/>
+<img src="images/syncShowcase.png" alt="syncShowcase" width="750"/>
 
 
 ## How to install
