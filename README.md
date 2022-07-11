@@ -45,7 +45,7 @@ thijstakken/musicservice:latest
 
 <br>
 
-<img src="images/WebDAVURL.png" alt="syncShowcase" style="float:right;width:200px;"/>
+<img src="images/WebDAVURL.png" alt="syncShowcase" align="right" width="220px"/>
 
 2. Configure `URL` (required):
 
@@ -70,12 +70,12 @@ thijstakken/musicservice:latest
     2. In the URL you have to copy the path, everything between `dir=` and the `&fileid=2274`
     3. And then copy it to the DIRECTORY variable, example: `/some/01%20my%20music`
 
-<img src="images\DirectoryLocationVariantBackup.png" alt="syncShowcase" style="width:600px;"/>
+<img src="images\DirectoryLocationVariantBackup.png" alt="syncShowcase" width="600px"/>
 
 <br>
 <br>
 
-<img src="images/ncusername.png" alt="syncShowcase" style="float:right;width:160px;"/>
+<img src="images/ncusername.png" alt="syncShowcase" align="right" width="160px"/>
 
 4. Configure `USERNAME` (required): <br>
     1. Go to your Nextcloud webpage and and click on your user-icon in the top right
@@ -97,7 +97,7 @@ thijstakken/musicservice:latest
     
     <br>
     
-    <img src="images/ncusername.png" alt="syncShowcase" style="float:right;width:160px;"/>
+    <img src="images/ncusername.png" alt="syncShowcase" align="right" width="160px"/>
     
 
     - Option 2: (account has 2FA multifactor protection)
@@ -113,7 +113,7 @@ thijstakken/musicservice:latest
     <br>
     <br>
 
-    <img src="images/securityNavigation.png" alt="syncShowcase" style="float:right;width:160px;"/>
+    <img src="images/securityNavigation.png" alt="syncShowcase" align="right" width="160px"/>
 
     3. In the left bar, go to "Security" 
 
@@ -128,7 +128,7 @@ thijstakken/musicservice:latest
 
     4. Scroll down to the bottom where you will find `Devices & sessions`
 
-    <img src="images/generateAppPassword.png" alt="syncShowcase" style="width:500px;"/>
+    <img src="images/generateAppPassword.png" alt="syncShowcase" width="500px"/>
 
     5. Fill in an app name like `musicservice`
     6. Click `Create new app password`
@@ -155,6 +155,8 @@ But if this is not the case, the program crashed or it's taking longer then 5 mi
 
 9. Check the logs (optional): <br>
 To check a crashed container or just have a peek at the logs, you can run this command on your terminal `docker logs musicservice` and it will display the logs for you. This is how you can do debugging, find out if everything is working like it should or if there are any errors.
+
+<br>
 
 ## Managing your playlist list
 
