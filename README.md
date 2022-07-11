@@ -67,7 +67,7 @@ thijstakken/musicservice:latest
 
     - Option 1: You can leave it empty like this `-e DIRECTORY= \`, then it will save the files to the root directory off your cloud storage. (not recommended) <br>
     <br>
-    - Option 2: Or you can specify a custom directory, like your music folder:
+    - Option 2: Or you can specify a custom directory, like your music folder:<br>
     1. Navigate to your music folder in Nextcloud 
     2. In the URL you have to copy the path, everything between `dir=` and the `&fileid=2274`
     3. And then copy it to the DIRECTORY variable, example: `/some/01%20my%20music`
