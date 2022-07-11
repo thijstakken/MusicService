@@ -41,13 +41,13 @@ ydl_opts = {
     'outtmpl': './music/%(playlist)s/%(title)s-%(id)s.%(ext)s', # save music to the /music folder. and it's corrosponding folder which will be named after the playlist name
     'simulate': False,                                          # to dry test the YT-DL, if set to True, it will skip the downloading. Can be True/False
     'cachedir': False,                                          # turn off caching, this should mitigate 403 errors which are commonly seen when downloading from Youtube
-    'download_archive': './database/downloaded',            # this will update the downloads file which serves as a database/archive for which songs have already been downloaded, so it don't downloads them again
+    'download_archive': './config/downloaded',                  # this will update the downloads file which serves as a database/archive for which songs have already been downloaded, so it don't downloads them again
     'nocheckcertificate': True,                                 # mitigates YT-DL bug where it wrongly examins the server certificate, so therefore, ignore invalid certificates for now, to mitigate this bug
 }
 
 # reads and saves playlist URL's in a list
 def getPlaylistURLs():
-    with open('./database/playlists') as file:
+    with open('./config/playlists') as file:
         lines = [line.rstrip() for line in file]
     return(lines)
 
@@ -65,7 +65,11 @@ def create_folders(localDirectory):
             
             # construct URl to make calls to
             print(os.path.join(localDirectory, subdir))
-            fullurl = url + remoteDirectory + subdir
+
+            # remove first / from the string to correct the formatting of the URL
+            formatRemoteDir = remoteDirectory[1:]
+
+            fullurl = url + formatRemoteDir + "/" + subdir
 
             # first check if the folder already exists
             existCheck = requests.get(fullurl, auth=(username, password))
@@ -118,9 +122,12 @@ def upload_music(remoteDirectory):
 
             # get the folder name in which the file is located (example: 'example playlist')
             subfoldername = os.path.basename(os.path.dirname(reduced_path))
+            
+            # remove first / from the string to correct the formatting of the URL
+            formatRemoteDir = remoteDirectory[1:]
 
             # construct the full url so we can PUT the file there
-            fullurl = url + remoteDirectory + subfoldername + '/' + filename
+            fullurl = url + formatRemoteDir + "/" + subfoldername + "/" + filename
             
             # first check if the folder already exists
             existCheck = requests.get(fullurl, auth=(username, password))
@@ -177,11 +184,11 @@ if __name__ == '__main__':
     # get the OS enviroment variabels and save them to local variabels
     # these enviroment variabels get passed by the docker run command and default variables are passed through the Dockerfile
     localDirectory = 'music'                                   # 'music' always use music as local, this can't be changed at the moment, due to some hardcoding
-    remoteDirectory = os.getenv('REMOTE_DIRECTORY')            # Nextcloud folder where you want to save your music
-    url = os.getenv('URL')                                     # Nextcloud URL
-    username = os.getenv('NCUSERNAME')                         # Nextcloud username
-    password = os.getenv('NCPASSWORD')                         # Nextcloud password
-    interval = int(os.getenv('INTERVAL'))*60                   # How often the the program should check for updated playlists, times 60 to put it into seconds
+    url = str(os.getenv('URL'))                                # WebDAV URL
+    remoteDirectory = str(os.getenv('DIRECTORY'))              # WebDAV directory where you want to save your music
+    username = str(os.getenv('USERNAME'))                      # WebDAV username
+    password = str(os.getenv('PASSWORD'))                      # WebDAV password
+    interval = int(os.getenv('INTERVAL'))*60                   # How often the the program should check for updated playlists, (did it times 60 to put it into seconds, so users can put it in minutes)
     
     # welcome
     print("Started Music Service")
