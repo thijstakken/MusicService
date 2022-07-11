@@ -74,7 +74,7 @@ thijstakken/musicservice:latest
     2. In the URL you have to copy the path, everything between `dir=` and the `&fileid=2274`
     3. And then copy it to the DIRECTORY variable, example: `/some/01%20my%20music`
 
-<img src="images\DirectoryLocationVariantBackup.png" alt="syncShowcase" width="600px"/>
+    <img src="images\DirectoryLocationVariantBackup.png" alt="syncShowcase" width="600px"/>
 
 <br>
 <br>
