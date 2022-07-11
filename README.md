@@ -9,9 +9,9 @@
 ### What can it do? ✨
 - 🎵 Downloads your music from YouTube, SoundCloud [and many more](http://ytdl-org.github.io/youtube-dl/supportedsites.html)
 - 😁 Automatically monitors your playlists for newly added music
-- &nbsp;☁ &nbsp;Uploads your music as MP3 to your Cloud Storage account. Supports all Cloud providers with WebDAV compatibility: Nextcloud, ownCloud, pCloud, STACK [and many more](https://community.cryptomator.org/t/webdav-urls-of-common-cloud-storage-services/75)
+- &nbsp;☁ &nbsp;Uploads your music as MP3 (highest quality possible) to your Cloud Storage account. Supports all Cloud providers with WebDAV compatibility: Nextcloud, ownCloud, pCloud, STACK [and many more](https://community.cryptomator.org/t/webdav-urls-of-common-cloud-storage-services/75)
 - 🔄 Automatically converts video files to the highest quality MP3 possible
-- 🖼 Adds coverart to your MP3s automatically (picture needed yt and local next to each other)
+- 🖼 Adds coverart to your MP3s automatically
 - 🗃 It's aware of the songs that have already been downloaded. This saves a lot of time since they don't get redownloaded every time the application runs again.
 
 <br>
