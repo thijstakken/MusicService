@@ -65,7 +65,11 @@ def create_folders(localDirectory):
             
             # construct URl to make calls to
             print(os.path.join(localDirectory, subdir))
-            fullurl = url + remoteDirectory + subdir
+
+            # remove first / from the string to correct the formatting of the URL
+            formatRemoteDir = remoteDirectory[1:]
+
+            fullurl = url + formatRemoteDir + "/" + subdir
 
             # first check if the folder already exists
             existCheck = requests.get(fullurl, auth=(username, password))
@@ -118,9 +122,12 @@ def upload_music(remoteDirectory):
 
             # get the folder name in which the file is located (example: 'example playlist')
             subfoldername = os.path.basename(os.path.dirname(reduced_path))
+            
+            # remove first / from the string to correct the formatting of the URL
+            formatRemoteDir = remoteDirectory[1:]
 
             # construct the full url so we can PUT the file there
-            fullurl = url + remoteDirectory + subfoldername + '/' + filename
+            fullurl = url + formatRemoteDir + "/" + subfoldername + "/" + filename
             
             # first check if the folder already exists
             existCheck = requests.get(fullurl, auth=(username, password))
