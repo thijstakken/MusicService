@@ -24,6 +24,8 @@ The Music Service is a microservice application and runs as a [Docker container]
 
 > :warning: **You must have Docker installed**: Either the Docker [Desktop](https://www.docker.com/products/docker-desktop/) (with GUI) or [Engine](https://docs.docker.com/engine/install/) (no GUI) installed on your system.
 
+> :information_source: **Tip**: If you are new, you might want to test this application first. Luckily there is a good tool to use. [Nextcloud has a website](https://try.nextcloud.com/) where it will create a Nextcloud test environment. Select the "Instant trial" and you get a fresh environment for 60 minutes to play around.
+
 > :information_source: **Recommendation**: For the best experience, install this on a computer/server which runs 24/7, so you will always have your music in sync.
 
 <br>
