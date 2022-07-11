@@ -34,7 +34,7 @@ The Music Service is a microservice application and runs as a [Docker container]
 ```
 docker run -d \
  --name musicservice \
- --restart=no \
+ --restart=always \
  -v config:/config \
  -v musiccache:/music \
  -e URL=https://demo2.nextcloud.com/remote.php/dav/files/kA2kSpbk2tMwCPpB/ \
