@@ -162,9 +162,9 @@ To check a crashed container or just have a peek at the logs, you can run this c
 
 > :information_source: **Tip**: You can update the playlists file while the container is running. If you made any changes, they will be in effect the next time it checks for newly added music. Default `INTERVAL` is 5 minutes.
 
-1. You can update which playlists to download here: /database/playlists.txt. 
+1. You can update which playlists to download here: `/config/playlists` 
 2. On your machine open up a terminal.
-3. With `docker volume inspect musicdatabase` you can see the directory location of the volume.
+3. With `docker volume inspect config` you can see the directory location of the volume.
 4. Go to that directory, go into the `_data` directory and there you will find the `playlists` file, 
 5. Edit the `playlists` file with your favorite editor like Nano :), and add every playlist/song that you want to add **as a new line**. Like this:
 ```
@@ -181,9 +181,9 @@ If you where already using youtube-dl with the archive function, you probably ha
 
 1. :warning: Shut down the musicservice container first
 
-2. To migrate, just copy the contents of the old file over to the `/database/downloaded` file. You can find that file at the musicdatabase volume
+2. To migrate, just copy the contents of the old file over to the `/config/downloaded` file. You can find that file at the musicdatabase volume
 
-3. Run `docker volume inspect musicdatabase` at your command line to find the location of that volume on your disk
+3. Run `docker volume inspect config` at your command line to find the location of that volume on your disk
 
 4. Open the file, paste the old information in and save it.
 
