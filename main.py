@@ -132,13 +132,15 @@ def upload_music(remoteDirectory):
             # first check if the folder already exists
             existCheck = requests.get(fullurl, auth=(username, password))
             
-            # configure header
-            headers = {'Slug': filename}
-            
             # if the file does not yet exist (everything except 200 code) then create that file
             if not existCheck.status_code == 200:
             # error handling, when an error occurs, it will print the error and stop the script from running
                 try:
+
+                    # configure header, set content-type as mpeg and charset to utf-8 to make sure that filenames with special characters are not being misinterpreted
+                    headers = {'Content-Type': 'audio/mpeg; charset=utf-8', }
+                    
+                    # make the put request, this uploads the file
                     r = requests.put(fullurl, data=open(path, 'rb'), headers=headers, auth=(username, password))
                     print("")
                     print(r.text)
