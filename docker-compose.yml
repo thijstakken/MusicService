@@ -1,0 +1,20 @@
+version: '3.8'
+
+volumes:
+  config:
+  musiccache:
+
+services:
+  musicservice:
+    container_name: musicservice
+    image: thijstakken/musicservice:latest
+    restart: always
+    volumes:
+      - config:/config
+      - musiccache:/music
+    environment:
+      - URL=https://demo2.nextcloud.com/remote.php/dav/files/kA2kSpbk2tMwCPpB/
+      - DIRECTORY=/some/01%20my%20music
+      - USERNAME=kA2kSpbk2tMwCPpB
+      - PASSWORD=demo
+      - INTERVAL=5

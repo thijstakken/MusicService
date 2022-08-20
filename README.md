@@ -6,7 +6,7 @@
 
 **A tool that synchronizes your YouTube playlists and other music providers with your Cloud Storage like Nextcloud as MP3s.**
 
-### What can it do? ✨
+### What does it do? ✨
 - 🎵 Downloads your music from YouTube, SoundCloud [and many more](http://ytdl-org.github.io/youtube-dl/supportedsites.html)
 - 😁 Automatically monitors your playlists for newly added music
 - 🔄 Converts video files to the highest quality MP3 possible
@@ -20,17 +20,20 @@
 <br>
 
 ## How to install
-The Music Service is a microservice application and runs as a [Docker container](https://www.docker.com/resources/what-container/). Because of using Docker, every installation runs the same, for everyone. This brings efficiency and improves reliability. [Docker image release](https://hub.docker.com/r/thijstakken/musicservice)
+The Music Service is a microservice application and runs as a [Docker container](https://www.docker.com/resources/what-container/). Because of using Docker, every installation runs the same, for everyone. This brings programming efficiency and improves reliability. [Docker image release](https://hub.docker.com/r/thijstakken/musicservice)
 
 > :warning: **You must have Docker installed**: Either the Docker [Desktop](https://www.docker.com/products/docker-desktop/) (with GUI) or [Engine](https://docs.docker.com/engine/install/) (no GUI) installed on your system.
 
-> :information_source: **Tip**: If you are new, you might want to test this application first. Luckily there is a good tool to use. [Nextcloud has a website](https://try.nextcloud.com/) where it will create a Nextcloud test environment. Select the "Instant trial" and you get a fresh environment for 60 minutes to play around.
+> :information_source: **Tip**: If you just want to test this application, luckily there is a good tool to use. Just do `docker run -d -p 8080:80 nextcloud` to start a fresh Nextcloud environment. When started, go to `http://localhost:8080/` in some cases you have to replace `localhost` with your computers IP. And you can continue to follow the steps below!
 
-> :information_source: **Recommendation**: For the best experience, install this on a computer/server which runs 24/7, so you will always have your music in sync.
+> :information_source: **Recommendation**: For the best experience, install this container on a computer/server which runs 24/7, so you will always have your music in sync.
 
 <br>
 
-1. Copy this code to your favorite editor, Notepad, Word etc. Some changes have to be made before you can run it:
+1. Prepare the code (required):
+    - Option 1 Docker Compose (recommended): Copy the [docker-compose](docker-compose.yml) file contents to your editor and follow the steps
+    - Option 2 (Docker run): Copy the code below to your favorite editor, Notepad, Word etc. 
+
 ```
 docker run -d \
  --name musicservice \
@@ -44,6 +47,8 @@ docker run -d \
  -e INTERVAL=5 \
 thijstakken/musicservice:latest
 ```
+
+Before you can run the docker-compose or docker run command, you will first have to make a few changes.
 
 <br>
 
@@ -153,7 +158,9 @@ If you want to run the script more often or less often, you can just put in a nu
 <br>
 
 7. Open a terminal and run your command!
-
+    - If you did the steps with the docker-compose file, do `docker compose up -d` (make sure your command line interface is active in the same directory as where the docker-compose.yml file lives).
+    - If you did the steps with the docker run command, paste it in your command line interface and run it.
+<br>
 8. That's all! If everything is correct, it will create the container, mount the volumes with the configuration and then do it's first run. Let it run for a minute or so. If everything works you should see a new folder and song in your cloud storage. If that happened everything is working fine. <br>
 But if this is not the case, the program crashed or it's taking longer then 5 minutes, then you should check out the logs. <br>
 
@@ -208,9 +215,9 @@ Techniques: [Python](https://www.python.org/), [Docker](https://www.docker.com/)
 2. 🐛 [Pick a issue from the list or create a new issue and use that one](https://github.com/thijstakken/MusicService/issues)
 3. 🐍 Start editing the code (Python)
 4. 🏗 To build your new image, open a command line in the project folder and run `docker build -t musicservice:dev .`
-5. 🧪 For testing, there is a good tool to use. [Nextcloud has a website](https://try.nextcloud.com/) where it will create a Nextcloud test environment. Select the "Instant trial" and you get a fresh environment for 60 minutes to play around. This way we can safely experiment with new code and functions. Copy the username into USERNAME and the password is always: demo <br/>
+5. 🧪 For testing with Nextcloud, just do `docker run -d -p 8080:80 nextcloud` to start a fresh Nextcloud environment. When started, go to `http://localhost:8080/` in some cases you have to replace `localhost` with your computers IP. <br/>
 
-You can use this base developer Docker command, and change it to your needs to get started:
+Use the [docker compose](docker-compose.yml) file or use this Docker run command, and change it to your needs to get started:
 ```
 docker run \
  --name musicservice \
