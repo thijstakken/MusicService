@@ -3,14 +3,13 @@ name: Docker Image CI
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
 
 jobs:
  
   build:
 
     runs-on: ubuntu-latest
+    # set the environment for the secrets
     environment: dockerhub
     
     steps:
