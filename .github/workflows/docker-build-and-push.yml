@@ -14,7 +14,27 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    
     - name: Remove unneeded .gitkeep file
       run: rm ./example-music/.gitkeep
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      
+    #- name: Build the Docker image
+    #  run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+
+    #- name: Login to Docker Hub
+    #  uses: docker/login-action@v2
+    #  with:
+    #    username: ${{ secrets.DOCKERHUB_USERNAME }}
+    #    password: ${{ secrets.DOCKERHUB_TOKEN }}
+    
+    - name: Build and push Docker images
+      # You may pin to the exact commit or the version.
+      # uses: docker/build-push-action@c56af957549030174b10d6867f20e78cfd7debc5
+      uses: docker/build-push-action@v3.2.0
+      with:
+        # List of metadata for an image
+        labels: version=1.0, maintainer=ThijsTakken
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+        # List of tags
+        tags: thijstakken/musicservice:latest
