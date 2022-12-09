@@ -35,5 +35,7 @@ jobs:
       with:
         # List of metadata for an image
         labels: version=1.0, maintainer=ThijsTakken
+        # set push
+        push: true
         # List of tags
         tags: thijstakken/musicservice:latest
