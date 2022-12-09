@@ -33,7 +33,9 @@ jobs:
       uses: docker/build-push-action@v3.2.0
       with:
         # List of metadata for an image
-        labels: version=1.0, maintainer=ThijsTakken
+        labels: |
+          version=1.0
+          maintainer=ThijsTakken
         # set push
         push: true
         # List of tags
