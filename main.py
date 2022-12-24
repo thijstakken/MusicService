@@ -19,7 +19,7 @@ class MyLogger(object):
 
     def error(self, msg):   # always print errors
         print(msg)
-
+# another branching test
 # shows progress of the downloads
 def my_hook(d):
     if d['status'] == 'finished':
