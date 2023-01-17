@@ -232,7 +232,7 @@ docker run \
 musicservice:dev
 ```
 
-6. 🎉 Create a branch and make your changes. When committing changes please use [Gitmoji](https://gitmoji.dev/) and [close the corresponding issue with "fixed"](https://github.com/gitbucket/gitbucket/wiki/How-to-Close-Reference-issues-and-pull-request) and the number of the issue `git commit -m ":bug: fixed #21 Your commit message"`
+6. 🎉 Use the develop branch and commit your feature to a new branch. When committing changes please use [Gitmoji](https://gitmoji.dev/) and [close the corresponding issue with "fixed"](https://github.com/gitbucket/gitbucket/wiki/How-to-Close-Reference-issues-and-pull-request) and the number of the issue `git commit -m ":bug: fixed #21 Your commit message"`
 7. ⬆ Create a [pull request](https://github.com/thijstakken/MusicService/pulls)
 8. 🚀 Wait for it to be reviewed and merged!
 
