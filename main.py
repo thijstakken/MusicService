@@ -192,7 +192,7 @@ if __name__ == '__main__':
     password = str(os.getenv('PASSWORD'))                      # WebDAV password
     interval = int(os.getenv('INTERVAL'))*60                   # How often the the program should check for updated playlists, (did it times 60 to put it into seconds, so users can put it in minutes)
     
-    # welcome
+    # welcome message
     print("Started Music Service")
 
     # print Python version for informational purposes
