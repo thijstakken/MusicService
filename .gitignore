@@ -1,2 +1,4 @@
 database/
 music/
+.vscode
+/web/db.sqlite

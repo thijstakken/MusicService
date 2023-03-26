@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MusicService</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-aFq/bzH65dt+w6FI2ooMVUpc+21e0SRygnTpmBvdBgSdnuTN7QbdgL+OapgHtvPp" crossorigin="anonymous">
+</head>
+
+<body>
+    <div style="margin-top: 50px;" class="ui container">
+        <h1 class="ui center aligned header">MusicService</h1>
+
+        <form action="/add" method="post">
+            <div class="mb-3">
+                <label class="form-label">Playlist titel</label>
+                <input type="text" class="form-control" name="title" placeholder="Enter a title..."><br>
+            </div>
+            <div class="mb-3">
+                <label>URL</label>
+                <input type="text" class="form-control" name="url" placeholder="https://www.youtube.com/watch?v=BaW_jenozKc"><br>
+            </div>
+            <button class="btn btn-primary" type="submit">Add</button>
+        </form>
+
+        <br>
+
+
+        <hr>
+        
+        <div class="row">
+        {% for todo in todo_list %}
+            <div class="col-sm-4 mb-3 mb-sm-0">
+                <div class="card" style="width: 18rem;">
+                    <p class="card-body">{{todo.id }} | {{ todo.title }}</p>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">{{todo.url}}</li>
+                    {% if todo.complete == False %}
+                    <li class="list-group-item">Not synced ❌</li>
+                    {% else %}
+                    <li class="list-group-item">In-sync ✔</li>
+                    {% endif %}
+                    </ul>
+                    <div class="card-body">
+                        {% if todo.complete == False %}
+                        <a class="btn btn-secondary" href="/update/{{ todo.id }}">Not synced</a>
+                        {% else %}
+                        <a class="btn btn-success" href="/update/{{ todo.id }}">Synced</a>
+                        {% endif %}
+                        <a class="btn btn-danger" href="/delete/{{ todo.id }}">Delete</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+</body>
+
+</html>
