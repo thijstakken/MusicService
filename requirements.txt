@@ -1,4 +1,4 @@
-youtube_dl==2021.12.17
+youtube_dl @ git+https://github.com/ytdl-org/youtube-dl@master
 python-dotenv
 #os
 requests
