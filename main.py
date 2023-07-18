@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 from re import L
-import youtube_dl
+from yt_dlp import YoutubeDL
 import shutil
 import requests
 import os
@@ -28,6 +28,7 @@ def my_hook(d):
 # Configure YouTube DL options
 ydl_opts = {
     'writethumbnail': True,
+    'no_write_playlist_metafiles': True,                            # do not save playlist data, like playlist .png
     'format': 'bestaudio[asr<=44100]/best[asr<=44100]/bestaudio',   # using asr 44100 as max, this mitigates exotic compatibility issues with certain mediaplayers, and allow bestaudio as a fallback for direct mp3s
     'postprocessors': [{    
         'key': 'FFmpegExtractAudio',                                # use FFMPEG and only save audio
@@ -42,7 +43,7 @@ ydl_opts = {
     'simulate': False,                                              # to dry test the YT-DL, if set to True, it will skip the downloading. Can be True/False
     'cachedir': False,                                              # turn off caching, this should mitigate 403 errors which are commonly seen when downloading from Youtube
     'download_archive': './config/downloaded',                      # this will update the downloads file which serves as a database/archive for which songs have already been downloaded, so it don't downloads them again
-    'nocheckcertificate': True,                                     # mitigates YT-DL bug where it wrongly examins the server certificate, so therefore, ignore invalid certificates for now, to mitigate this bug
+    'nocheckcertificates': True,                                     # mitigates YT-DL bug where it wrongly examins the server certificate, so therefore, ignore invalid certificates for now, to mitigate this bug
 }
 
 # reads and saves playlist URL's in a list
@@ -53,7 +54,7 @@ def getPlaylistURLs():
 
 # downloads the playlists with the specified options in ydl_opts
 def downloadPlaylists(ydl_opts, lines):
-    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+    with YoutubeDL(ydl_opts) as ydl:
                 ydl.download(lines)
 
 # creates directories in the cloud based on the local directory structure

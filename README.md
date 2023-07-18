@@ -7,7 +7,7 @@
 **A tool that synchronizes your YouTube playlists and other music providers with your Cloud Storage like Nextcloud as MP3s.**
 
 ### What does it do? ✨
-- 🎵 Downloads your music from YouTube, SoundCloud [and many more](http://ytdl-org.github.io/youtube-dl/supportedsites.html)
+- 🎵 Downloads your music from YouTube, SoundCloud [and many more](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md)
 - 😁 Automatically monitors your playlists for newly added music
 - 🔄 Converts video files to the highest quality MP3 possible
 - &nbsp;☁ &nbsp;Uploads your music as MP3 to your Cloud Storage account. Supports all Cloud providers with WebDAV compatibility: Nextcloud, ownCloud, pCloud, STACK [and many more](https://community.cryptomator.org/t/webdav-urls-of-common-cloud-storage-services/75)
@@ -209,7 +209,7 @@ Feel free to contribute, you can [submit issues here](https://github.com/thijsta
 
 ### Developer instructions 👩🏻‍💻👨🏻‍💻
 System requirements: Have [Docker (Desktop or Engine)](https://www.docker.com/) installed on your system <br/>
-Techniques: [Python](https://www.python.org/), [Docker](https://www.docker.com/), [youtube-dl](https://youtube-dl.org/) and [WebDAV](http://www.webdav.org/)
+Techniques: [Python](https://www.python.org/), [Docker](https://www.docker.com/), [YT-DLP](https://github.com/yt-dlp/yt-dlp) and [WebDAV](http://www.webdav.org/)
 
 1. 🤠 Git clone the project with `git clone https://github.com/thijstakken/MusicService.git`
 2. 🐛 [Pick a issue from the list or create a new issue and use that one](https://github.com/thijstakken/MusicService/issues)
