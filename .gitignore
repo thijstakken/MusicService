@@ -2,3 +2,6 @@ database/
 music/
 .vscode
 /web/db.sqlite
+venv/
+web/__pycache__
+instance/
