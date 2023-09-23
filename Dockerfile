@@ -5,7 +5,6 @@ FROM python:latest
 WORKDIR /
 
 # to COPY the remote file at working directory in container
-COPY example-config ./config
 COPY example-music ./music
 COPY main.py ./
 COPY requirements.txt ./
@@ -28,4 +27,4 @@ ENV PYTHONUNBUFFERED=1
 ENV INTERVAL=5
 
 # run the Music Service with Python
-CMD [ "python", "./main.py"]
+CMD [ "python", "./web/app.py"]
