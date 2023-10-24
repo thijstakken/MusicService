@@ -1,5 +1,4 @@
 yt-dlp==2023.9.24
-python-dotenv
-#os
-requests
-pyparsing
+requests==2.31.0
+Flask==3.0.0
+Flask-SQLAlchemy==3.1.1
