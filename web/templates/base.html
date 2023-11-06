@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Service</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='/images/normalLogo.png') }}">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-aFq/bzH65dt+w6FI2ooMVUpc+21e0SRygnTpmBvdBgSdnuTN7QbdgL+OapgHtvPp" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+</head>
+
+<body>
+
+    <nav class="navbar navbar-secondary bg-secondary">
+        <a class="navbar-brand" href="/">Music Service</a>
+        
+        <a href="/settings">
+        <button class="btn bi bi-gear-fill" > Settings</button>
+        </a>
+        
+    </nav>
+
+
+    <div style="margin-top: 50px;" class="ui container">
+        <h1 class="ui center aligned header">Music Service</h1>
+
+
+        <form action="/add" method="post">
+            <div class="mb-3">
+                <label class="form-label">Playlist title</label>
+                <input type="text" class="form-control" name="title" placeholder="Enter a title..."><br>
+            </div>
+            <div class="mb-3">
+                <label>URL</label>
+                <input type="text" class="form-control" name="url" placeholder="https://www.youtube.com/watch?v=BaW_jenozKc"><br>
+            </div>
+            <button class="btn btn-primary" type="submit">Add</button>
+        </form>
+
+        <br>
+
+
+        <hr>
+        
+        <div class="row">
+        {% for music in music_list %}
+            <div class="col-sm-4 mb-3 mb-sm-0">
+                <div class="card" style="width: 18rem;">
+                    <p class="card-body">{{music.id }} | {{ music.title }}</p>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">{{music.url}}</li>
+                    {% if music.complete == False %}
+                    <li class="list-group-item">Not synced ❌</li>
+                    {% else %}
+                    <li class="list-group-item">Synced-online ✅</li>
+                    {% endif %}
+                    </ul>
+                    <div class="card-body">
+                        {% if music.complete == False %}
+                        <a class="btn btn-secondary" href="/update/{{ music.id }}">Not synced</a>
+                        {% else %}
+                        <a class="btn btn-success" href="/update/{{ music.id }}">Synced</a>
+                        {% endif %}
+                        <a class="btn btn-danger" href="/delete/{{ music.id }}">Delete</a>
+                        <a class="btn btn-primary" href="/download/{{ music.id }}">Download</a>
+                        <br><br>
+                        <form action="/interval/{{ music.id }}">
+                            <label for="cars">Choose an interval:</label>
+                            <select name="interval" id="interval">
+                              <option value="5">5</option>
+                              <option value="10">10</option>
+                              <option value="30">30</option>
+                              <option value="60">60</option>
+                            </select>
+                            <input type="submit" value="Save interval">
+                          </form>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+</body>
+
+</html>
