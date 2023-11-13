@@ -94,8 +94,50 @@ def delete(music_id):
 
 @app.route("/settings")
 def settings():
+    # get settings
     WebDAVconfig = WebDAV.query.all()
-    return render_template("settings.html", WebDAVconfig=WebDAVconfig)
+
+    # get songs archive
+    with open(r"../download_archive/downloaded", 'r') as songs:
+        songs = songs.readlines()
+        # add song ID's so they are easy to delete/correlate
+        songs = list(enumerate(songs))
+    
+    return render_template("settings.html", WebDAVconfig=WebDAVconfig, songs=songs)
+
+@app.route("/deletesong/<int:song_id>")
+def deletesong(song_id):
+    # get songs archive
+    with open(r"../download_archive/downloaded", 'r') as fileop:
+        songs = fileop.readlines()
+
+    # delete/clear the correct row
+    with open(r"../download_archive/downloaded", 'w') as fileop:
+        for number, line in enumerate(songs):
+        # delete/clear the song_id line
+            if number not in [song_id]:
+                fileop.write(line)    
+
+    return redirect(url_for("settings"))
+
+
+@app.route("/addsong", methods=["POST"])
+def addsong():
+    song = request.form.get("song")
+
+    # get archive for analysis
+    with open("../download_archive/downloaded") as file:
+        text = file.read()
+
+    # add new song to archive
+    with open(r"../download_archive/downloaded", 'a') as archive:
+        # check if a newline already exists
+        if not text.endswith('\n'):
+            # if it does not end with a newline, then add it
+            archive.write('\n')
+        # add song
+        archive.write(song)
+    return redirect(url_for("settings"))
 
 
 @app.route("/download/<int:music_id>")

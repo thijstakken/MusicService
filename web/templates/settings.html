@@ -100,7 +100,35 @@
                 x.type = "password";
               }
             }
-            </script>    
+            </script>
+
+    <br>
+    <br>
+    <div style="margin-top: 50px;" class="ui container">
+        <h1 class="ui center aligned header">Songs archive</h1>
+
+        <form action="/addsong" method="post">
+        <label class="form-label">Add song</label>
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" name="song" placeholder="youtube 843hf84hf0">
+                <div class="input-group-append">
+                  <button class="btn btn-success" type="submit">Add</button>
+                </div>
+            </div>
+            <br>
+        </form>
+
+            <label class="form-label">Song</label>
+            {% for song in songs %}
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" placeholder="Song" value="{{ song[1] }}" readonly>
+                <div class="input-group-append">
+                  <a class="btn btn-danger" href="/deletesong/{{ song[0] }}">Delete</a>
+                </div>
+              </div>
+            {% endfor %}
+        <br>
+        <br>
 
 </body>
 </html>
