@@ -42,11 +42,11 @@
             </div>
             <div class="mb-3">
                 <label>WebDAV username</label>
-                <input type="text" class="form-control" name="WebDAV_Username" placeholder="Bob" value={{ webdav.WebDAV_Username }}><br>
+                <input type="text" class="form-control" name="WebDAV_Username" placeholder="Bob" value="{{ webdav.WebDAV_Username }}"><br>
             </div>
             <div class="mb-3">
                 <label>WebDAV password</label>
-                <input type="password" class="form-control" name="WebDAV_Password" placeholder="" id="password" value={{ webdav.WebDAV_Password }}>
+                <input type="password" class="form-control" name="WebDAV_Password" placeholder="" id="password" value="{{ webdav.WebDAV_Password }}">
             </div>
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" onclick="passwordShow()">
@@ -59,9 +59,7 @@
             <button class="btn btn-primary" type="submit">Save</button>
             <!-- <button class="btn btn-primary" type="submit">Validate settings</button> -->
         </form>
-        {% endfor %}
-
-
+        {% else %}
         <form action="/settings/save" method="post">
 
             <div class="mb-3">
@@ -91,7 +89,7 @@
             <button class="btn btn-primary" type="submit">Save</button>
             <!-- <button class="btn btn-primary" type="submit">Validate settings</button> -->
         </form>
-
+        {% endfor %}
         
         <script>
             function passwordShow() {
