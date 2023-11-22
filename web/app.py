@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, send_file, flash
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.utils import secure_filename
 from re import L
 from yt_dlp import YoutubeDL
 import shutil
@@ -37,7 +38,6 @@ class WebDAV(db.Model):
 def home():
     music_list = Music.query.all()
     return render_template("base.html", music_list=music_list)
-
 
 @app.route("/add", methods=["POST"])
 def add():
@@ -138,6 +138,71 @@ def addsong():
         # add song
         archive.write(song)
     return redirect(url_for("settings"))
+
+
+
+@app.route('/downloadarchive') # GET request
+# based on flask.send_file method: https://flask.palletsprojects.com/en/2.3.x/api/#flask.send_file
+def downloadarchive():
+    return send_file(
+        '../download_archive/downloaded',
+        mimetype='text/plain',
+        download_name='download_archive.txt',
+        as_attachment=True
+    )
+
+def allowed_file(filename):
+    ALLOWED_EXTENSIONS = {'txt'}
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+# used flask uploading files guide https://flask.palletsprojects.com/en/3.0.x/patterns/fileuploads/
+@app.route('/uploadarchive', methods=['POST'])
+def upload_file():
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        # If the user does not select a file, the browser submits an
+        # empty file without a filename.
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            # read the contents
+            archive_content = file.read()
+            # decode the multipart form-data (bytes) into str
+            archive_content = archive_content.decode()
+
+            # split each line, and put each line into lines_list
+            lines_list = archive_content.split('\n')
+
+            # read existing archive
+            with open("../download_archive/downloaded") as archive_data:
+                text = archive_data.read()
+
+            # add new songs to archive
+            with open(r"../download_archive/downloaded", 'a') as archive:
+                
+                # check if newline already exists, always start with a newline
+                if not text.endswith('\n'):
+                        # if it does not end with a newline, then add it
+                        archive.write('\n')
+                        #print("newline added")
+
+                # for every line we want to write it to the archive file
+                for line in lines_list:
+                    #print(line, 'was added')
+                    # write the line to the arhive
+                    archive.write(line)
+                    # always add a newline after a new addition, to get ready for the next one
+                    archive.write('\n')
+                    # because of this, after the last item, a newline will also be added, as a result of which you will always have a empty row on the bottom of the archive
+                    # which does look a bit weird... look into later
+
+            return redirect(url_for('settings'))
 
 
 @app.route("/download/<int:music_id>")
@@ -381,6 +446,9 @@ def upload_music(remoteDirectory):
 
 
 if __name__ == "__main__":
+
+    # used for message flashing, look for "flash" to see where it's used
+    app.secret_key = b'/\xed\xb4\x87$E\xf4O\xbb\x8fpb\xad\xc2\x88\x90!\x89\x18\xd0z\x15~Z'
 
     # had to add app.app otherwise would not work properly
     # this fixes the working outside of application context error

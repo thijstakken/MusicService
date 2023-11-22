@@ -2,28 +2,23 @@
 <html lang="en" data-bs-theme="dark">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Music Service Settings</title>
     <link rel="shortcut icon" href="{{ url_for('static', filename='/images/normalLogo.png') }}">
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-aFq/bzH65dt+w6FI2ooMVUpc+21e0SRygnTpmBvdBgSdnuTN7QbdgL+OapgHtvPp" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
 </head>
-
 
 <html>
 <body>
 
     <nav class="navbar navbar-secondary bg-secondary">
         <a class="navbar-brand" href="/">Music Service</a>
-        
         <a href="/settings">
         <button class="btn bi bi-gear-fill" > Settings</button>
-        </a>
-        
+        </a>    
     </nav>
-
 
     <div style="margin-top: 50px;" class="ui container">
         <h1 class="ui center aligned header">Settings</h1>
@@ -90,6 +85,7 @@
             <!-- <button class="btn btn-primary" type="submit">Validate settings</button> -->
         </form>
         {% endfor %}
+    </div>
         
         <script>
             function passwordShow() {
@@ -104,9 +100,19 @@
 
     <br>
     <br>
+
     <div style="margin-top: 50px;" class="ui container">
         <h1 class="ui center aligned header">Songs archive</h1>
+        <p>Here you can find all songs that have been downloaded already</p>
+        <br>
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-light bi bi-cloud-upload" data-bs-toggle="modal" data-bs-target="#importArchive">
+          Import
+        </button>
 
+        <a class="btn btn-dark bi bi-download" href="/downloadarchive"> Export</a>
+        <br>
+        <br>
         <form action="/addsong" method="post">
         <label class="form-label">Add song</label>
             <div class="input-group mb-3">
@@ -129,9 +135,37 @@
             {% endfor %}
         <br>
         <br>
+    </div>
 
+
+
+<!-- upload archive Modal -->
+<div class="modal fade" id="importArchive" tabindex="-1" aria-labelledby="importArchiveLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="importArchiveLabel">Import music archive</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>You can upload your YT-DL(P) archive here if you have one. By doing this, it will not try to download these songs again, saving time and resources.</p>
+        <br>
+        <p>Select archive file to upload</p>
+        <form action="/uploadarchive" method="post" enctype="multipart/form-data">
+          <input name=file type="file" class="form-control" aria-label="file example" required/>
+          <p>Only .txt files are allowed</p>
+          <button type="submit" class="btn btn-primary bi bi-cloud-upload"> Import</button>
+          <div class="invalid-feedback">Example invalid form file feedback</div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
 </body>
-</html>
 </html>
 
 

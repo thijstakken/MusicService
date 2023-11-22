@@ -187,21 +187,6 @@ youtube.com/video3
 
 <br>
 
-## How to best migrate from existing youtube-dl solution
-If you where already using youtube-dl with the archive function, you probably have an downloaded.txt or similar file with all the songs you have already downloaded. 
-
-1. :warning: Shut down the musicservice container first
-
-2. To migrate, just copy the contents of the old file over to the `/config/downloaded` file. You can find that file at the musicdatabase volume
-
-3. Run `docker volume inspect config` at your command line to find the location of that volume on your disk
-
-4. Open the file, paste the old information in and save it.
-
-5. That's it!
-
-<br>
-
 ## Join the team 👪
 Feel free to contribute, you can [submit issues here](https://github.com/thijstakken/MusicService/issues) and [fix issues/bugs, improve the application!](#developer-instructions-)
 
@@ -210,6 +195,9 @@ Feel free to contribute, you can [submit issues here](https://github.com/thijsta
 ### Developer instructions 👩🏻‍💻👨🏻‍💻
 System requirements: Have [Docker (Desktop or Engine)](https://www.docker.com/) installed on your system <br/>
 Techniques: [Python](https://www.python.org/), [Docker](https://www.docker.com/), [youtube-dl](https://youtube-dl.org/) and [WebDAV](http://www.webdav.org/)
+
+Using this for frontend [Bootstrap v5.3](https://getbootstrap.com/docs/5.3/getting-started/introduction/)
+For the icons, using [Bootstrap Icons 1.11.2](https://icons.getbootstrap.com/#install)
 
 1. 🤠 Git clone the project with `git clone https://github.com/thijstakken/MusicService.git`
 2. 🐛 [Pick a issue from the list or create a new issue and use that one](https://github.com/thijstakken/MusicService/issues)
