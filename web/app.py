@@ -48,34 +48,6 @@ def add():
     db.session.commit()
     return redirect(url_for("home"))
 
-
-@app.route("/settings/save", methods=["POST"])
-def settingsSave():
-    
-    # if the settings are not set, the row will be empty, so "None"
-    # then create the row and save the settings
-    if WebDAV.query.filter_by(id=1).first() is None:
-        
-        WebDAV_URL = request.form.get("WebDAV_URL")
-        WebDAV_Directory = request.form.get("WebDAV_Directory")
-        WebDAV_Username = request.form.get("WebDAV_Username")
-        WebDAV_Password = request.form.get("WebDAV_Password")
-        WebDAVSettings = WebDAV(WebDAV_URL=WebDAV_URL, WebDAV_Directory=WebDAV_Directory, WebDAV_Username=WebDAV_Username, WebDAV_Password=WebDAV_Password)
-        db.session.add(WebDAVSettings)
-        db.session.commit()
-        return redirect(url_for("settings"))
-    
-    # if query is not "None" then some settings have been configured already and we just want to change those records
-    else:
-        settings = WebDAV.query.filter_by(id=1).first()
-        settings.WebDAV_URL = request.form.get("WebDAV_URL")
-        settings.WebDAV_Directory = request.form.get("WebDAV_Directory")
-        settings.WebDAV_Username = request.form.get("WebDAV_Username")
-        settings.WebDAV_Password = request.form.get("WebDAV_Password")
-        db.session.commit()
-        return redirect(url_for("settings"))
-
-
 @app.route("/update/<int:music_id>")
 def update(music_id):
     music = Music.query.filter_by(id=music_id).first()
@@ -104,6 +76,33 @@ def settings():
         songs = list(enumerate(songs))
     
     return render_template("settings.html", WebDAVconfig=WebDAVconfig, songs=songs)
+
+
+@app.route("/settings/save", methods=["POST"])
+def settingsSave():
+    
+    # if the settings are not set, the row will be empty, so "None"
+    # then create the row and save the settings
+    if WebDAV.query.filter_by(id=1).first() is None:
+        
+        WebDAV_URL = request.form.get("WebDAV_URL")
+        WebDAV_Directory = request.form.get("WebDAV_Directory")
+        WebDAV_Username = request.form.get("WebDAV_Username")
+        WebDAV_Password = request.form.get("WebDAV_Password")
+        WebDAVSettings = WebDAV(WebDAV_URL=WebDAV_URL, WebDAV_Directory=WebDAV_Directory, WebDAV_Username=WebDAV_Username, WebDAV_Password=WebDAV_Password)
+        db.session.add(WebDAVSettings)
+        db.session.commit()
+        return redirect(url_for("settings"))
+    
+    # if query is not "None" then some settings have been configured already and we just want to change those records
+    else:
+        settings = WebDAV.query.filter_by(id=1).first()
+        settings.WebDAV_URL = request.form.get("WebDAV_URL")
+        settings.WebDAV_Directory = request.form.get("WebDAV_Directory")
+        settings.WebDAV_Username = request.form.get("WebDAV_Username")
+        settings.WebDAV_Password = request.form.get("WebDAV_Password")
+        db.session.commit()
+        return redirect(url_for("settings"))
 
 @app.route("/deletesong/<int:song_id>")
 def deletesong(song_id):
@@ -244,7 +243,6 @@ def download(music_id):
                 print(complete)
 
     return redirect(url_for("home"))
-
 
 @app.route("/interval/<int:music_id>")
 def interval(music_id):

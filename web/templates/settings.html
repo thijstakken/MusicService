@@ -14,7 +14,9 @@
 <body>
 
     <nav class="navbar navbar-secondary bg-secondary">
-        <a class="navbar-brand" href="/">Music Service</a>
+      <a class="navbar-brand" href="/">
+        <img src="{{ url_for('static', filename='/images/normalLogo.png') }}" alt="Music Service logo" width="30" height="30" class="d-inline-block align-text-top">
+        Music Service
         <a href="/settings">
         <button class="btn bi bi-gear-fill" > Settings</button>
         </a>    
@@ -124,6 +126,17 @@
             <br>
         </form>
 
+        <!-- add a search bar for the songs, does not work yet -->
+        <form action="/searchsong" method="post">
+        <label class="form-label">Search song</label>
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" name="search" placeholder="Search for a song...">
+                <div class="input-group-append">
+                  <button class="btn btn-primary" type="submit">Search</button>
+                </div>
+            </div>
+            
+            <!-- want to add pagination for every 10 songs -->
             <label class="form-label">Song</label>
             {% for song in songs %}
             <div class="input-group mb-3">

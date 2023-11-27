@@ -13,7 +13,11 @@
 <body>
 
     <nav class="navbar navbar-secondary bg-secondary">
-        <a class="navbar-brand" href="/">Music Service</a>
+        <!-- add the image /images/normalLogo.png to the navbar-->
+
+        <a class="navbar-brand" href="/">
+            <img src="{{ url_for('static', filename='/images/normalLogo.png') }}" alt="Music Service logo" width="30" height="30" class="d-inline-block align-text-top">
+            Music Service
         
         <a href="/settings">
         <button class="btn bi bi-gear-fill" > Settings</button>
@@ -21,11 +25,8 @@
         
     </nav>
 
-
     <div style="margin-top: 50px;" class="ui container">
         <h1 class="ui center aligned header">Music Service</h1>
-
-
         <form action="/add" method="post">
             <div class="mb-3">
                 <label class="form-label">Playlist title</label>
