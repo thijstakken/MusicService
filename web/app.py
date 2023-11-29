@@ -11,6 +11,7 @@ import os.path
 import time
 import sys
 from pathlib import Path
+import schedule
 
 app = Flask(__name__)
 
@@ -207,6 +208,18 @@ def upload_file():
 @app.route("/download/<int:music_id>")
 def download(music_id):
     # get the corrosponding URL for the ID
+
+
+
+
+
+    # put this downloading part in a function, so it can be called from the interval_check function also
+
+
+
+
+
+
     for (url, ) in db.session.query(Music.url).filter_by(id=music_id):
         print(url)
 
@@ -225,7 +238,9 @@ def download(music_id):
 
                 # start uploading the music
                 ##########################
-
+                
+                # THIS IS TEMPORARY
+                localDirectory = 'music'
                 print("")
                 print('Creating cloud folder structure based on local directories...')
                 create_folders(localDirectory)
@@ -244,12 +259,17 @@ def download(music_id):
 
     return redirect(url_for("home"))
 
+# let users configure their interval value on a per playlist/song basis
 @app.route("/interval/<int:music_id>")
 def interval(music_id):
     
     # at the moment it accepts everything. but it should only allow integers as input.
     # close this down somewhere so only integers are allowed through this method.
     interval = request.args.get('interval', None) # None is the default value
+    
+    music = Music.query.filter_by(id=music_id).first()
+    music.interval = interval
+    db.session.commit()
     print(interval)
     print(interval)
     print(interval)
@@ -257,6 +277,23 @@ def interval(music_id):
     print(interval)
 
     return redirect(url_for("home"))
+
+# function which will keep an interval time for each playlist/song in the background
+# this will be used to check if the playlist/song needs to be downloaded again
+# if the interval time has passed, then the playlist/song will be downloaded again
+# this will be used to keep the music up to date
+def interval_check():
+
+    # get all the playlists/songs
+    music_list = Music.query.all()
+
+    # iterate over the playlists/songs
+    for music in music_list:
+        # get the interval value for each playlist/song
+        interval = music.interval
+        #schedule.every(interval).minutes.do(download(music.id))
+        print("Interval set for:", music.title, interval, "minutes")
+
 
 # YT-DLP logging
 class MyLogger(object):
@@ -357,7 +394,8 @@ def create_folders(localDirectory):
 # after the neccessary directories have been created we can start to put the music into the folders
 # iterates over files and uploads them to the corresponding directory in the cloud
 def upload_music(remoteDirectory):
-    
+    # THIS IS TEMPORARY
+    localDirectory = 'music'
     for root, dirs, files in os.walk(localDirectory):
         for filename in files:
             
@@ -465,8 +503,23 @@ if __name__ == "__main__":
         # sent user to settings page???
             pass
 
+        # start running the interval_check function in the background
+        interval_check()
+
     # setting general variables
     # 'music' always use music as local, this can't be changed at the moment, due to some hardcoding
+    # make the localDirectory global so it can be used in other functions
+    global localDirectory
+    """
+    The line of code you've shared is in Python and it's making use of the `global` keyword.
+    ```
+    python
+    global localDirectory
+    ```
+    The `global` keyword in Python is used to indicate that a variable is a global variable, meaning it can be accessed from anywhere in the code, not just in the scope where it was declared. 
+    In this case, `localDirectory` is being declared as a global variable. This means that `localDirectory` can be used, modified, or re-assigned in any function within this Python script, not just the function where it's declared.
+    However, it's important to note that using global variables can make code harder to understand and debug, because any part of the code can change the value of the variable. It's generally recommended to use local variables where possible, and pass data between functions using arguments and return values.
+    """
     localDirectory = 'music'
 
         
