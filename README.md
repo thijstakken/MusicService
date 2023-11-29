@@ -199,6 +199,8 @@ Techniques: [Python](https://www.python.org/), [Docker](https://www.docker.com/)
 Using this for frontend [Bootstrap v5.3](https://getbootstrap.com/docs/5.3/getting-started/introduction/)
 For the icons, using [Bootstrap Icons 1.11.2](https://icons.getbootstrap.com/#install)
 
+For the sheduler (schedules playlist downloads) [Schedule](https://github.com/dbader/schedule)
+
 1. 🤠 Git clone the project with `git clone https://github.com/thijstakken/MusicService.git`
 2. 🐛 [Pick a issue from the list or create a new issue and use that one](https://github.com/thijstakken/MusicService/issues)
 3. 🐍 Start editing the code (Python)

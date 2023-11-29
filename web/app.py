@@ -291,6 +291,9 @@ def interval_check():
     for music in music_list:
         # get the interval value for each playlist/song
         interval = music.interval
+
+        # https://github.com/dbader/schedule
+        # https://schedule.readthedocs.io/en/stable/
         #schedule.every(interval).minutes.do(download(music.id))
         print("Interval set for:", music.title, interval, "minutes")
 
