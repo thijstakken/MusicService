@@ -377,12 +377,12 @@ def create_folders(localDirectory):
                     raise SystemExit(erra)  
                 except requests.exceptions.ConnectionError as errb:     # handle network problems, DNS, refused connections
                     print("Error Connecting: ",errb)
-                    raise SystemExit(erra)
+                    raise SystemExit(errb)
                 except requests.exceptions.Timeout as errc:             # handle requests that timed out
                     print("Timeout Error: ",errc)
-                    raise SystemExit(erra)
+                    raise SystemExit(errc)
                 except requests.exceptions.TooManyRedirects as eerd:    # handle too many redirects, when a webserver is wrongly configured
-                    print("Too many redirects, the website redirected you too many times: ")
+                    print("Too many redirects, the website redirected you too many times: ",eerd)
                     raise SystemExit(eerd)
                 except requests.exceptions.RequestException as erre:    # handle all other exceptions which are not handled exclicitly
                     print("Something went wrong: ",erre)
@@ -440,12 +440,12 @@ def upload_music(remoteDirectory):
                     raise SystemExit(erra)  
                 except requests.exceptions.ConnectionError as errb:     # handle network problems, DNS, refused connections
                     print("Error Connecting: ",errb)
-                    raise SystemExit(erra)
+                    raise SystemExit(errb)
                 except requests.exceptions.Timeout as errc:             # handle requests that timed out
                     print("Timeout Error: ",errc)
-                    raise SystemExit(erra)
+                    raise SystemExit(errc)
                 except requests.exceptions.TooManyRedirects as eerd:    # handle too many redirects, when a webserver is wrongly configured
-                    print("Too many redirects, the website redirected you too many times: ")
+                    print("Too many redirects, the website redirected you too many times: ",eerd)
                     raise SystemExit(eerd)
                 except requests.exceptions.RequestException as erre:    # handle all other exceptions which are not handled exclicitly
                     print("Something went wrong: ",erre)
