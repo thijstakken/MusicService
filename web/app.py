@@ -12,6 +12,7 @@ import time
 import sys
 from pathlib import Path
 import schedule
+import threading
 
 app = Flask(__name__)
 
@@ -204,22 +205,8 @@ def upload_file():
 
             return redirect(url_for('settings'))
 
-
-@app.route("/download/<int:music_id>")
-def download(music_id):
-    # get the corrosponding URL for the ID
-
-
-
-
-
-    # put this downloading part in a function, so it can be called from the interval_check function also
-
-
-
-
-
-
+def downloadmusic(music_id):
+    # get the URL for the playlist/song
     for (url, ) in db.session.query(Music.url).filter_by(id=music_id):
         print(url)
 
@@ -257,6 +244,13 @@ def download(music_id):
                 print("NOT uploading songs because sync is turned off")
                 print(complete)
 
+
+@app.route("/download/<int:music_id>")
+def download(music_id):
+
+    # call download function and pass the music_id we want to download to it
+    downloadmusic(music_id)
+
     return redirect(url_for("home"))
 
 # let users configure their interval value on a per playlist/song basis
@@ -282,8 +276,7 @@ def interval(music_id):
 # this will be used to check if the playlist/song needs to be downloaded again
 # if the interval time has passed, then the playlist/song will be downloaded again
 # this will be used to keep the music up to date
-def interval_check():
-
+def scheduleJobs():
     # get all the playlists/songs
     music_list = Music.query.all()
 
@@ -294,9 +287,18 @@ def interval_check():
 
         # https://github.com/dbader/schedule
         # https://schedule.readthedocs.io/en/stable/
-        #schedule.every(interval).minutes.do(download(music.id))
+        schedule.every(interval).minutes.do(downloadmusic,music.id)
         print("Interval set for:", music.title, interval, "minutes")
 
+    print('here are all jobs', schedule.get_jobs())
+    
+
+def run_schedule(app_context):
+    app_context.push()
+    # run the schedule in the background
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
 
 # YT-DLP logging
 class MyLogger(object):
@@ -506,8 +508,14 @@ if __name__ == "__main__":
         # sent user to settings page???
             pass
 
-        # start running the interval_check function in the background
-        interval_check()
+        # start running the run_schedule function in the background
+        scheduleJobs()
+        #interval_check()
+
+        # start the schedule in the background as a seperated thread from the main thread
+        # this is needed to let the scheduler run in the background, while the main thread is used for the webserver
+        t = threading.Thread(target=run_schedule, args=(app.app_context(),), daemon=True)
+        t.start()
 
     # setting general variables
     # 'music' always use music as local, this can't be changed at the moment, due to some hardcoding
@@ -563,4 +571,6 @@ if __name__ == "__main__":
     print("Starting MusicService")
     version = '2023.9'
     print("Version:", version)
-    app.run(debug=True)
+
+    # let's dance: "In 5, 6, 7, 8!"
+    app.run(debug=True, port=5678)
