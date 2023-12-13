@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, send_file, flash
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
@@ -259,7 +260,7 @@ def interval(music_id):
     
     # at the moment it accepts everything. but it should only allow integers as input.
     # close this down somewhere so only integers are allowed through this method.
-    interval = request.args.get('interval', None) # None is the default value
+    interval = request.args.get('interval', None) # None is the default value if no interval is specified
     
     music = Music.query.filter_by(id=music_id).first()
     music.interval = interval
@@ -276,6 +277,7 @@ def interval(music_id):
 # this will be used to check if the playlist/song needs to be downloaded again
 # if the interval time has passed, then the playlist/song will be downloaded again
 # this will be used to keep the music up to date
+# this only schedules jobs for playlists that already exist in the database on boot
 def scheduleJobs():
     # get all the playlists/songs
     music_list = Music.query.all()
@@ -287,7 +289,7 @@ def scheduleJobs():
 
         # https://github.com/dbader/schedule
         # https://schedule.readthedocs.io/en/stable/
-        schedule.every(interval).minutes.do(downloadmusic,music.id)
+        schedule.every(interval).minutes.do(downloadmusic,music.id).tag(music.id)
         print("Interval set for:", music.title, interval, "minutes")
 
     print('here are all jobs', schedule.get_jobs())
@@ -299,6 +301,24 @@ def run_schedule(app_context):
     while True:
         schedule.run_pending()
         time.sleep(1)
+
+
+# this function can get the time left before the playlist will be downloaded again
+@app.route("/intervalstatus/<int:music_id>")
+def intervalStatus(music_id):
+    
+    time_of_next_run = schedule.next_run(music_id)
+    # get current time
+    time_now = datetime.now()
+    # calculate time left before next run
+    time_left = time_of_next_run - time_now
+
+    print("Time left before next run:", time_left)
+    time_left = time_left.seconds
+    
+    # return the time left before the next run
+    return str(time_left)
+
 
 # YT-DLP logging
 class MyLogger(object):
