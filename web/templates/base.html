@@ -41,9 +41,9 @@
 
         <br>
 
-
         <hr>
         
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <div class="row">
         {% for music in music_list %}
             <div class="col-sm-4 mb-3 mb-sm-0">
@@ -68,7 +68,7 @@
                         <a class="btn btn-warning" href="/intervalstatus/{{ music.id }}">Intervalstatus</a>
                         <br><br>
                         <form action="/interval/{{ music.id }}">
-                            <label for="cars">Choose an interval:</label>
+                            <label>Choose an interval:</label>
                             <select name="interval" id="interval">
                               <option selected="selected" hidden>{{ music.interval }}</option>
                               <option value="5">5</option>
@@ -79,8 +79,18 @@
                             <input type="submit" value="Save interval">
                           </form>
                         <div class="card-footer text-muted">
-                            <!-- <p id="intervalStatus"></p> seconds -->
-                            <p id="music.id.intervalStatus"></p>
+                        <script>
+                            $(document).ready(function(){
+                                var musicId = "{{ music.id }}";
+                                var intervalStatusElement = $("#intervalStatus" + musicId);
+                    
+                                $.get("/intervalstatus/" + musicId, function(data, status){
+                                    // Display the result in the p element with the id "intervalStatus" + musicId
+                                    $(intervalStatusElement).html(data);
+                                });
+                            });
+                            </script>
+                            <p id="intervalStatus{{ music.id }}"></p>seconds left until next sync
                         </div>
                     </div>
                 </div>
@@ -88,46 +98,6 @@
         {% endfor %}
         </div>
     </div>
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
-    <!--
-    <script>
-    $(document).ready(function(){
-        $.get("/intervalstatus/4", function(data, status){
-            // Display the result in an HTML element with the id "intervalStatus"
-            $("#intervalStatus").html(data);
-        });
-    });
-    </script>
--->
-<!--
-    <script>
-    $(document).ready(function(){
-        $(".card-body").each(function() {
-            var cardId = $(this).attr('id');
-            $.get("/intervalstatus/" + cardId, function(data, status){
-                // Display the result in an HTML element with the id "intervalStatus" inside this card
-                $("#" + cardId + " .intervalStatus").html(data);
-            });
-        });
-    });
-    </script>
--->
-
-    <script>
-    $(document).ready(function(){
-        $(".card-body").each(function() {
-            var musicId = $(this).find('a.btn-warning').attr('href').split('/')[2];
-            var intervalStatusElement = $(this).find('.card-footer p');
-
-            $.get("/intervalstatus/" + musicId, function(data, status){
-                // Display the result in the p element inside this card's footer
-                $(intervalStatusElement).html(data);
-            });
-        });
-    });
-    </script>
 
 </body>
 
