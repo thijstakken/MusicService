@@ -46,9 +46,15 @@ def home():
 def add():
     title = request.form.get("title")
     url = request.form.get("url")
-    new_music = Music(title=title, url=url, complete=False)
+    new_music = Music(title=title, url=url, complete=False, interval=10)
     db.session.add(new_music)
     db.session.commit()
+
+    # get the id of the newly added playlist/song
+    music_id = new_music.id
+    # schedule a job for the newly added playlist/song
+    scheduleNewJobs(music_id)
+
     return redirect(url_for("home"))
 
 @app.route("/update/<int:music_id>")
@@ -64,6 +70,8 @@ def delete(music_id):
     music = Music.query.filter_by(id=music_id).first()
     db.session.delete(music)
     db.session.commit()
+    # delete the scheduled job for the deleted playlist/song
+    deleteJobs(music_id)
     return redirect(url_for("home"))
 
 
@@ -219,7 +227,7 @@ def downloadmusic(music_id):
         for (complete, ) in db.session.query(Music.complete).filter_by(id=music_id):
             if complete == True:
 
-                print("sync is ON")
+                print("monitor is ON")
                 print("Going to upload the music to the cloud account")
                 print(complete)
 
@@ -241,8 +249,8 @@ def downloadmusic(music_id):
                 #clear_local_music_folder()
 
             else:
-                print("sync is OFF")
-                print("NOT uploading songs because sync is turned off")
+                print("monitor is OFF")
+                print("NOT uploading songs because monitor is turned off")
                 print(complete)
 
 
@@ -293,8 +301,23 @@ def scheduleJobs():
         print("Interval set for:", music.title, interval, "minutes")
 
     print('here are all jobs', schedule.get_jobs())
-    
 
+# schedule jobs for newly added playlists/songs
+def scheduleNewJobs(music_id):
+    # get the data for the newly added playlist/song
+    newPlaylistData = Music.query.filter_by(id=music_id).first()
+    # get the interval value for the newly added playlist/song
+    interval = newPlaylistData.interval
+    # schedule the job for the newly added playlist/song
+    schedule.every(interval).minutes.do(downloadmusic,newPlaylistData.id).tag(newPlaylistData.id)
+    print("Interval set for:", newPlaylistData.title, interval, "minutes")
+
+# delete scheduled jobs when they are no longer needed
+def deleteJobs(music_id):    
+    schedule.clear(music_id)
+    print("Deleted job for:", music_id)
+
+# this functions runs in a seperate thread to monitor scheduled jobs and run them when needed
 def run_schedule(app_context):
     app_context.push()
     # run the schedule in the background
@@ -310,11 +333,14 @@ def intervalStatus(music_id):
     time_of_next_run = schedule.next_run(music_id)
     # get current time
     time_now = datetime.now()
-    # calculate time left before next run
-    time_left = time_of_next_run - time_now
-
-    print("Time left before next run:", time_left)
-    time_left = time_left.seconds
+    
+    if time_of_next_run is not None:
+        # calculate time left before next run
+        time_left = time_of_next_run - time_now
+        print("Time left before next run:", time_left)
+        time_left = time_left.seconds
+    else:
+        time_left = 0
     
     # return the time left before the next run
     return str(time_left)
@@ -517,6 +543,9 @@ if __name__ == "__main__":
     # why did it fix it, is it really the best solution, is it even needed? Or is my programming so bad, it can't work without this workaround?
     with app.app_context():
         db.create_all()
+
+        # delete id 6 from the database, this is a leftover from testing
+        #delete(6)
 
         if WebDAV.query.filter_by(id=1).first() is not None:
             settings = WebDAV.query.filter_by(id=1).first()
