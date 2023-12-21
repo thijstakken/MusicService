@@ -15,13 +15,15 @@ from pathlib import Path
 import schedule
 import threading
 
+# import the downloadmusic function from the downloadMusic.py file
+from downloadMusic import downloadmusic
+
 app = Flask(__name__)
 
 # /// = relative path, //// = absolute path
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
-
 
 class Music(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -46,7 +48,11 @@ def home():
 def add():
     title = request.form.get("title")
     url = request.form.get("url")
-    new_music = Music(title=title, url=url, complete=False, interval=10)
+    new_music = Music()
+    new_music.title = title
+    new_music.url = url
+    new_music.complete = False
+    new_music.interval = 10
     db.session.add(new_music)
     db.session.commit()
 
@@ -60,8 +66,9 @@ def add():
 @app.route("/update/<int:music_id>")
 def update(music_id):
     music = Music.query.filter_by(id=music_id).first()
-    music.complete = not music.complete
-    db.session.commit()
+    if music is not None:
+        music.complete = not music.complete
+        db.session.commit()
     return redirect(url_for("home"))
 
 
@@ -96,11 +103,11 @@ def settingsSave():
     # then create the row and save the settings
     if WebDAV.query.filter_by(id=1).first() is None:
         
-        WebDAV_URL = request.form.get("WebDAV_URL")
-        WebDAV_Directory = request.form.get("WebDAV_Directory")
-        WebDAV_Username = request.form.get("WebDAV_Username")
-        WebDAV_Password = request.form.get("WebDAV_Password")
-        WebDAVSettings = WebDAV(WebDAV_URL=WebDAV_URL, WebDAV_Directory=WebDAV_Directory, WebDAV_Username=WebDAV_Username, WebDAV_Password=WebDAV_Password)
+        WebDAVSettings = WebDAV()
+        WebDAVSettings.WebDAV_URL = request.form.get("WebDAV_URL")
+        WebDAVSettings.WebDAV_Directory = request.form.get("WebDAV_Directory")
+        WebDAVSettings.WebDAV_Username = request.form.get("WebDAV_Username")
+        WebDAVSettings.WebDAV_Password = request.form.get("WebDAV_Password")
         db.session.add(WebDAVSettings)
         db.session.commit()
         return redirect(url_for("settings"))
@@ -108,11 +115,12 @@ def settingsSave():
     # if query is not "None" then some settings have been configured already and we just want to change those records
     else:
         settings = WebDAV.query.filter_by(id=1).first()
-        settings.WebDAV_URL = request.form.get("WebDAV_URL")
-        settings.WebDAV_Directory = request.form.get("WebDAV_Directory")
-        settings.WebDAV_Username = request.form.get("WebDAV_Username")
-        settings.WebDAV_Password = request.form.get("WebDAV_Password")
-        db.session.commit()
+        if settings is not None:
+            settings.WebDAV_URL = request.form.get("WebDAV_URL")
+            settings.WebDAV_Directory = request.form.get("WebDAV_Directory")
+            settings.WebDAV_Username = request.form.get("WebDAV_Username")
+            settings.WebDAV_Password = request.form.get("WebDAV_Password")
+            db.session.commit()
         return redirect(url_for("settings"))
 
 @app.route("/deletesong/<int:song_id>")
@@ -145,8 +153,9 @@ def addsong():
         if not text.endswith('\n'):
             # if it does not end with a newline, then add it
             archive.write('\n')
-        # add song
-        archive.write(song)
+        # add song if it is not None
+        if song is not None:
+            archive.write(song)
     return redirect(url_for("settings"))
 
 
@@ -214,51 +223,11 @@ def upload_file():
 
             return redirect(url_for('settings'))
 
-def downloadmusic(music_id):
-    # get the URL for the playlist/song
-    for (url, ) in db.session.query(Music.url).filter_by(id=music_id):
-        print(url)
-
-        print("")
-        print("Downloading playlist...", music_id)
-
-        downloadPlaylists(ydl_opts, url)
-
-        for (complete, ) in db.session.query(Music.complete).filter_by(id=music_id):
-            if complete == True:
-
-                print("monitor is ON")
-                print("Going to upload the music to the cloud account")
-                print(complete)
-
-
-                # start uploading the music
-                ##########################
-                
-                # THIS IS TEMPORARY
-                localDirectory = 'music'
-                print("")
-                print('Creating cloud folder structure based on local directories...')
-                create_folders(localDirectory)
-
-                print("")
-                print('Uploading music into the cloud folders...')
-                upload_music(remoteDirectory)
-
-                #print("Clearing local MP3 files since they are no longer needed...")
-                #clear_local_music_folder()
-
-            else:
-                print("monitor is OFF")
-                print("NOT uploading songs because monitor is turned off")
-                print(complete)
-
-
 @app.route("/download/<int:music_id>")
 def download(music_id):
 
     # call download function and pass the music_id we want to download to it
-    downloadmusic(music_id)
+    downloadmusic(db, Music, music_id, create_folders, upload_music, remoteDirectory)
 
     return redirect(url_for("home"))
 
@@ -344,52 +313,6 @@ def intervalStatus(music_id):
     
     # return the time left before the next run
     return str(time_left)
-
-
-# YT-DLP logging
-class MyLogger(object):
-    def debug(self, msg):   # print debug
-        print(msg)
-        #pass
-
-    def warning(self, msg): # print warnings
-        print(msg)
-        #pass
-
-    def error(self, msg):   # always print errors
-        print(msg)
-
-# shows progress of the downloads
-def my_hook(d):
-    if d['status'] == 'finished':
-        print('Done downloading, now converting ...')
-
-# Configure YouTube DL options
-ydl_opts = {
-    'writethumbnail': True,
-    'no_write_playlist_metafiles': True,                            # do not save playlist data, like playlist .png
-    'format': 'bestaudio[asr<=44100]/best[asr<=44100]/bestaudio',   # using asr 44100 as max, this mitigates exotic compatibility issues with certain mediaplayers, and allow bestaudio as a fallback for direct mp3s
-    'postprocessors': [{    
-        'key': 'FFmpegExtractAudio',                                # use FFMPEG and only save audio
-        'preferredcodec': 'mp3',                                    # convert to MP3 format
-        #'preferredquality': '192',                                 # with not specifying a preffered quality, the original bitrate will be used, therefore skipping one unnecessary conversion and keeping more quality
-        },
-    {'key': 'EmbedThumbnail',},                                     # embed the Youtube thumbnail with the MP3 as coverart.
-    ],
-    'logger': MyLogger(),
-    'progress_hooks': [my_hook],
-    'outtmpl': './music/%(playlist)s/%(title)s-%(id)s.%(ext)s',     # save music to the /music folder. and it's corrosponding folder which will be named after the playlist name
-    'simulate': False,                                              # to dry test the YT-DL, if set to True, it will skip the downloading. Can be True/False
-    'cachedir': False,                                              # turn off caching, this should mitigate 403 errors which are commonly seen when downloading from Youtube
-    'download_archive': '../download_archive/downloaded',           # this will update the downloads file which serves as a database/archive for which songs have already been downloaded, so it don't downloads them again
-    'nocheckcertificates': True,                                    # mitigates YT-DL bug where it wrongly examins the server certificate, so therefore, ignore invalid certificates for now, to mitigate this bug
-}
-
-# this was ment to recieve a list of strings, but now I put in 1 URL at a time. change needed for stability? could be simplerer now
-# downloads the playlist/song with the specified options in ydl_opts
-def downloadPlaylists(ydl_opts, lines):
-    with YoutubeDL(ydl_opts) as ydl:
-                ydl.download(lines)
 
 # creates directories in the cloud based on the local directory structure
 def create_folders(localDirectory):
