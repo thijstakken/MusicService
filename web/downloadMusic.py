@@ -1,8 +1,7 @@
 # youtube-dl stuff
 from yt_dlp import YoutubeDL
 
-
-def downloadmusic(db, Music, music_id, create_folders, upload_music, remoteDirectory):
+def downloadmusic(db, Music, music_id):
     # get the URL for the playlist/song
     for (url, ) in db.session.query(Music.url).filter_by(id=music_id):
         print(url)
@@ -11,35 +10,6 @@ def downloadmusic(db, Music, music_id, create_folders, upload_music, remoteDirec
         print("Downloading playlist...", music_id)
 
         downloadPlaylists(ydl_opts, url)
-
-        for (complete, ) in db.session.query(Music.complete).filter_by(id=music_id):
-            if complete == True:
-
-                print("monitor is ON")
-                print("Going to upload the music to the cloud account")
-                print(complete)
-
-
-                # start uploading the music
-                ##########################
-                
-                # THIS IS TEMPORARY
-                localDirectory = 'music'
-                print("")
-                print('Creating cloud folder structure based on local directories...')
-                create_folders(localDirectory)
-
-                print("")
-                print('Uploading music into the cloud folders...')
-                upload_music(remoteDirectory)
-
-                #print("Clearing local MP3 files since they are no longer needed...")
-                #clear_local_music_folder()
-
-            else:
-                print("monitor is OFF")
-                print("NOT uploading songs because monitor is turned off")
-                print(complete)
 
 # this was ment to recieve a list of strings, but now I put in 1 URL at a time. change needed for stability? could be simplerer now
 # downloads the playlist/song with the specified options in ydl_opts
