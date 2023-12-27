@@ -1,21 +1,20 @@
 # youtube-dl stuff
 from yt_dlp import YoutubeDL
 
-def downloadmusic(db, Music, music_id):
-    # get the URL for the playlist/song
-    for (url, ) in db.session.query(Music.url).filter_by(id=music_id):
-        print(url)
+def downloadmusic(music_id, url):
 
-        print("")
-        print("Downloading playlist...", music_id)
+    print("")
+    print("Downloading playlist...", music_id)
 
-        downloadPlaylists(ydl_opts, url)
+    downloadPlaylists(ydl_opts, url)
 
-# this was ment to recieve a list of strings, but now I put in 1 URL at a time. change needed for stability? could be simplerer now
-# downloads the playlist/song with the specified options in ydl_opts
-def downloadPlaylists(ydl_opts, lines):
+    print("Downloading complete for:", music_id)
+    print("")
+
+# download the playlists
+def downloadPlaylists(ydl_opts, url):
     with YoutubeDL(ydl_opts) as ydl:
-                ydl.download(lines)
+                ydl.download(url)
 
 # YT-DLP logging
 class MyLogger(object):

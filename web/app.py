@@ -18,6 +18,7 @@ import threading
 # import the downloadmusic function from the downloadMusic.py file
 from downloadMusic import downloadmusic
 from uploadMusic import uploadmusic
+from downloadScheduler import scheduleJobs, scheduleNewJobs, deleteJobs, run_schedule
 
 app = Flask(__name__)
 
@@ -59,8 +60,15 @@ def add():
 
     # get the id of the newly added playlist/song
     music_id = new_music.id
-    # schedule a job for the newly added playlist/song
-    scheduleNewJobs(music_id)
+
+    # get the interval value for the newly added playlist/song
+    interval = new_music.interval
+
+    # get the title of the newly added playlist/song
+    title = new_music.title
+
+    # schedule a job for the newly added playlist/song with the corrosponding interval value
+    scheduleNewJobs(music_id, title, interval)
 
     return redirect(url_for("home"))
 
@@ -227,11 +235,14 @@ def upload_file():
 @app.route("/download/<int:music_id>")
 def download(music_id):
 
-    # call download function and pass the music_id we want to download to it
-    downloadmusic(db, Music, music_id)
+    # get the URL for the playlist/song
+    for (url, ) in db.session.query(Music.url).filter_by(id=music_id):
+        print(url)
+        # call download function and pass the music_id we want to download to it
+        downloadmusic(music_id, url)
 
-    # call upload function to upload the music to the cloud
-    uploadmusic(db, Music, music_id, remoteDirectory, url, username, password)
+        # call upload function to upload the music to the cloud
+        uploadmusic(db, Music, music_id, remoteDirectory, url, username, password)
 
     return redirect(url_for("home"))
 
@@ -253,50 +264,6 @@ def interval(music_id):
     print(interval)
 
     return redirect(url_for("home"))
-
-# function which will keep an interval time for each playlist/song in the background
-# this will be used to check if the playlist/song needs to be downloaded again
-# if the interval time has passed, then the playlist/song will be downloaded again
-# this will be used to keep the music up to date
-# this only schedules jobs for playlists that already exist in the database on boot
-def scheduleJobs():
-    # get all the playlists/songs
-    music_list = Music.query.all()
-
-    # iterate over the playlists/songs
-    for music in music_list:
-        # get the interval value for each playlist/song
-        interval = music.interval
-
-        # https://github.com/dbader/schedule
-        # https://schedule.readthedocs.io/en/stable/
-        schedule.every(interval).minutes.do(downloadmusic,music.id).tag(music.id)
-        print("Interval set for:", music.title, interval, "minutes")
-
-    print('here are all jobs', schedule.get_jobs())
-
-# schedule jobs for newly added playlists/songs
-def scheduleNewJobs(music_id):
-    # get the data for the newly added playlist/song
-    newPlaylistData = Music.query.filter_by(id=music_id).first()
-    # get the interval value for the newly added playlist/song
-    interval = newPlaylistData.interval
-    # schedule the job for the newly added playlist/song
-    schedule.every(interval).minutes.do(downloadmusic,newPlaylistData.id).tag(newPlaylistData.id)
-    print("Interval set for:", newPlaylistData.title, interval, "minutes")
-
-# delete scheduled jobs when they are no longer needed
-def deleteJobs(music_id):    
-    schedule.clear(music_id)
-    print("Deleted job for:", music_id)
-
-# this functions runs in a seperate thread to monitor scheduled jobs and run them when needed
-def run_schedule(app_context):
-    app_context.push()
-    # run the schedule in the background
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
 
 
 # this function can get the time left before the playlist will be downloaded again
@@ -345,7 +312,7 @@ if __name__ == "__main__":
             pass
 
         # start running the run_schedule function in the background
-        scheduleJobs()
+        scheduleJobs(Music)
         #interval_check()
 
         # start the schedule in the background as a seperated thread from the main thread
