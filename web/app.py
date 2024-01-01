@@ -66,10 +66,13 @@ def add():
 
     # get the title of the newly added playlist/song
     title = new_music.title
-
-    # schedule a job for the newly added playlist/song with the corrosponding interval value
-    scheduleNewJobs(music_id, title, interval)
-
+    
+    # at the moment, the schedule is always false upon creation. so this is not needed at the moment
+    # this has already been used in the update function below this function.
+    #if new_music.complete is False:
+        # schedule a job for the newly added playlist/song with the corrosponding interval value
+    #    scheduleNewJobs(music_id, title, interval)
+    
     return redirect(url_for("home"))
 
 @app.route("/update/<int:music_id>")
@@ -78,6 +81,18 @@ def update(music_id):
     if music is not None:
         music.complete = not music.complete
         db.session.commit()
+        if music.complete is True:
+            print("monitor is ON")
+            print("Going to schedule the music to be downloaded on repeat")
+            print(music.complete)
+            # schedule a job for the newly added playlist/song with the corrosponding interval value
+            scheduleNewJobs(music.id, music.title, music.interval)
+        elif music.complete is False:
+            print("monitor is OFF")
+            print("Going to delete the scheduled job")
+            #print(music.complete)
+            # delete the scheduled job for the deleted playlist/song
+            deleteJobs(music.id)
     return redirect(url_for("home"))
 
 @app.route("/delete/<int:music_id>")
@@ -237,14 +252,9 @@ def download(music_id):
 
     # get WebDAV settings
     settings = WebDAV.query.filter_by(id=1).first()
-    if settings is not None:
-        url = settings.WebDAV_URL
-        remoteDirectory = settings.WebDAV_Directory
-        username = settings.WebDAV_Username
-        password = settings.WebDAV_Password
-    
+    if settings is not None:   
         # call upload function to upload the music to the cloud
-        uploadmusic(url, username, password, remoteDirectory)
+        uploadmusic(settings.WebDAV_URL, settings.WebDAV_Username, settings.WebDAV_Password, settings.WebDAV_Directory)
 
     return redirect(url_for("home"))
 
@@ -266,7 +276,6 @@ def interval(music_id):
     print(interval)
 
     return redirect(url_for("home"))
-
 
 # this function can get the time left before the playlist will be downloaded again
 @app.route("/intervalstatus/<int:music_id>")
@@ -313,8 +322,17 @@ if __name__ == "__main__":
         # sent user to settings page???
             pass
 
+
+
         # start running the run_schedule function in the background
-        scheduleJobs(Music)
+        # get all the playlists/songs
+        music_list = Music.query.all()
+        # iterate over the playlists/songs
+        for music in music_list:
+        # get the interval value for each playlist/song
+            scheduleJobs(music.interval, music.id, music.title)
+        print('here are all jobs', schedule.get_jobs())
+        
         #interval_check()
 
         # start the schedule in the background as a seperated thread from the main thread
