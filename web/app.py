@@ -80,7 +80,6 @@ def update(music_id):
         db.session.commit()
     return redirect(url_for("home"))
 
-
 @app.route("/delete/<int:music_id>")
 def delete(music_id):
     music = Music.query.filter_by(id=music_id).first()
@@ -89,7 +88,6 @@ def delete(music_id):
     # delete the scheduled job for the deleted playlist/song
     deleteJobs(music_id)
     return redirect(url_for("home"))
-
 
 @app.route("/settings")
 def settings():
@@ -103,7 +101,6 @@ def settings():
         songs = list(enumerate(songs))
     
     return render_template("settings.html", WebDAVconfig=WebDAVconfig, songs=songs)
-
 
 @app.route("/settings/save", methods=["POST"])
 def settingsSave():
@@ -147,7 +144,6 @@ def deletesong(song_id):
 
     return redirect(url_for("settings"))
 
-
 @app.route("/addsong", methods=["POST"])
 def addsong():
     song = request.form.get("song")
@@ -166,8 +162,6 @@ def addsong():
         if song is not None:
             archive.write(song)
     return redirect(url_for("settings"))
-
-
 
 @app.route('/downloadarchive') # GET request
 # based on flask.send_file method: https://flask.palletsprojects.com/en/2.3.x/api/#flask.send_file
@@ -241,8 +235,16 @@ def download(music_id):
         # call download function and pass the music_id we want to download to it
         downloadmusic(music_id, url)
 
+    # get WebDAV settings
+    settings = WebDAV.query.filter_by(id=1).first()
+    if settings is not None:
+        url = settings.WebDAV_URL
+        remoteDirectory = settings.WebDAV_Directory
+        username = settings.WebDAV_Username
+        password = settings.WebDAV_Password
+    
         # call upload function to upload the music to the cloud
-        uploadmusic(db, Music, music_id, remoteDirectory, url, username, password)
+        uploadmusic(url, username, password, remoteDirectory)
 
     return redirect(url_for("home"))
 

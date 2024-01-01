@@ -5,35 +5,40 @@ import requests
 
 # webdav
 
-def uploadmusic(db, Music, music_id, remoteDirectory, url, username, password):
-    
-    for (complete, ) in db.session.query(Music.complete).filter_by(id=music_id):
-                if complete == True:
+def uploadmusic(url, username, password, remoteDirectory):
 
-                    print("monitor is ON")
-                    print("Going to upload the music to the cloud account")
-                    print(complete)
+#    for (complete, ) in db.session.query(Music.complete).filter_by(id=music_id):
+#                if complete == True:
+                    # then turn on the monitor schedule
+
+#                    print("monitor is ON")
+#                    print("Going to upload the music to the cloud account")
+#                    print(complete)
 
                     # start uploading the music
                     ##########################
-                    
-                    # THIS IS TEMPORARY
-                    localDirectory = 'music'
-                    print("")
-                    print('Creating cloud folder structure based on local directories...')
-                    create_folders(localDirectory, remoteDirectory, url, username, password)
+                
+    # Whenever the function is called it will upload all music present in the local music folder
+    # At the moment it does not make a distinction between songs from other jobs, it will just upload everything...
+    # THIS IS TEMPORARY
+    localDirectory = 'music'
+    print("")
+    print('Creating cloud folder structure based on local directories...')
+    create_folders(localDirectory, remoteDirectory, url, username, password)
 
-                    print("")
-                    print('Uploading music into the cloud folders...')
-                    upload_music(remoteDirectory, url, username, password)
+    print("")
+    print('Uploading music into the cloud folders...')
+    upload_music(remoteDirectory, url, username, password)
 
-                    #print("Clearing local MP3 files since they are no longer needed...")
-                    #clear_local_music_folder()
+    # deleting files is already don in the upload_music function... the delete part could be in a seperate function.
 
-                else:
-                    print("monitor is OFF")
-                    print("NOT uploading songs because monitor is turned off")
-                    print(complete)
+    #print("Clearing local MP3 files since they are no longer needed...")
+    #clear_local_music_folder()
+
+#                else:
+#                    print("monitor is OFF")
+#                    print("NOT uploading songs because monitor is turned off")
+#                    print(complete)
 
 
 # creates directories in the cloud based on the local directory structure
