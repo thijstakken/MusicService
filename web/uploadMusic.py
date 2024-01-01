@@ -2,26 +2,17 @@
 import os
 import requests
 
-
 # webdav
 
+# start uploading the music to the cloud using WebDAV
 def uploadmusic(url, username, password, remoteDirectory):
-
-#    for (complete, ) in db.session.query(Music.complete).filter_by(id=music_id):
-#                if complete == True:
-                    # then turn on the monitor schedule
-
-#                    print("monitor is ON")
-#                    print("Going to upload the music to the cloud account")
-#                    print(complete)
-
-                    # start uploading the music
-                    ##########################
-                
     # Whenever the function is called it will upload all music present in the local music folder
     # At the moment it does not make a distinction between songs from other jobs, it will just upload everything...
-    # THIS IS TEMPORARY
+    
+    # THIS IS TEMPORARY ###
     localDirectory = 'music'
+    ###
+
     print("")
     print('Creating cloud folder structure based on local directories...')
     create_folders(localDirectory, remoteDirectory, url, username, password)
@@ -34,11 +25,6 @@ def uploadmusic(url, username, password, remoteDirectory):
 
     #print("Clearing local MP3 files since they are no longer needed...")
     #clear_local_music_folder()
-
-#                else:
-#                    print("monitor is OFF")
-#                    print("NOT uploading songs because monitor is turned off")
-#                    print(complete)
 
 
 # creates directories in the cloud based on the local directory structure
