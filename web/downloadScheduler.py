@@ -2,29 +2,40 @@
 import schedule
 import time
 from downloadMusic import downloadmusic
+from uploadMusic import uploadmusic
 
+
+def download_and_upload(music, settings):
+    if music is not None:
+        # call download function and pass the music_id we want to download to it
+        downloadmusic(music.id, music.url)
+
+    if settings is not None:   
+        # call upload function to upload the music to the cloud
+        uploadmusic(settings.WebDAV_URL, settings.WebDAV_Username, settings.WebDAV_Password, settings.WebDAV_Directory)
 
 # function which will keep an interval time for each playlist/song in the background
 # this will be used to check if the playlist/song needs to be downloaded again
 # if the interval time has passed, then the playlist/song will be downloaded again
 # this will be used to keep the music up to date
 # this only schedules jobs for playlists that already exist in the database on boot
-def scheduleJobs(interval, id, title, url):
+def scheduleJobs(music, settings):
     # https://github.com/dbader/schedule
     # https://schedule.readthedocs.io/en/stable/
-    schedule.every(interval).minutes.do(downloadmusic,id,url).tag(id)
-    print("Interval set for:", title, interval, "minutes")
+    schedule.every(music.interval).minutes.do(download_and_upload,music,settings).tag(music.id)
+    print("Interval set for:", music.title, music.interval, "minutes")
 
 
 # schedule jobs for newly added playlists/songs
-def scheduleNewJobs(music_id, title, interval, url):
+def scheduleNewJobs(music, settings):
     # get the data for the newly added playlist/song
     #newPlaylistData = Music.query.filter_by(id=music_id).first()
     # get the interval value for the newly added playlist/song
     #interval = newPlaylistData.interval
     # schedule the job for the newly added playlist/song
-    schedule.every(interval).minutes.do(downloadmusic,music_id,url).tag(music_id)
-    print("Interval set for:", title, interval, "minutes")
+    #music.url
+    schedule.every(music.interval).minutes.do(download_and_upload,music,settings).tag(music.id)
+    print("Interval set for:", music.title, music.interval, "minutes")
 
 # delete scheduled jobs when they are no longer needed
 def deleteJobs(music_id):
