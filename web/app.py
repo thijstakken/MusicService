@@ -86,7 +86,7 @@ def update(music_id):
             print("Going to schedule the music to be downloaded on repeat")
             print(music.complete)
             # schedule a job for the newly added playlist/song with the corrosponding interval value
-            scheduleNewJobs(music.id, music.title, music.interval)
+            scheduleNewJobs(music.id, music.title, music.interval, music.url)
         elif music.complete is False:
             print("monitor is OFF")
             print("Going to delete the scheduled job")
@@ -267,13 +267,18 @@ def interval(music_id):
     interval = request.args.get('interval', None) # None is the default value if no interval is specified
     
     music = Music.query.filter_by(id=music_id).first()
-    music.interval = interval
-    db.session.commit()
-    print(interval)
-    print(interval)
-    print(interval)
-    print(interval)
-    print(interval)
+    if music:
+        music.interval = interval
+        db.session.commit()
+        #print(interval)
+        
+        # if the monitor is on, then reschedule the job with the new interval value
+        if music.complete is True:
+            print("Going to reschedule the music to be downloaded on repeat")
+            # delete the scheduled job for the deleted playlist/song
+            deleteJobs(music_id)
+            # schedule a job for the newly added playlist/song with the corrosponding interval value
+            scheduleNewJobs(music.id, music.title, music.interval, music.url)
 
     return redirect(url_for("home"))
 
@@ -329,8 +334,10 @@ if __name__ == "__main__":
         music_list = Music.query.all()
         # iterate over the playlists/songs
         for music in music_list:
+            # make sure the playlist/song is set to be monitored
+            if music.complete is True:
         # get the interval value for each playlist/song
-            scheduleJobs(music.interval, music.id, music.title)
+                scheduleJobs(music.interval, music.id, music.title, music.url)
         print('here are all jobs', schedule.get_jobs())
         
         #interval_check()

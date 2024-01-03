@@ -9,21 +9,21 @@ from downloadMusic import downloadmusic
 # if the interval time has passed, then the playlist/song will be downloaded again
 # this will be used to keep the music up to date
 # this only schedules jobs for playlists that already exist in the database on boot
-def scheduleJobs(interval, id, title):
+def scheduleJobs(interval, id, title, url):
     # https://github.com/dbader/schedule
     # https://schedule.readthedocs.io/en/stable/
-    schedule.every(interval).minutes.do(downloadmusic,id).tag(id)
+    schedule.every(interval).minutes.do(downloadmusic,id,url).tag(id)
     print("Interval set for:", title, interval, "minutes")
 
 
 # schedule jobs for newly added playlists/songs
-def scheduleNewJobs(music_id, title, interval):
+def scheduleNewJobs(music_id, title, interval, url):
     # get the data for the newly added playlist/song
     #newPlaylistData = Music.query.filter_by(id=music_id).first()
     # get the interval value for the newly added playlist/song
     #interval = newPlaylistData.interval
     # schedule the job for the newly added playlist/song
-    schedule.every(interval).minutes.do(downloadmusic,music_id).tag(music_id)
+    schedule.every(interval).minutes.do(downloadmusic,music_id,url).tag(music_id)
     print("Interval set for:", title, interval, "minutes")
 
 # delete scheduled jobs when they are no longer needed
