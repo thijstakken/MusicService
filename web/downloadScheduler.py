@@ -14,6 +14,13 @@ def download_and_upload(music, settings):
         # call upload function to upload the music to the cloud
         uploadmusic(settings.WebDAV_URL, settings.WebDAV_Username, settings.WebDAV_Password, settings.WebDAV_Directory)
 
+    # if tag immidiate is present, then delete the job after it has run once
+    # if the job that is executed contains the tag 'immidiate' then cancel the job after it has run once
+    # we need to remove the immidiate job (download now button/manual) from the schedule because otherwise it will keep running every second
+    if schedule.get_jobs(tag='immidiate'):
+        print("Going to delete immidiate job:", music.id)
+        return schedule.CancelJob
+
 # function which will keep an interval time for each playlist/song in the background
 # this will be used to check if the playlist/song needs to be downloaded again
 # if the interval time has passed, then the playlist/song will be downloaded again
@@ -25,17 +32,10 @@ def scheduleJobs(music, settings):
     schedule.every(music.interval).minutes.do(download_and_upload,music,settings).tag(music.id)
     print("Interval set for:", music.title, music.interval, "minutes")
 
-
-# schedule jobs for newly added playlists/songs
-def scheduleNewJobs(music, settings):
-    # get the data for the newly added playlist/song
-    #newPlaylistData = Music.query.filter_by(id=music_id).first()
-    # get the interval value for the newly added playlist/song
-    #interval = newPlaylistData.interval
-    # schedule the job for the newly added playlist/song
-    #music.url
-    schedule.every(music.interval).minutes.do(download_and_upload,music,settings).tag(music.id)
-    print("Interval set for:", music.title, music.interval, "minutes")
+def immediateJob(music, settings):
+    # Schedule the download_and_upload function to run immediately
+    schedule.every().second.do(download_and_upload,music,settings).tag(music.id, 'immidiate')
+    print("Immediate job set for:", music.title, "executing now")
 
 # delete scheduled jobs when they are no longer needed
 def deleteJobs(music_id):

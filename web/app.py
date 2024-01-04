@@ -18,7 +18,7 @@ import threading
 # import the downloadmusic function from the downloadMusic.py file
 #from downloadMusic import downloadmusic
 #from uploadMusic import uploadmusic
-from downloadScheduler import scheduleJobs, scheduleNewJobs, deleteJobs, run_schedule
+from downloadScheduler import scheduleJobs, deleteJobs, immediateJob, run_schedule
 
 app = Flask(__name__)
 
@@ -31,7 +31,7 @@ class Music(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100))
     url = db.Column(db.String(200))
-    complete = db.Column(db.Boolean)
+    monitored = db.Column(db.Boolean)
     interval = db.Column(db.Integer)
 
 class WebDAV(db.Model):
@@ -53,45 +53,36 @@ def add():
     new_music = Music()
     new_music.title = title
     new_music.url = url
-    new_music.complete = False
+    new_music.monitored = False
     new_music.interval = 10
     db.session.add(new_music)
     db.session.commit()
-
-    # get the id of the newly added playlist/song
-    music_id = new_music.id
-
-    # get the interval value for the newly added playlist/song
-    interval = new_music.interval
-
-    # get the title of the newly added playlist/song
-    title = new_music.title
     
     # at the moment, the schedule is always false upon creation. so this is not needed at the moment
-    # this has already been used in the update function below this function.
-    #if new_music.complete is False:
+    # this has already been used in the monitor function below this function.
+    #if new_music.monitored is False:
         # schedule a job for the newly added playlist/song with the corrosponding interval value
-    #    scheduleNewJobs(music_id, title, interval)
-    
+    #    scheduleJobs(music_id, title, interval)
     return redirect(url_for("home"))
 
-@app.route("/update/<int:music_id>")
-def update(music_id):
+@app.route("/monitor/<int:music_id>")
+def monitor(music_id):
     music = Music.query.filter_by(id=music_id).first()
-    settings = WebDAV.query.filter_by(id=1).first()
+    # turned below rule off because during startup the settings are already set.
+    #settings = WebDAV.query.filter_by(id=1).first()
     if music is not None:
-        music.complete = not music.complete
+        music.monitored = not music.monitored
         db.session.commit()
-        if music.complete is True:
+        if music.monitored is True and settings is not None:
             print("monitor is ON")
             print("Going to schedule the music to be downloaded on repeat")
-            print(music.complete)
+            print(music.monitored)
             # schedule a job for the newly added playlist/song with the corrosponding interval value
-            scheduleNewJobs(music, settings)
-        elif music.complete is False:
+            scheduleJobs(music, settings)
+        elif music.monitored is False:
             print("monitor is OFF")
             print("Going to delete the scheduled job")
-            #print(music.complete)
+            #print(music.monitored)
             # delete the scheduled job for the deleted playlist/song
             deleteJobs(music.id)
     return redirect(url_for("home"))
@@ -104,6 +95,63 @@ def delete(music_id):
     # delete the scheduled job for the deleted playlist/song
     deleteJobs(music_id)
     return redirect(url_for("home"))
+
+@app.route("/download/<int:music_id>")
+def download(music_id):
+    # get the music object from the database
+    music = Music.query.filter_by(id=music_id).first()
+    # execute the download function to download one time
+    if music is not None and settings is not None:
+        immediateJob(music, settings)
+    return redirect(url_for("home"))
+
+# let users configure their interval value on a per playlist/song basis
+@app.route("/interval/<int:music_id>")
+def interval(music_id):
+    
+    # at the moment it accepts everything. but it should only allow integers as input.
+    # close this down somewhere so only integers are allowed through this method.
+    interval = request.args.get('interval', None) # None is the default value if no interval is specified
+    
+    music = Music.query.filter_by(id=music_id).first()
+    settings = WebDAV.query.filter_by(id=1).first()
+    if music:
+        music.interval = interval
+        db.session.commit()
+        #print(interval)
+        
+        # if the monitor is on, then reschedule the job with the new interval value
+        if music.monitored is True:
+            print("Going to reschedule the music to be downloaded on repeat")
+            # delete the scheduled job for the deleted playlist/song
+            deleteJobs(music_id)
+            # schedule a job for the newly added playlist/song with the corrosponding interval value
+            scheduleJobs(music, settings)
+
+    return redirect(url_for("home"))
+
+# this function can get the time left before the playlist will be downloaded again
+@app.route("/intervalstatus/<int:music_id>")
+def intervalStatus(music_id):
+    
+    time_of_next_run = schedule.next_run(music_id)
+    # get current time
+    time_now = datetime.now()
+    
+    if time_of_next_run is not None:
+        # calculate time left before next run
+        time_left = time_of_next_run - time_now
+        print("Time left before next run:", time_left)
+        time_left = time_left.seconds
+    else:
+        time_left = 0
+    
+    # return the time left before the next run
+    return str(time_left)
+
+
+
+### WEBDAV FUNCTIONS SETTINGS ###
 
 @app.route("/settings")
 def settings():
@@ -145,23 +193,14 @@ def settingsSave():
             db.session.commit()
         return redirect(url_for("settings"))
 
-@app.route("/deletesong/<int:song_id>")
-def deletesong(song_id):
-    # get songs archive
-    with open(r"../download_archive/downloaded", 'r') as fileop:
-        songs = fileop.readlines()
+### END WEBDAV FUNCTIONS SETTINGS ###
 
-    # delete/clear the correct row
-    with open(r"../download_archive/downloaded", 'w') as fileop:
-        for number, line in enumerate(songs):
-        # delete/clear the song_id line
-            if number not in [song_id]:
-                fileop.write(line)    
 
-    return redirect(url_for("settings"))
 
-@app.route("/addsong", methods=["POST"])
-def addsong():
+### ARCHIVE FUNCTIONS ###
+
+@app.route("/archiveaddsong", methods=["POST"])
+def archiveaddsong():
     song = request.form.get("song")
 
     # get archive for analysis
@@ -179,9 +218,24 @@ def addsong():
             archive.write(song)
     return redirect(url_for("settings"))
 
-@app.route('/downloadarchive') # GET request
+@app.route("/archivedeletesong/<int:song_id>")
+def archivedeletesong(song_id):
+    # get songs archive
+    with open(r"../download_archive/downloaded", 'r') as fileop:
+        songs = fileop.readlines()
+
+    # delete/clear the correct row
+    with open(r"../download_archive/downloaded", 'w') as fileop:
+        for number, line in enumerate(songs):
+        # delete/clear the song_id line
+            if number not in [song_id]:
+                fileop.write(line)    
+
+    return redirect(url_for("settings"))
+
+@app.route('/archivedownload') # GET request
 # based on flask.send_file method: https://flask.palletsprojects.com/en/2.3.x/api/#flask.send_file
-def downloadarchive():
+def archivedownload():
     return send_file(
         '../download_archive/downloaded',
         mimetype='text/plain',
@@ -195,18 +249,18 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # used flask uploading files guide https://flask.palletsprojects.com/en/3.0.x/patterns/fileuploads/
-@app.route('/uploadarchive', methods=['POST'])
-def upload_file():
-    if request.method == 'POST':
+@app.route("/archiveupload", methods=["POST"])
+def archiveupload():
+    if request.method == "POST":
         # check if the post request has the file part
-        if 'file' not in request.files:
-            flash('No file part')
+        if "file" not in request.files:
+            flash("No file part")
             return redirect(request.url)
-        file = request.files['file']
+        file = request.files["file"]
         # If the user does not select a file, the browser submits an
         # empty file without a filename.
-        if file.filename == '':
-            flash('No selected file')
+        if file.filename == "":
+            flash("No selected file")
             return redirect(request.url)
         if file and allowed_file(file.filename):
             # read the contents
@@ -242,74 +296,8 @@ def upload_file():
 
             return redirect(url_for('settings'))
   
-
-@app.route("/download/<int:music_id>")
-def download(music_id):
-
-    download_and_upload(music_id)
-
-    # get the URL for the playlist/song
-    #for (url, ) in db.session.query(Music.url).filter_by(id=music_id):
-    #    print(url)
+### END ARCHIVE FUNCTIONS ###
         
-    # call download function and pass the music_id we want to download to it
-    #downloadmusic(music_id, url)
-        
-    # music.interval = 0
-    # schedule a job to be executed directly
-    #scheduleNewJobs(music.id, music.title, music.interval, music.url)
-
-    # get WebDAV settings
-    #settings = WebDAV.query.filter_by(id=1).first()
-    #if settings is not None:   
-    #    # call upload function to upload the music to the cloud
-    #    uploadmusic(settings.WebDAV_URL, settings.WebDAV_Username, settings.WebDAV_Password, settings.WebDAV_Directory)
-
-    return redirect(url_for("home"))
-
-# let users configure their interval value on a per playlist/song basis
-@app.route("/interval/<int:music_id>")
-def interval(music_id):
-    
-    # at the moment it accepts everything. but it should only allow integers as input.
-    # close this down somewhere so only integers are allowed through this method.
-    interval = request.args.get('interval', None) # None is the default value if no interval is specified
-    
-    music = Music.query.filter_by(id=music_id).first()
-    settings = WebDAV.query.filter_by(id=1).first()
-    if music:
-        music.interval = interval
-        db.session.commit()
-        #print(interval)
-        
-        # if the monitor is on, then reschedule the job with the new interval value
-        if music.complete is True:
-            print("Going to reschedule the music to be downloaded on repeat")
-            # delete the scheduled job for the deleted playlist/song
-            deleteJobs(music_id)
-            # schedule a job for the newly added playlist/song with the corrosponding interval value
-            scheduleNewJobs(music, settings)
-
-    return redirect(url_for("home"))
-
-# this function can get the time left before the playlist will be downloaded again
-@app.route("/intervalstatus/<int:music_id>")
-def intervalStatus(music_id):
-    
-    time_of_next_run = schedule.next_run(music_id)
-    # get current time
-    time_now = datetime.now()
-    
-    if time_of_next_run is not None:
-        # calculate time left before next run
-        time_left = time_of_next_run - time_now
-        print("Time left before next run:", time_left)
-        time_left = time_left.seconds
-    else:
-        time_left = 0
-    
-    # return the time left before the next run
-    return str(time_left)
 
 
 if __name__ == "__main__":
@@ -346,7 +334,7 @@ if __name__ == "__main__":
         # iterate over the playlists/songs
         for music in music_list:
             # make sure the playlist/song is set to be monitored
-            if music.complete is True:
+            if music.monitored is True and settings is not None:
         # get the interval value for each playlist/song
                 scheduleJobs(music, settings)
         print('here are all jobs', schedule.get_jobs())

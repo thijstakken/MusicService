@@ -55,8 +55,8 @@
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item">{{music.url}}</li>
                     
-                    {% if music.complete == False %}
-                    <form action="/update/{{ music.id }}">
+                    {% if music.monitored == False %}
+                    <form action="/monitor/{{ music.id }}">
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" onChange="this.form.submit()">
                         <label class="form-check-label" for="flexSwitchCheckChecked">Un-monitored</label>
@@ -64,7 +64,7 @@
                     </form>
                     
                     {% else %}
-                    <form action="/update/{{ music.id }}">
+                    <form action="/monitor/{{ music.id }}">
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" onChange="this.form.submit()" checked>
                         <label class="form-check-label" for="flexSwitchCheckChecked">Monitored</label>
@@ -74,10 +74,10 @@
                     </ul>
                     <div class="card-body">
                         <!--
-                        {% if music.complete == False %}
-                        <a class="btn btn-secondary" href="/update/{{ music.id }}">Not monitored</a>
+                        {% if music.monitored == False %}
+                        <a class="btn btn-secondary" href="/monitor/{{ music.id }}">Not monitored</a>
                         {% else %}
-                        <a class="btn btn-success" href="/update/{{ music.id }}">Monitored</a>
+                        <a class="btn btn-success" href="/monitor/{{ music.id }}">Monitored</a>
                         {% endif %}
                         -->
                         <a class="btn btn-primary" href="/download/{{ music.id }}">Download</a>

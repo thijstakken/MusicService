@@ -112,13 +112,13 @@
           Import
         </button>
 
-        <a class="btn btn-dark bi bi-download" href="/downloadarchive"> Export</a>
+        <a class="btn btn-dark bi bi-download" href="/archivedownload"> Export</a>
         <br>
         <br>
-        <form action="/addsong" method="post">
+        <form action="/archiveaddsong" method="post">
         <label class="form-label">Add song</label>
             <div class="input-group mb-3">
-                <input type="text" class="form-control" name="song" placeholder="youtube 843hf84hf0">
+                <input type="text" class="form-control" name="song" placeholder="youtube BaW_jenozKc">
                 <div class="input-group-append">
                   <button class="btn btn-success" type="submit">Add</button>
                 </div>
@@ -135,6 +135,7 @@
                   <button class="btn btn-primary" type="submit">Search</button>
                 </div>
             </div>
+        </form>
             
             <!-- want to add pagination for every 10 songs -->
             <label class="form-label">Song</label>
@@ -142,7 +143,7 @@
             <div class="input-group mb-3">
                 <input type="text" class="form-control" placeholder="Song" value="{{ song[1] }}" readonly>
                 <div class="input-group-append">
-                  <a class="btn btn-danger" href="/deletesong/{{ song[0] }}">Delete</a>
+                  <a class="btn btn-danger" href="/archivedeletesong/{{ song[0] }}">Delete</a>
                 </div>
               </div>
             {% endfor %}
@@ -164,7 +165,7 @@
         <p>You can upload your YT-DL(P) archive here if you have one. By doing this, it will not try to download these songs again, saving time and resources.</p>
         <br>
         <p>Select archive file to upload</p>
-        <form action="/uploadarchive" method="post" enctype="multipart/form-data">
+        <form action="/archiveupload" method="post" enctype="multipart/form-data">
           <input name=file type="file" class="form-control" aria-label="file example" required/>
           <p>Only .txt files are allowed</p>
           <button type="submit" class="btn btn-primary bi bi-cloud-upload"> Import</button>
