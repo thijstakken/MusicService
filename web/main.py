@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 from datetime import datetime
-from flask import Flask, render_template, request, redirect, url_for, send_file, flash
+from flask import Flask, render_template, request, redirect, url_for, send_file, flash, Blueprint
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
 from re import L
@@ -14,39 +14,24 @@ import sys
 from pathlib import Path
 import schedule
 import threading
+from web import db
+# from . import db
 
 # import the downloadmusic function from the downloadMusic.py file
 #from downloadMusic import downloadmusic
 #from uploadMusic import uploadmusic
-from downloadScheduler import scheduleJobs, deleteJobs, immediateJob, run_schedule
+from web.downloadScheduler import scheduleJobs, deleteJobs, immediateJob, run_schedule
 
-app = Flask(__name__)
 
-# /// = relative path, //// = absolute path
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
+main = Blueprint('main', __name__)
 
-class Music(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100))
-    url = db.Column(db.String(200))
-    monitored = db.Column(db.Boolean)
-    interval = db.Column(db.Integer)
 
-class WebDAV(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    WebDAV_URL = db.Column(db.String(250))
-    WebDAV_Directory = db.Column(db.String(250))
-    WebDAV_Username = db.Column(db.String(30))
-    WebDAV_Password = db.Column(db.String(100))
-
-@app.route("/")
+@main.route("/")
 def home():
     music_list = Music.query.all()
     return render_template("base.html", music_list=music_list)
 
-@app.route("/add", methods=["POST"])
+@main.route("/add", methods=["POST"])
 def add():
     title = request.form.get("title")
     url = request.form.get("url")
@@ -65,7 +50,7 @@ def add():
     #    scheduleJobs(music_id, title, interval)
     return redirect(url_for("home"))
 
-@app.route("/monitor/<int:music_id>")
+@main.route("/monitor/<int:music_id>")
 def monitor(music_id):
     music = Music.query.filter_by(id=music_id).first()
     # turned below rule off because during startup the settings are already set.
@@ -87,7 +72,7 @@ def monitor(music_id):
             deleteJobs(music.id)
     return redirect(url_for("home"))
 
-@app.route("/delete/<int:music_id>")
+@main.route("/delete/<int:music_id>")
 def delete(music_id):
     music = Music.query.filter_by(id=music_id).first()
     db.session.delete(music)
@@ -96,7 +81,7 @@ def delete(music_id):
     deleteJobs(music_id)
     return redirect(url_for("home"))
 
-@app.route("/download/<int:music_id>")
+@main.route("/download/<int:music_id>")
 def download(music_id):
     # get the music object from the database
     music = Music.query.filter_by(id=music_id).first()
@@ -106,7 +91,7 @@ def download(music_id):
     return redirect(url_for("home"))
 
 # let users configure their interval value on a per playlist/song basis
-@app.route("/interval/<int:music_id>")
+@main.route("/interval/<int:music_id>")
 def interval(music_id):
     
     # at the moment it accepts everything. but it should only allow integers as input.
@@ -131,7 +116,7 @@ def interval(music_id):
     return redirect(url_for("home"))
 
 # this function can get the time left before the playlist will be downloaded again
-@app.route("/intervalstatus/<int:music_id>")
+@main.route("/intervalstatus/<int:music_id>")
 def intervalStatus(music_id):
     
     time_of_next_run = schedule.next_run(music_id)
@@ -153,7 +138,7 @@ def intervalStatus(music_id):
 
 ### WEBDAV FUNCTIONS SETTINGS ###
 
-@app.route("/settings")
+@main.route("/settings")
 def settings():
     # get settings
     WebDAVconfig = WebDAV.query.all()
@@ -166,7 +151,7 @@ def settings():
     
     return render_template("settings.html", WebDAVconfig=WebDAVconfig, songs=songs)
 
-@app.route("/settings/save", methods=["POST"])
+@main.route("/settings/save", methods=["POST"])
 def settingsSave():
     
     # if the settings are not set, the row will be empty, so "None"
@@ -199,7 +184,7 @@ def settingsSave():
 
 ### ARCHIVE FUNCTIONS ###
 
-@app.route("/archiveaddsong", methods=["POST"])
+@main.route("/archiveaddsong", methods=["POST"])
 def archiveaddsong():
     song = request.form.get("song")
 
@@ -218,7 +203,7 @@ def archiveaddsong():
             archive.write(song)
     return redirect(url_for("settings"))
 
-@app.route("/archivedeletesong/<int:song_id>")
+@main.route("/archivedeletesong/<int:song_id>")
 def archivedeletesong(song_id):
     # get songs archive
     with open(r"../download_archive/downloaded", 'r') as fileop:
@@ -233,7 +218,7 @@ def archivedeletesong(song_id):
 
     return redirect(url_for("settings"))
 
-@app.route('/archivedownload') # GET request
+@main.route('/archivedownload') # GET request
 # based on flask.send_file method: https://flask.palletsprojects.com/en/2.3.x/api/#flask.send_file
 def archivedownload():
     return send_file(
@@ -249,7 +234,7 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # used flask uploading files guide https://flask.palletsprojects.com/en/3.0.x/patterns/fileuploads/
-@app.route("/archiveupload", methods=["POST"])
+@main.route("/archiveupload", methods=["POST"])
 def archiveupload():
     if request.method == "POST":
         # check if the post request has the file part
@@ -300,106 +285,7 @@ def archiveupload():
         
 
 
-if __name__ == "__main__":
-
-    # used for message flashing, look for "flash" to see where it's used
-    app.secret_key = b'/\xed\xb4\x87$E\xf4O\xbb\x8fpb\xad\xc2\x88\x90!\x89\x18\xd0z\x15~Z'
-
-    # had to add app.app otherwise would not work properly
-    # this fixes the working outside of application context error
-    # article with fix https://sentry.io/answers/working-outside-of-application-context/
-    # why did it fix it, is it really the best solution, is it even needed? Or is my programming so bad, it can't work without this workaround?
-    with app.app_context():
-        db.create_all()
-
-        # delete id 6 from the database, this is a leftover from testing
-        #delete(6)
-        
-        #settings = WebDAV.query.filter_by(id=1).first()
-        #if settings is not None:
-        #    url = settings.WebDAV_URL
-        #    remoteDirectory = settings.WebDAV_Directory
-        #    username = settings.WebDAV_Username
-        #    password = settings.WebDAV_Password
-        #else:
-        # sent user to settings page???
-        #    pass
-
-
-
-        # start running the run_schedule function in the background
-        # get all the playlists/songs
-        music_list = Music.query.all()
-        settings = WebDAV.query.filter_by(id=1).first()
-        # iterate over the playlists/songs
-        for music in music_list:
-            # make sure the playlist/song is set to be monitored
-            if music.monitored is True and settings is not None:
-        # get the interval value for each playlist/song
-                scheduleJobs(music, settings)
-        print('here are all jobs', schedule.get_jobs())
-        
-        #interval_check()
-
-        # start the schedule in the background as a seperated thread from the main thread
-        # this is needed to let the scheduler run in the background, while the main thread is used for the webserver
-        t = threading.Thread(target=run_schedule, args=(app.app_context(),), daemon=True)
-        t.start()
-
-    # setting general variables
-    # 'music' always use music as local, this can't be changed at the moment, due to some hardcoding
-    # make the localDirectory global so it can be used in other functions
-    global localDirectory
-    """
-    The line of code you've shared is in Python and it's making use of the `global` keyword.
-    ```
-    python
-    global localDirectory
-    ```
-    The `global` keyword in Python is used to indicate that a variable is a global variable, meaning it can be accessed from anywhere in the code, not just in the scope where it was declared. 
-    In this case, `localDirectory` is being declared as a global variable. This means that `localDirectory` can be used, modified, or re-assigned in any function within this Python script, not just the function where it's declared.
-    However, it's important to note that using global variables can make code harder to understand and debug, because any part of the code can change the value of the variable. It's generally recommended to use local variables where possible, and pass data between functions using arguments and return values.
-    """
-    localDirectory = 'music'
-
-        
-    # check if file ../download_archive/downloaded exists
-    archive_directory = '../download_archive/'
-    archive_file = 'downloaded'
-    download_archive = os.path.join(archive_directory, archive_file)
-
-    if os.path.isfile(download_archive) == False:
-        # tries to create the archive directory and file
-        
-        print("Download archive does not exist")
-
-        # tries to create archive directory
-        try:
-            print("Creating directory...")
-            output = os.mkdir(archive_directory)
-            print("Directory '% s' created" % archive_directory)
-        except OSError as error:
-            print(error)
-
-        # tries to create archive file
-        try:
-            print("Creating file...")
-            open(download_archive, 'x')
-            print("File '% s' created" % download_archive)
-        except OSError as error:
-            print(error)
-
-    else:
-        print("Download archive exists, nothing to do...")
-
-
-    # print Python version for informational purposes
-    print("Python version: "+ sys.version)
-
-    # welcome message
-    print("Starting MusicService")
-    version = '2023.9'
-    print("Version:", version)
+#if __name__ == "__main__":
 
     # let's dance: "In 5, 6, 7, 8!"
-    app.run(debug=True, port=5678)
+#    main.run(debug=True, port=5678)
