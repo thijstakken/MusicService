@@ -1,8 +1,8 @@
 # schedule stuff
 import schedule
 import time
-from downloadMusic import downloadmusic
-from uploadMusic import uploadmusic
+from webapp.downloadMusic import downloadmusic
+from webapp.uploadMusic import uploadmusic
 
 
 def download_and_upload(music, settings):

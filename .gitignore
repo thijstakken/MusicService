@@ -1,8 +1,8 @@
 database/
 music/
 .vscode
-/web/db.sqlite
+/webapp/db.sqlite
 venv/
-web/__pycache__
+__pycache__
 instance/
 download_archive/

@@ -14,24 +14,37 @@ import sys
 from pathlib import Path
 import schedule
 import threading
-from web import db
+from webapp import db
 # from . import db
 
 # import the downloadmusic function from the downloadMusic.py file
 #from downloadMusic import downloadmusic
 #from uploadMusic import uploadmusic
-from web.downloadScheduler import scheduleJobs, deleteJobs, immediateJob, run_schedule
+from webapp.downloadScheduler import scheduleJobs, deleteJobs, immediateJob, run_schedule
+
+from webapp import app
 
 
-main = Blueprint('main', __name__)
+# blueprint will be activeated later
+#main = Blueprint('main', __name__)
+
+@app.route('/')
+def index():
+    return "Hello World!"
+    #return render_template('index.html')
+
+@app.route('/profile')
+def profile():
+    return render_template('profile.html')
+
+#@app.route("/")
+#def home():
+#    music_list = Music.query.all()
+#    return render_template("base.html", music_list=music_list)
 
 
-@main.route("/")
-def home():
-    music_list = Music.query.all()
-    return render_template("base.html", music_list=music_list)
 
-@main.route("/add", methods=["POST"])
+@app.route("/add", methods=["POST"])
 def add():
     title = request.form.get("title")
     url = request.form.get("url")
@@ -50,7 +63,7 @@ def add():
     #    scheduleJobs(music_id, title, interval)
     return redirect(url_for("home"))
 
-@main.route("/monitor/<int:music_id>")
+@app.route("/monitor/<int:music_id>")
 def monitor(music_id):
     music = Music.query.filter_by(id=music_id).first()
     # turned below rule off because during startup the settings are already set.
@@ -72,7 +85,7 @@ def monitor(music_id):
             deleteJobs(music.id)
     return redirect(url_for("home"))
 
-@main.route("/delete/<int:music_id>")
+@app.route("/delete/<int:music_id>")
 def delete(music_id):
     music = Music.query.filter_by(id=music_id).first()
     db.session.delete(music)
@@ -81,7 +94,7 @@ def delete(music_id):
     deleteJobs(music_id)
     return redirect(url_for("home"))
 
-@main.route("/download/<int:music_id>")
+@app.route("/download/<int:music_id>")
 def download(music_id):
     # get the music object from the database
     music = Music.query.filter_by(id=music_id).first()
@@ -91,7 +104,7 @@ def download(music_id):
     return redirect(url_for("home"))
 
 # let users configure their interval value on a per playlist/song basis
-@main.route("/interval/<int:music_id>")
+@app.route("/interval/<int:music_id>")
 def interval(music_id):
     
     # at the moment it accepts everything. but it should only allow integers as input.
@@ -116,7 +129,7 @@ def interval(music_id):
     return redirect(url_for("home"))
 
 # this function can get the time left before the playlist will be downloaded again
-@main.route("/intervalstatus/<int:music_id>")
+@app.route("/intervalstatus/<int:music_id>")
 def intervalStatus(music_id):
     
     time_of_next_run = schedule.next_run(music_id)
@@ -138,7 +151,7 @@ def intervalStatus(music_id):
 
 ### WEBDAV FUNCTIONS SETTINGS ###
 
-@main.route("/settings")
+@app.route("/settings")
 def settings():
     # get settings
     WebDAVconfig = WebDAV.query.all()
@@ -151,7 +164,7 @@ def settings():
     
     return render_template("settings.html", WebDAVconfig=WebDAVconfig, songs=songs)
 
-@main.route("/settings/save", methods=["POST"])
+@app.route("/settings/save", methods=["POST"])
 def settingsSave():
     
     # if the settings are not set, the row will be empty, so "None"
@@ -184,7 +197,7 @@ def settingsSave():
 
 ### ARCHIVE FUNCTIONS ###
 
-@main.route("/archiveaddsong", methods=["POST"])
+@app.route("/archiveaddsong", methods=["POST"])
 def archiveaddsong():
     song = request.form.get("song")
 
@@ -203,7 +216,7 @@ def archiveaddsong():
             archive.write(song)
     return redirect(url_for("settings"))
 
-@main.route("/archivedeletesong/<int:song_id>")
+@app.route("/archivedeletesong/<int:song_id>")
 def archivedeletesong(song_id):
     # get songs archive
     with open(r"../download_archive/downloaded", 'r') as fileop:
@@ -218,7 +231,7 @@ def archivedeletesong(song_id):
 
     return redirect(url_for("settings"))
 
-@main.route('/archivedownload') # GET request
+@app.route('/archivedownload') # GET request
 # based on flask.send_file method: https://flask.palletsprojects.com/en/2.3.x/api/#flask.send_file
 def archivedownload():
     return send_file(
@@ -234,7 +247,7 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # used flask uploading files guide https://flask.palletsprojects.com/en/3.0.x/patterns/fileuploads/
-@main.route("/archiveupload", methods=["POST"])
+@app.route("/archiveupload", methods=["POST"])
 def archiveupload():
     if request.method == "POST":
         # check if the post request has the file part
@@ -285,7 +298,7 @@ def archiveupload():
         
 
 
-#if __name__ == "__main__":
+#if __name__ == "__app__":
 
     # let's dance: "In 5, 6, 7, 8!"
-#    main.run(debug=True, port=5678)
+#    app.run(debug=True, port=5678)
