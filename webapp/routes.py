@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, send_file, flash, Blueprint
-from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
 from re import L
 from yt_dlp import YoutubeDL
@@ -24,24 +23,40 @@ from webapp.downloadScheduler import scheduleJobs, deleteJobs, immediateJob, run
 
 from webapp import app
 
+from webapp.forms import LoginForm
+
 
 # blueprint will be activeated later
 #main = Blueprint('main', __name__)
 
-@app.route('/')
-def index():
-    return "Hello World!"
+#@app.route('/')
+#def index():
+    #return "Hello World!"
     #return render_template('index.html')
 
 @app.route('/profile')
 def profile():
     return render_template('profile.html')
 
-#@app.route("/")
-#def home():
-#    music_list = Music.query.all()
-#    return render_template("base.html", music_list=music_list)
+@app.route("/")
+def home():
+    return render_template("base.html")
 
+@app.route("/musicapp")
+def musicapp():
+    #music_list = Music.query.all()
+    music_list = "empty string stuff"
+    return render_template("musicapp.html", music_list=music_list)
+    #return "homepage"
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        flash('Login requested for user {}, remember_me={}'.format(
+            form.username.data, form.remember_me.data))
+        return redirect(url_for("home"))
+    return render_template('login.html', title='Sign In', form=form)
 
 
 @app.route("/add", methods=["POST"])
@@ -153,16 +168,20 @@ def intervalStatus(music_id):
 
 @app.route("/settings")
 def settings():
+    title = "Settings"
     # get settings
-    WebDAVconfig = WebDAV.query.all()
+    #WebDAVconfig = WebDAV.query.all()
+    WebDAVconfig = "tmp"
 
     # get songs archive
-    with open(r"../download_archive/downloaded", 'r') as songs:
-        songs = songs.readlines()
-        # add song ID's so they are easy to delete/correlate
-        songs = list(enumerate(songs))
+    #with open(r"../download_archive/downloaded", 'r') as songs:
+    #    songs = songs.readlines()
+    #    # add song ID's so they are easy to delete/correlate
+    #    songs = list(enumerate(songs))
     
-    return render_template("settings.html", WebDAVconfig=WebDAVconfig, songs=songs)
+    songs = "youtube 4975498"
+
+    return render_template("settings.html", WebDAVconfig=WebDAVconfig, songs=songs, title=title)
 
 @app.route("/settings/save", methods=["POST"])
 def settingsSave():

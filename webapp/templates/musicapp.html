@@ -1,155 +1,129 @@
-<!DOCTYPE html>
-<html lang="en" data-bs-theme="dark">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Music Service</title>
-    <link rel="shortcut icon" href="{{ url_for('static', filename='/images/normalLogo.png') }}">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
-</head>
+{% block content %}
 
-<body>
-
-    <nav class="navbar navbar-secondary bg-secondary">
-        <!-- add the image /images/normalLogo.png to the navbar-->
-
-        <a class="navbar-brand" href="/">
-            <img src="{{ url_for('static', filename='/images/normalLogo.png') }}" alt="Music Service logo" width="30" height="30" class="d-inline-block align-text-top">
-            Music Service
-        
-        <a href="/settings">
-        <button class="btn bi bi-gear-fill" > Settings</button>
-        </a>
-        
-    </nav>
-
-    <div style="margin-top: 50px;" class="ui container">
-        <h1 class="ui center aligned header">Music Service</h1>
-        <form action="/add" method="post">
-            <div class="mb-3">
-                <label class="form-label">Playlist title</label>
-                <input type="text" class="form-control" name="title" placeholder="Enter a title..." required><br>
-            </div>
-            <div class="mb-3">
-                <label>URL</label>
-                <input type="url" class="form-control" name="url" placeholder="https://www.youtube.com/watch?v=BaW_jenozKc" required><br>
-                <div class="invalid-feedback">
-                    Please enter a valid URL.
-                </div>
-            </div>
-            <button class="btn btn-primary" type="submit">Add</button>
-        </form>
-
-        <br>
-
-        <hr>
-        
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-        <div class="row">
-        {% for music in music_list %}
-            <div class="col-sm-4 mb-3 mb-sm-0">
-                <div class="card" style="width: 18rem;">
-                    <p class="card-body">{{music.id }} | {{ music.title }}</p>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item">{{music.url}}</li>
-                    
-                    {% if music.monitored == False %}
-                    <form action="/monitor/{{ music.id }}">
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" onChange="this.form.submit()">
-                        <label class="form-check-label" for="flexSwitchCheckChecked">Un-monitored</label>
-                    </div>
-                    </form>
-                    
-                    {% else %}
-                    <form action="/monitor/{{ music.id }}">
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" onChange="this.form.submit()" checked>
-                        <label class="form-check-label" for="flexSwitchCheckChecked">Monitored</label>
-                    </div>
-                    </form>
-                    {% endif %}
-                    </ul>
-                    <div class="card-body">
-                        <!--
-                        {% if music.monitored == False %}
-                        <a class="btn btn-secondary" href="/monitor/{{ music.id }}">Not monitored</a>
-                        {% else %}
-                        <a class="btn btn-success" href="/monitor/{{ music.id }}">Monitored</a>
-                        {% endif %}
-                        -->
-                        <a class="btn btn-primary" href="/download/{{ music.id }}">Download</a>
-                        <!-- <a class="btn btn-warning" href="/intervalstatus/{{ music.id }}">Intervalstatus</a> -->
-                        <a class="btn btn-danger" href="/delete/{{ music.id }}">Delete</a>
-                        <br><br>
-                        <form action="/interval/{{ music.id }}">
-                            <label>Choose an interval:</label>
-                            <select name="interval" id="interval">
-                              <option selected="selected" hidden>{{ music.interval }}</option>
-                              <option value="5">5</option>
-                              <option value="10">10</option>
-                              <option value="30">30</option>
-                              <option value="60">60</option>
-                            </select>
-                            <input type="submit" value="Save interval">
-                          </form>
-                        <div class="card-footer text-muted">
-                        <script>
-                            $(document).ready(function(){
-                                var musicId = "{{ music.id }}";
-                                var intervalStatusElement = $("#intervalStatus" + musicId);
-                                
-                                // Send a GET request to the server every 10 seconds
-                                function updateIntervalStatus() {
-                                    $.get("/intervalstatus/" + musicId, function(data, status){
-                                        // Display the result in the p element with the id "intervalStatus" + musicId
-                                        $(intervalStatusElement).html(data);
-                                    });
-                                }
-
-                                // Update interval status immediately when the page loads
-                                updateIntervalStatus();
-
-                                // Update interval status every 10 seconds
-                                setInterval(updateIntervalStatus, 10000);
-                                
-                                // Error handling
-                                $.ajaxSetup({
-                                    error: function(jqXHR, exception) {
-                                        if (jqXHR.status === 0) {
-                                            alert('Not connected.\n Verify Network.');
-                                        } else if (jqXHR.status == 404) {
-                                            alert('Requested page not found. [404]');
-                                        } else if (jqXHR.status == 500) {
-                                            alert('Internal Server Error [500].');
-                                        } else if (exception === 'parsererror') {
-                                            alert('Requested JSON parse failed.');
-                                        } else if (exception === 'timeout') {
-                                            alert('Time out error.');
-                                        } else if (exception === 'abort') {
-                                            alert('Ajax request aborted.');
-                                        } else {
-                                            alert('Uncaught Error.\n' + jqXHR.responseText);
-                                        }
-                                    }
-                                });
-
-                            });
-                            </script>
-                            <p id="intervalStatus{{ music.id }}"></p>seconds left until next sync
-                            
-                            <!-- show when the last run was -->
-                            <!-- <p id="lastrun{{ music.id }}">Last run: {{ music.lastrun }}</p> -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {% endfor %}
+<div style="margin-top: 50px;" class="ui container">
+    <h1 class="ui center aligned header">Music Service</h1>
+    <form action="/add" method="post">
+        <div class="mb-3">
+            <label class="form-label">Playlist title</label>
+            <input type="text" class="form-control" name="title" placeholder="Enter a title..." required><br>
         </div>
+        <div class="mb-3">
+            <label>URL</label>
+            <input type="url" class="form-control" name="url" placeholder="https://www.youtube.com/watch?v=BaW_jenozKc" required><br>
+            <div class="invalid-feedback">
+                Please enter a valid URL.
+            </div>
+        </div>
+        <button class="btn btn-primary" type="submit">Add</button>
+    </form>
+
+    <br>
+
+    <hr>
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <div class="row">
+    {% for music in music_list %}
+        <div class="col-sm-4 mb-3 mb-sm-0">
+            <div class="card" style="width: 18rem;">
+                <p class="card-body">{{music.id }} | {{ music.title }}</p>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">{{music.url}}</li>
+                
+                {% if music.monitored == False %}
+                <form action="/monitor/{{ music.id }}">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" onChange="this.form.submit()">
+                    <label class="form-check-label" for="flexSwitchCheckChecked">Un-monitored</label>
+                </div>
+                </form>
+                
+                {% else %}
+                <form action="/monitor/{{ music.id }}">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" onChange="this.form.submit()" checked>
+                    <label class="form-check-label" for="flexSwitchCheckChecked">Monitored</label>
+                </div>
+                </form>
+                {% endif %}
+                </ul>
+                <div class="card-body">
+                    <!--
+                    {% if music.monitored == False %}
+                    <a class="btn btn-secondary" href="/monitor/{{ music.id }}">Not monitored</a>
+                    {% else %}
+                    <a class="btn btn-success" href="/monitor/{{ music.id }}">Monitored</a>
+                    {% endif %}
+                    -->
+                    <a class="btn btn-primary" href="/download/{{ music.id }}">Download</a>
+                    <!-- <a class="btn btn-warning" href="/intervalstatus/{{ music.id }}">Intervalstatus</a> -->
+                    <a class="btn btn-danger" href="/delete/{{ music.id }}">Delete</a>
+                    <br><br>
+                    <form action="/interval/{{ music.id }}">
+                        <label>Choose an interval:</label>
+                        <select name="interval" id="interval">
+                            <option selected="selected" hidden>{{ music.interval }}</option>
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="30">30</option>
+                            <option value="60">60</option>
+                        </select>
+                        <input type="submit" value="Save interval">
+                        </form>
+                    <div class="card-footer text-muted">
+                    <script>
+                        $(document).ready(function(){
+                            var musicId = "{{ music.id }}";
+                            var intervalStatusElement = $("#intervalStatus" + musicId);
+                            
+                            // Send a GET request to the server every 10 seconds
+                            function updateIntervalStatus() {
+                                $.get("/intervalstatus/" + musicId, function(data, status){
+                                    // Display the result in the p element with the id "intervalStatus" + musicId
+                                    $(intervalStatusElement).html(data);
+                                });
+                            }
+
+                            // Update interval status immediately when the page loads
+                            updateIntervalStatus();
+
+                            // Update interval status every 10 seconds
+                            setInterval(updateIntervalStatus, 10000);
+                            
+                            // Error handling
+                            $.ajaxSetup({
+                                error: function(jqXHR, exception) {
+                                    if (jqXHR.status === 0) {
+                                        alert('Not connected.\n Verify Network.');
+                                    } else if (jqXHR.status == 404) {
+                                        alert('Requested page not found. [404]');
+                                    } else if (jqXHR.status == 500) {
+                                        alert('Internal Server Error [500].');
+                                    } else if (exception === 'parsererror') {
+                                        alert('Requested JSON parse failed.');
+                                    } else if (exception === 'timeout') {
+                                        alert('Time out error.');
+                                    } else if (exception === 'abort') {
+                                        alert('Ajax request aborted.');
+                                    } else {
+                                        alert('Uncaught Error.\n' + jqXHR.responseText);
+                                    }
+                                }
+                            });
+
+                        });
+                        </script>
+                        <p id="intervalStatus{{ music.id }}"></p>seconds left until next sync
+                        
+                        <!-- show when the last run was -->
+                        <!-- <p id="lastrun{{ music.id }}">Last run: {{ music.lastrun }}</p> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
     </div>
-
-</body>
-
-</html>
+</div>
+{% endblock %}
