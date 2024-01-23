@@ -197,13 +197,18 @@ Feel free to contribute, you can [submit issues here](https://github.com/thijsta
 
 ### Developer instructions 👩🏻‍💻👨🏻‍💻
 System requirements: Have [Docker (Desktop or Engine)](https://www.docker.com/) installed on your system <br/>
-Techniques: [Python](https://www.python.org/), [Docker](https://www.docker.com/), [youtube-dl](https://youtube-dl.org/) and [WebDAV](http://www.webdav.org/)
+Tech stack: 
+1. Backend: [Python](https://www.python.org/)
+2. Web framework: [Flask](https://flask.palletsprojects.com/en/3.0.x/)
+3. Database: [Flask-SQLAlchemy](https://flask-sqlalchemy.palletsprojects.com/en/3.1.x/)
+4. [Docker](https://www.docker.com/)
+5. [youtube-dl](https://youtube-dl.org/)
+6. [WebDAV](http://www.webdav.org/)
+7. Using this for frontend [Bootstrap v5.3](https://getbootstrap.com/docs/5.3/getting-started/introduction/)
+8. For the icons, using [Bootstrap Icons 1.11.2](https://icons.getbootstrap.com/#install)
+9. For the sheduler (schedules playlist downloads) [Schedule](https://github.com/dbader/schedule)
 
-Using this for frontend [Bootstrap v5.3](https://getbootstrap.com/docs/5.3/getting-started/introduction/)
-For the icons, using [Bootstrap Icons 1.11.2](https://icons.getbootstrap.com/#install)
-
-For the sheduler (schedules playlist downloads) [Schedule](https://github.com/dbader/schedule)
-
+### General things
 1. 🤠 Git clone the project with `git clone https://github.com/thijstakken/MusicService.git`
 2. 🐛 [Pick a issue from the list or create a new issue and use that one](https://github.com/thijstakken/MusicService/issues)
 3. 🐍 Start editing the code (Python)
