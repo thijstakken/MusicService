@@ -6,3 +6,4 @@ venv/
 __pycache__
 instance/
 download_archive/
+webapp.db
