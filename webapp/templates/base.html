@@ -25,6 +25,13 @@
             <a href="{{ url_for('settings') }}">
             <button class="btn bi bi-gear-fill" > Settings</button>
             </a>
+
+            <a href="{{ url_for('home') }}">Home</a>
+            {% if current_user.is_anonymous %}
+            <a href="{{ url_for('login') }}">Login</a>
+            {% else %}
+            <a href="{{ url_for('logout') }}">Logout</a>
+            {% endif %}
         </nav>
 
         {% with messages = get_flashed_messages() %}

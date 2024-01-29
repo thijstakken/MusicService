@@ -1,20 +1,35 @@
 from typing import Optional
 import sqlalchemy as sa # general sqlalchemy functions
 import sqlalchemy.orm as so # supports the use of models
+from werkzeug.security import generate_password_hash, check_password_hash
 from webapp import db
+from flask_login import UserMixin
+from webapp import login
 
 
-class User(db.Model):
+class User(UserMixin, db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     username: so.Mapped[str] = so.mapped_column(sa.String(64), index=True, unique=True)
     password_hash: so.Mapped[Optional[str]] = so.mapped_column(sa.String(256))
     #email: so.Mapped[str] = so.mapped_column(sa.String(120), index=True, unique=True)
+
+    def set_password(self, password):
+        # sets the password for the user
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        # returns True if password is correct
+        return check_password_hash(self.password_hash, password)
 
     musics: so.WriteOnlyMapped['Music'] = so.relationship(back_populates='owner')
     cloud_storages: so.WriteOnlyMapped['CloudStorage'] = so.relationship(back_populates='owner')
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
+
+@login.user_loader
+def load_user(id):
+    return db.session.get(User, int(id))
 
 class Music(db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)

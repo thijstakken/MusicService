@@ -1,10 +1,11 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1 class="title">
-  Flask Login Example
-</h1>
-<h2 class="subtitle">
-  Easy authentication and authorization in Flask.
-</h2>
+    <h1>Hi, {{ current_user.username }}!</h1>
+    
+
+    {% for music in music %}
+    <div><p>{{ music.title }} and URL: <b>{{ music.url }}</b></p></div>
+    {% endfor %}
+
 {% endblock %}
