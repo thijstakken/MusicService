@@ -15,34 +15,55 @@
 </head>
 
     <body>
-        <nav class="navbar navbar-secondary bg-secondary">
-            <!-- add the image /images/normalLogo.png to the navbar-->
-
-            <a class="navbar-brand" href="{{ url_for('home') }}">
-                <img src="{{ url_for('static', filename='/images/normalLogo.png') }}" alt="Music Service logo" width="30" height="30" class="d-inline-block align-text-top">
-                Music Service
-            
-            <a href="{{ url_for('settings') }}">
-            <button class="btn bi bi-gear-fill" > Settings</button>
+        <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('musicapp') }}">
+                <img href="{{ url_for('musicapp') }}" src="{{url_for('static', filename='/images/normalLogo.png')}}" alt="Music Service logo" width="30" height="30"/>
+            Music Service
             </a>
-
-            <a href="{{ url_for('home') }}">Home</a>
-            {% if current_user.is_anonymous %}
-            <a href="{{ url_for('login') }}">Login</a>
-            {% else %}
-            <a href="{{ url_for('logout') }}">Logout</a>
-            {% endif %}
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+              <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                  <a class="nav-link bi bi-house" aria-current="page" href="{{ url_for('musicapp') }}"> Home</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link bi bi-gear-fill" aria-current="page" href="{{ url_for('settings') }}"> Settings</a>
+                </li>
+              </ul>
+              <ul class="navbar-nav mb-2 mb-lg-0">
+                {% if current_user.is_anonymous %}
+                <li class="nav-item">
+                  <a class="nav-link bi bi-box-arrow-in-right" aria-current="page" href="{{ url_for('login') }}"> Login</a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                  <a class="nav-link bi bi-person-circle" aria-current="page" href="{{ url_for('settings', username=current_user.username) }}"> Profile</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" aria-current="page" href="{{ url_for('logout') }}">Logout</a>
+                </li>
+                {% endif %}
+              </ul>
+            </div>
+          </div>
         </nav>
-
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-        <ul>
-            {% for message in messages %}
-            <li>{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-        {% endwith %}
-        {% block content %}{% endblock %}
+        <div class="container mt-3">
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+              {% for message in messages %}
+              <div class="alert alert-info" role="alert">{{ message }}</div>
+              {% endfor %}
+            {% endif %}
+            {% endwith %}
+            {% block content %}{% endblock %}
+          </div>
+        <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous">
+        </script>
     </body>
 </html>

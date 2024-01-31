@@ -5,6 +5,7 @@ from flask_login import current_user, login_user, logout_user, login_required
 import sqlalchemy as sa
 from webapp import db
 from webapp.models import User
+from webapp.forms import RegistrationForm
 from urllib.parse import urlsplit
 
 from werkzeug.utils import secure_filename
@@ -33,18 +34,15 @@ from webapp.forms import LoginForm
 # blueprint will be activeated later
 #main = Blueprint('main', __name__)
 
-#@app.route('/')
-#def index():
-    #return "Hello World!"
-    #return render_template('index.html')
 
 @app.route('/profile')
+@login_required
 def profile():
     return render_template('profile.html')
 
-@app.route("/")
+@app.route("/temp")
 @login_required
-def home():
+def temp():
     music = [
         {
             "title": "test1",
@@ -60,21 +58,34 @@ def home():
         }
     ]
 
-    #return render_template("base.html")
-    return render_template("index.html", title='Home Page', music=music)
+    return render_template("index.html", title='musicapp Page', music=music)
 
-@app.route("/musicapp")
+@app.route("/")
 @login_required
 def musicapp():
     #music_list = Music.query.all()
-    music_list = "empty string stuff"
+    #music_list = "empty string stuff"
+    music_list = [
+        {
+            "title": "test1",
+            "url": "test1",
+            "monitored": False,
+            "interval": 10
+        },
+        {
+            "title": "test2",
+            "url": "test2",
+            "monitored": False,
+            "interval": 10
+        }
+    ]
     return render_template("musicapp.html", music_list=music_list)
-    #return "homepage"
+    #return "musicapppage"
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('home'))
+        return redirect(url_for('musicapp'))
     form = LoginForm()
     if form.validate_on_submit():
         user = db.session.scalar(
@@ -85,17 +96,31 @@ def login():
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
         if not next_page or urlsplit(next_page).netloc != '':
-            next_page = url_for('home')
+            next_page = url_for('musicapp')
         return redirect(next_page)
     return render_template('login.html', title='Sign In', form=form)
 
 @app.route("/logout")
 def logout():
     logout_user()
-    return redirect(url_for('home'))
+    return redirect(url_for('musicapp'))
 
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('musicapp'))
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        user = User(username=form.username.data)
+        user.set_password(form.password.data)
+        db.session.add(user)
+        db.session.commit()
+        flash('Congratulations, you are now a registered user!')
+        return redirect(url_for('login'))
+    return render_template('register.html', title='Register', form=form)
 
 @app.route("/add", methods=["POST"])
+@login_required
 def add():
     title = request.form.get("title")
     url = request.form.get("url")
@@ -112,9 +137,10 @@ def add():
     #if new_music.monitored is False:
         # schedule a job for the newly added playlist/song with the corrosponding interval value
     #    scheduleJobs(music_id, title, interval)
-    return redirect(url_for("home"))
+    return redirect(url_for("musicapp"))
 
 @app.route("/monitor/<int:music_id>")
+@login_required
 def monitor(music_id):
     music = Music.query.filter_by(id=music_id).first()
     # turned below rule off because during startup the settings are already set.
@@ -134,28 +160,31 @@ def monitor(music_id):
             #print(music.monitored)
             # delete the scheduled job for the deleted playlist/song
             deleteJobs(music.id)
-    return redirect(url_for("home"))
+    return redirect(url_for("musicapp"))
 
 @app.route("/delete/<int:music_id>")
+@login_required
 def delete(music_id):
     music = Music.query.filter_by(id=music_id).first()
     db.session.delete(music)
     db.session.commit()
     # delete the scheduled job for the deleted playlist/song
     deleteJobs(music_id)
-    return redirect(url_for("home"))
+    return redirect(url_for("musicapp"))
 
 @app.route("/download/<int:music_id>")
+@login_required
 def download(music_id):
     # get the music object from the database
     music = Music.query.filter_by(id=music_id).first()
     # execute the download function to download one time
     if music is not None and settings is not None:
         immediateJob(music, settings)
-    return redirect(url_for("home"))
+    return redirect(url_for("musicapp"))
 
 # let users configure their interval value on a per playlist/song basis
 @app.route("/interval/<int:music_id>")
+@login_required
 def interval(music_id):
     
     # at the moment it accepts everything. but it should only allow integers as input.
@@ -177,10 +206,11 @@ def interval(music_id):
             # schedule a job for the newly added playlist/song with the corrosponding interval value
             scheduleJobs(music, settings)
 
-    return redirect(url_for("home"))
+    return redirect(url_for("musicapp"))
 
 # this function can get the time left before the playlist will be downloaded again
 @app.route("/intervalstatus/<int:music_id>")
+@login_required
 def intervalStatus(music_id):
     
     time_of_next_run = schedule.next_run(music_id)
@@ -203,6 +233,7 @@ def intervalStatus(music_id):
 ### WEBDAV FUNCTIONS SETTINGS ###
 
 @app.route("/settings")
+@login_required
 def settings():
     title = "Settings"
     # get settings
@@ -220,6 +251,7 @@ def settings():
     return render_template("settings.html", WebDAVconfig=WebDAVconfig, songs=songs, title=title)
 
 @app.route("/settings/save", methods=["POST"])
+@login_required
 def settingsSave():
     
     # if the settings are not set, the row will be empty, so "None"
@@ -253,6 +285,7 @@ def settingsSave():
 ### ARCHIVE FUNCTIONS ###
 
 @app.route("/archiveaddsong", methods=["POST"])
+@login_required
 def archiveaddsong():
     song = request.form.get("song")
 
@@ -272,6 +305,7 @@ def archiveaddsong():
     return redirect(url_for("settings"))
 
 @app.route("/archivedeletesong/<int:song_id>")
+@login_required
 def archivedeletesong(song_id):
     # get songs archive
     with open(r"../download_archive/downloaded", 'r') as fileop:
@@ -287,6 +321,7 @@ def archivedeletesong(song_id):
     return redirect(url_for("settings"))
 
 @app.route('/archivedownload') # GET request
+@login_required
 # based on flask.send_file method: https://flask.palletsprojects.com/en/2.3.x/api/#flask.send_file
 def archivedownload():
     return send_file(
@@ -303,6 +338,7 @@ def allowed_file(filename):
 
 # used flask uploading files guide https://flask.palletsprojects.com/en/3.0.x/patterns/fileuploads/
 @app.route("/archiveupload", methods=["POST"])
+@login_required
 def archiveupload():
     if request.method == "POST":
         # check if the post request has the file part
