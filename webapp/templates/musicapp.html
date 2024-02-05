@@ -4,11 +4,35 @@
 
 <div style="margin-top: 50px;" class="ui container">
     <h1 class="ui center aligned header">Music Service</h1>
-    <form action="/add" method="post">
+
+    <form action="/" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.title.label }}<br>
+            {{ form.title(size=22) }}<br>
+            {% for error in form.title.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.url.label }}<br>
+            {{ form.url(size=50) }}<br>
+            {% for error in form.url.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>{{ form.submit() }}</p>
+    </form>
+
+    <br>
+
+    <form action="/" method="post">
         <div class="mb-3">
             <label class="form-label">Playlist title</label>
             <input type="text" class="form-control" name="title" placeholder="Enter a title..." required><br>
         </div>
+
+
         <div class="mb-3">
             <label>URL</label>
             <input type="url" class="form-control" name="url" placeholder="https://www.youtube.com/watch?v=BaW_jenozKc" required><br>
@@ -29,6 +53,8 @@
         <div class="col-sm-4 mb-3 mb-sm-0">
             <div class="card" style="width: 18rem;">
                 <p class="card-body">{{music.id }} | {{ music.title }}</p>
+                <p class="card-body">Owner ID is: {{ music.user_id }}</p>
+                <p class="card-body">Owner relation is: {{ music.owner.username }}</p>
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item">{{music.url}}</li>
                 

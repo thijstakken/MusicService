@@ -1,9 +1,10 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
-from wtforms.validators import ValidationError, DataRequired, EqualTo
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, IntegerField
+from wtforms.validators import ValidationError, DataRequired, EqualTo, URL
 import sqlalchemy as sa
 from webapp import db
 from webapp.models import User
+
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -23,3 +24,17 @@ class RegistrationForm(FlaskForm):
             User.username == username.data))
         if user is not None:
             raise ValidationError('Please use a different username.')
+        
+class MusicForm(FlaskForm):
+    title = StringField('Title', validators=[DataRequired()])
+    url = StringField('URL', validators=[DataRequired(), URL()])
+    # set monitored to false by default
+    monitored = BooleanField('Monitored', default=False)
+    # set interval to integer 10 by default
+    interval = IntegerField('Interval', default=10)
+
+    #user_id = db.relationship(User, back_populates='musics')
+
+    #user_id = 1
+
+    submit = SubmitField('Add Music')

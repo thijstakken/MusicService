@@ -5,6 +5,7 @@ from flask_login import current_user, login_user, logout_user, login_required
 import sqlalchemy as sa
 from webapp import db
 from webapp.models import User
+from webapp.models import Music
 from webapp.forms import RegistrationForm
 from urllib.parse import urlsplit
 
@@ -29,6 +30,7 @@ from webapp.downloadScheduler import scheduleJobs, deleteJobs, immediateJob, run
 from webapp import app
 
 from webapp.forms import LoginForm
+from webapp.forms import MusicForm
 
 
 # blueprint will be activeated later
@@ -60,27 +62,64 @@ def temp():
 
     return render_template("index.html", title='musicapp Page', music=music)
 
-@app.route("/")
+@app.route("/", methods=["GET", "POST"])
 @login_required
 def musicapp():
-    #music_list = Music.query.all()
-    #music_list = "empty string stuff"
-    music_list = [
-        {
-            "title": "test1",
-            "url": "test1",
-            "monitored": False,
-            "interval": 10
-        },
-        {
-            "title": "test2",
-            "url": "test2",
-            "monitored": False,
-            "interval": 10
-        }
-    ]
-    return render_template("musicapp.html", music_list=music_list)
+    # get the music list from the database with scalars
+    music_list = db.session.scalars(sa.select(Music)).all()
+
+    form = MusicForm()
+
+    if form.validate_on_submit():
+
+        
+        music = Music()
+        music.user_id = current_user.id
+        music.title = form.title.data
+        music.url = form.url.data
+        music.monitored = form.monitored.data
+        music.interval = form.interval.data
+        db.session.add(music)
+        db.session.commit()
+        flash('Song added')
+        return redirect(url_for('musicapp'))
+
+        #title = form.title.data
+        #url = form.url.data
+        #monitored = form.monitored.data
+        #interval = form.interval.data
+        #new_music = Music()
+        #new_music.title = title
+        #new_music.url = url
+        #new_music.monitored = monitored
+        #new_music.interval = interval
+        #db.session.add(new_music)
+        #db.session.commit()
+        #return redirect(url_for("musicapp"))
+
+
+    return render_template("musicapp.html", music_list=music_list, form=form)
     #return "musicapppage"
+
+@app.route("/add", methods=["POST"])
+@login_required
+def add():
+    title = request.form.get("title")
+    url = request.form.get("url")
+    new_music = Music()
+    new_music.title = title
+    new_music.url = url
+    new_music.monitored = False
+    new_music.interval = 10
+    db.session.add(new_music)
+    db.session.commit()
+    
+    # at the moment, the schedule is always false upon creation. so this is not needed at the moment
+    # this has already been used in the monitor function below this function.
+    #if new_music.monitored is False:
+        # schedule a job for the newly added playlist/song with the corrosponding interval value
+    #    scheduleJobs(music_id, title, interval)
+    return redirect(url_for("musicapp"))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -118,26 +157,6 @@ def register():
         flash('Congratulations, you are now a registered user!')
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
-
-@app.route("/add", methods=["POST"])
-@login_required
-def add():
-    title = request.form.get("title")
-    url = request.form.get("url")
-    new_music = Music()
-    new_music.title = title
-    new_music.url = url
-    new_music.monitored = False
-    new_music.interval = 10
-    db.session.add(new_music)
-    db.session.commit()
-    
-    # at the moment, the schedule is always false upon creation. so this is not needed at the moment
-    # this has already been used in the monitor function below this function.
-    #if new_music.monitored is False:
-        # schedule a job for the newly added playlist/song with the corrosponding interval value
-    #    scheduleJobs(music_id, title, interval)
-    return redirect(url_for("musicapp"))
 
 @app.route("/monitor/<int:music_id>")
 @login_required
