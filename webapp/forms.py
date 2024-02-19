@@ -38,3 +38,11 @@ class MusicForm(FlaskForm):
     #user_id = 1
 
     submit = SubmitField('Add Music')
+
+class CloudStorageForm(FlaskForm):
+    protocol = StringField('Protocol', validators=[DataRequired()])
+    url = StringField('URL', validators=[DataRequired(), URL()])
+    directory = StringField('Directory', validators=[DataRequired()])
+    username = StringField('Username', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    submit = SubmitField('Add Cloud Storage')

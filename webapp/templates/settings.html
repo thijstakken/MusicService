@@ -4,6 +4,123 @@
     <div style="margin-top: 50px;" class="ui container">
         <h1 class="ui center aligned header">Settings</h1>
 
+        <!-- add some spacing between the H1 and the first div -->
+        <br>
+        
+
+        <div class="card w-50">
+          <div class="card-body">
+            <h5 class="card-title">Synchronization</h5>
+            <div class="d-grid gap-2 col-6 mx-auto">
+            <button type="button" class="btn btn-success btn-lg bi bi-plus-square-dotted" data-bs-toggle="modal" data-bs-target="#exampleModal"> Add</button>
+            </div>
+          </div>
+        </div>
+        <br>
+
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Select your storage target</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                
+
+              
+              <!-- instead of hardcoded, we could use some loop to auto populate based on the CloudStorage Models available-->
+
+                <div class="card w-75 mb-3 mx-auto">
+                  <div class="card-body d-grid gap-2">
+                      <button class="btn stretched-link" data-bs-target="#exampleModalToggle2" data-bs-toggle="modal">WebDAV</button>
+                  </div>
+                </div>
+
+                <div class="card w-75 mb-3 mx-auto">
+                  <div class="card-body">
+                    <div class="d-grid gap-2">
+                    <a href="#" class="btn stretched-link">Local</a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card w-75 mb-3 mx-auto">
+                  <div class="card-body">
+                    <div class="d-grid gap-2">
+                    <a href="#" class="btn stretched-link">FTP</a>
+                    </div>
+                  </div>
+                </div>
+                
+                <br>
+                <!-- Suggest your storage target here, github issues link -->
+                <p>Don't see your storage target? <a href="https://github.com/thijstakken/MusicService/issues/new" target="_blank">Suggest it here</a></p>
+
+
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="modal fade" id="exampleModalToggle2" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalToggleLabel2">WebDAV</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <!-- show a placeholder form for WebDAV values-->
+                <form action="/settings/save" method="post">
+
+                  <div class="mb-3">
+                      <label class="form-label">WebDAV URL</label>
+                      <input type="text" class="form-control" name="WebDAV_URL" placeholder="https://cloud.yourdomain.com"><br>
+                  </div>
+                  <div class="mb-3">
+                      <label>WebDAV directory</label>
+                      <input type="text" class="form-control" name="WebDAV_Directory" placeholder="/MyMusic"><br>
+                  </div>
+                  <div class="mb-3">
+                      <label>WebDAV username</label>
+                      <input type="text" class="form-control" name="WebDAV_Username" placeholder="Bob"><br>
+                  </div>
+                  <div class="mb-3">
+                      <label>WebDAV password</label>
+                      <input type="password" class="form-control" name="WebDAV_Password" placeholder="" id="password">
+                  </div>
+                  <div class="form-check">
+                      <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" onclick="passwordShow()">
+                      <label class="form-check-label" for="flexCheckDefault">
+                          Show password
+                      </label>
+                  </div><br>
+
+                  
+                  <button class="btn btn-primary" type="submit">Save</button>
+                  <!-- <button class="btn btn-primary" type="submit">Validate settings</button> -->
+              </form>
+              </div>
+
+              <div class="modal-footer">
+                <button class="btn btn-primary" data-bs-target="#exampleModal" data-bs-toggle="modal">Back to previous</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <br>
+        <br>
+
+
+        <!-- I can drop this weird logic, will start to use simple database model where any sync profile can be added and deleted, but only 1 is the max allowed sync profile to be active-->
+
         {% for webdav in WebDAVconfig %}
         <!-- <p>{{webdav.id }} | {{ webdav.WebDAV_URL }} | {{ webdav.WebDAV_Directory }} | {{ webdav.WebDAV_Username }} | {{ webdav.WebDAV_Password }}</p> -->
         <form action="/settings/save" method="post">

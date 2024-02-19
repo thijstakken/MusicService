@@ -6,6 +6,7 @@ import sqlalchemy as sa
 from webapp import db
 from webapp.models import User
 from webapp.models import Music
+from webapp.models import CloudStorage
 from webapp.forms import RegistrationForm
 from urllib.parse import urlsplit
 
@@ -31,6 +32,7 @@ from webapp import app
 
 from webapp.forms import LoginForm
 from webapp.forms import MusicForm
+from webapp.forms import CloudStorageForm
 
 
 # blueprint will be activeated later
@@ -68,11 +70,9 @@ def musicapp():
     # get the music list from the database with scalars
     music_list = db.session.scalars(sa.select(Music)).all()
 
+
     form = MusicForm()
-
     if form.validate_on_submit():
-
-        
         music = Music()
         music.user_id = current_user.id
         music.title = form.title.data
@@ -83,20 +83,6 @@ def musicapp():
         db.session.commit()
         flash('Song added')
         return redirect(url_for('musicapp'))
-
-        #title = form.title.data
-        #url = form.url.data
-        #monitored = form.monitored.data
-        #interval = form.interval.data
-        #new_music = Music()
-        #new_music.title = title
-        #new_music.url = url
-        #new_music.monitored = monitored
-        #new_music.interval = interval
-        #db.session.add(new_music)
-        #db.session.commit()
-        #return redirect(url_for("musicapp"))
-
 
     return render_template("musicapp.html", music_list=music_list, form=form)
     #return "musicapppage"
@@ -161,7 +147,9 @@ def register():
 @app.route("/monitor/<int:music_id>")
 @login_required
 def monitor(music_id):
-    music = Music.query.filter_by(id=music_id).first()
+    # get the music object from the database with scalars
+    music = db.session.scalars(sa.select(Music).where(Music.id == music_id)).first()
+
     # turned below rule off because during startup the settings are already set.
     #settings = WebDAV.query.filter_by(id=1).first()
     if music is not None:
@@ -173,18 +161,23 @@ def monitor(music_id):
             print(music.monitored)
             # schedule a job for the newly added playlist/song with the corrosponding interval value
             scheduleJobs(music, settings)
+            # add flash message to confirm the interval change
+            flash('Monitoring: On for ' + str(music.title))
         elif music.monitored is False:
             print("monitor is OFF")
             print("Going to delete the scheduled job")
             #print(music.monitored)
             # delete the scheduled job for the deleted playlist/song
             deleteJobs(music.id)
+            # add flash message to confirm the interval change
+            flash('Monitoring: Off for ' + str(music.title))
     return redirect(url_for("musicapp"))
 
 @app.route("/delete/<int:music_id>")
 @login_required
 def delete(music_id):
-    music = Music.query.filter_by(id=music_id).first()
+    # get the music object from the database with scalars
+    music = db.session.scalars(sa.select(Music).where(Music.id == music_id)).first()
     db.session.delete(music)
     db.session.commit()
     # delete the scheduled job for the deleted playlist/song
@@ -194,8 +187,8 @@ def delete(music_id):
 @app.route("/download/<int:music_id>")
 @login_required
 def download(music_id):
-    # get the music object from the database
-    music = Music.query.filter_by(id=music_id).first()
+    # get the music object from the database with scalars
+    music = db.session.scalars(sa.select(Music).where(Music.id == music_id)).first()
     # execute the download function to download one time
     if music is not None and settings is not None:
         immediateJob(music, settings)
@@ -210,12 +203,23 @@ def interval(music_id):
     # close this down somewhere so only integers are allowed through this method.
     interval = request.args.get('interval', None) # None is the default value if no interval is specified
     
-    music = Music.query.filter_by(id=music_id).first()
-    settings = WebDAV.query.filter_by(id=1).first()
+    # get the music object from the database with scalars
+    music = db.session.scalars(sa.select(Music).where(Music.id == music_id)).first()
+
+
+    # get the CloudStorage settings from the database with scalars
+    settings = db.session.scalars(sa.select(CloudStorage).where(CloudStorage.id == music_id)).first()
+
+    # settings = WebDAV.query.filter_by(id=1).first()
+
+
     if music:
         music.interval = interval
         db.session.commit()
         #print(interval)
+
+        # add flash message to confirm the interval change
+        flash('Interval changed to ' + str(interval) + ' minutes')
         
         # if the monitor is on, then reschedule the job with the new interval value
         if music.monitored is True:
@@ -254,10 +258,25 @@ def intervalStatus(music_id):
 @app.route("/settings")
 @login_required
 def settings():
-    title = "Settings"
-    # get settings
-    #WebDAVconfig = WebDAV.query.all()
-    WebDAVconfig = "tmp"
+    #    title = "Settings"
+
+    # create a form to add the settings
+    SettingsForm = CloudStorageForm()
+    if SettingsForm.validate_on_submit():
+        storagesettings = CloudStorage()
+        storagesettings.protocol = SettingsForm.protocol.data
+        storagesettings.url = SettingsForm.url.data
+        storagesettings.directory = SettingsForm.directory.data
+        storagesettings.username = SettingsForm.username.data
+        storagesettings.password = SettingsForm.password.data
+        db.session.add(storagesettings)
+        db.session.commit()
+        flash('Settings added')
+        return redirect(url_for('settings'))
+
+
+    # get the CloudStorage settings from the database with scalars
+    WebDAVconfig = db.session.scalars(sa.select(CloudStorage)).all()
 
     # get songs archive
     #with open(r"../download_archive/downloaded", 'r') as songs:
@@ -265,9 +284,10 @@ def settings():
     #    # add song ID's so they are easy to delete/correlate
     #    songs = list(enumerate(songs))
     
-    songs = "youtube 4975498"
+    songs = ["youtube 4975498", "youtube 393judjs", "soundcloud 93034303"]
+    songs = list(enumerate(songs))
 
-    return render_template("settings.html", WebDAVconfig=WebDAVconfig, songs=songs, title=title)
+    return render_template("settings.html", WebDAVconfig=WebDAVconfig, songs=songs, title='Settings')
 
 @app.route("/settings/save", methods=["POST"])
 @login_required
