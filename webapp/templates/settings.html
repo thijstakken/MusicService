@@ -75,6 +75,48 @@
                 <h1 class="modal-title fs-5" id="exampleModalToggleLabel2">WebDAV</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
+              
+              <div class="modal-body">
+                <form action="/settings" method="post" novalidate>
+                  {{ WebDAVform.hidden_tag() }}
+                  <p>
+                      {{ WebDAVform.url.label }}<br>
+                      {{ WebDAVform.url(size=22) }}<br>
+                      {% for error in WebDAVform.url.errors %}
+                          <span style="color: red;">[{{ error }}]</span>
+                      {% endfor %}
+                  </p>
+                  <p>
+                      {{ WebDAVform.directory.label }}<br>
+                      {{ WebDAVform.directory(size=50) }}<br>
+                      {% for error in WebDAVform.directory.errors %}
+                          <span style="color: red;">[{{ error }}]</span>
+                      {% endfor %}
+                  </p>
+                  <p>
+                    {{ WebDAVform.username.label }}<br>
+                    {{ WebDAVform.username(size=50) }}<br>
+                    {% for error in WebDAVform.username.errors %}
+                        <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                  </p>
+                  <p>
+                    {{ WebDAVform.password.label }}<br>
+                    {{ WebDAVform.password(size=50) }}<br>
+                    {% for error in WebDAVform.password.errors %}
+                        <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                  </p>
+
+
+                  <p>{{ WebDAVform.submit() }}</p>
+              </form>
+              </div>
+
+
+
+
+
               <div class="modal-body">
                 <!-- show a placeholder form for WebDAV values-->
                 <form action="/settings/save" method="post">
@@ -118,11 +160,21 @@
         <br>
         <br>
 
+        {% for cloudstorages in cloudstorageaccounts %}
+        <div class="card w-50">
+          <div class="card-body">
+            <h5 class="card-title">{{ cloudstorages.id }} | {{ cloudstorages.owner.username }} | {{ cloudstorages.protocol_type }} | {{ cloudstorages.CloudStorage_Username }} | {{ cloudstorages.CloudStorage_Password }}</h5>
+          </div>
+        </div>
+        <a class="btn btn-danger" href="/settings/delete/{{ cloudstorages.id }}">Delete</a>
+        {% endfor %}
+
 
         <!-- I can drop this weird logic, will start to use simple database model where any sync profile can be added and deleted, but only 1 is the max allowed sync profile to be active-->
-
+        
+        <!--
         {% for webdav in WebDAVconfig %}
-        <!-- <p>{{webdav.id }} | {{ webdav.WebDAV_URL }} | {{ webdav.WebDAV_Directory }} | {{ webdav.WebDAV_Username }} | {{ webdav.WebDAV_Password }}</p> -->
+        <p>{{webdav.id }} | {{ webdav.WebDAV_URL }} | {{ webdav.WebDAV_Directory }} | {{ webdav.WebDAV_Username }} | {{ webdav.WebDAV_Password }}</p>
         <form action="/settings/save" method="post">
 
             <div class="mb-3">
@@ -150,7 +202,7 @@
 
             
             <button class="btn btn-primary" type="submit">Save</button>
-            <!-- <button class="btn btn-primary" type="submit">Validate settings</button> -->
+            <button class="btn btn-primary" type="submit">Validate settings</button>
         </form>
         {% else %}
         <form action="/settings/save" method="post">
@@ -180,10 +232,11 @@
 
             
             <button class="btn btn-primary" type="submit">Save</button>
-            <!-- <button class="btn btn-primary" type="submit">Validate settings</button> -->
+            <button class="btn btn-primary" type="submit">Validate settings</button>
         </form>
         {% endfor %}
     </div>
+    -->
         
         <script>
             function passwordShow() {

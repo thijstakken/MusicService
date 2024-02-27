@@ -5,6 +5,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from webapp import db
 from flask_login import UserMixin
 from webapp import login
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
 
 
 class User(UserMixin, db.Model):
@@ -45,63 +49,68 @@ class Music(db.Model):
     def __repr__(self):
         return '<Music {}>'.format(self.title)
 
+
+# all classes related to CloudStorage are built on a polymorphic relationship
+# this will have CloudStorage as a base model
+# and WebDavStorage and FTPStorage etc. as subclasses
+# this will allows us to have a single table for all cloud storage settings
+# and we can use the protocol_type to determine which subclass to use
+# which makes it easier to add more protocols in the future
+
+# the following code is based on the example from the sqlalchemy documentation
+# https://docs.sqlalchemy.org/en/20/orm/inheritance.html
+
+# check out how to query the database with polymorphic relationships here
+# https://docs.sqlalchemy.org/en/20/orm/queryguide/inheritance.html
+    
 class CloudStorage(db.Model):
+    __tablename__ = 'cloud_storage'
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     # we want to couple the WebDAV settings to a user account
     user_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id), index=True)
     # we want to be able to know which protocol to use
-    protocol: so.Mapped[str] = so.mapped_column(sa.String(15))
+    protocol_type: so.Mapped[str] = so.mapped_column(sa.String(30))
+    
+    owner: so.Mapped[User] = so.relationship(back_populates='cloud_storages')
+
+    __mapper_args__ = {
+        'polymorphic_identity':'cloud_storage',
+        'polymorphic_on':'protocol_type',
+    }
+
+    def __repr__(self):
+        return '<CloudStorage {}>'.format(self.protocol_type)
+    
+class WebDavStorage(CloudStorage):
+    __tablename__ = 'webdav_storage'
+    id: so.Mapped[int] = so.mapped_column(ForeignKey("cloud_storage.id"), primary_key=True)
+    # we want to be able to know which protocol to use
     url: so.Mapped[str] = so.mapped_column(sa.String(250))
     directory: so.Mapped[str] = so.mapped_column(sa.String(250))
     username: so.Mapped[str] = so.mapped_column(sa.String(30))
     password: so.Mapped[str] = so.mapped_column(sa.String(100))
 
-    owner: so.Mapped[User] = so.relationship(back_populates='cloud_storages')
-
-    def __repr__(self):
-        return '<CloudStorage {}>'.format(self.url)
-    
-
-# this below is an possible implementation of a polymorphic relationship
-# this will have CloudStorage as a base model
-# and WebDavStorage and FTPStorage as subclasses
-# this will allow us to have a single table for all cloud storage settings
-# and we can use the protocol_type to determine which subclass to use
-# which makes it easier to add more protocols in the future
-"""
-class CloudStorage(db.Model):
-    __tablename__ = 'cloud_storage'
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
-    protocol_type = db.Column(db.String(50))
-
-    __mapper_args__ = {
-        'polymorphic_identity':'cloud_storage',
-        'polymorphic_on':protocol_type
-    }
-
-class WebDavStorage(CloudStorage):
-    __tablename__ = 'webdav_storage'
-    id = db.Column(db.Integer, db.ForeignKey('cloud_storage.id'), primary_key=True)
-    url = db.Column(db.String(250))
-    directory = db.Column(db.String(250))
-    username = db.Column(db.String(30))
-    password = db.Column(db.String(100))
-
     __mapper_args__ = {
         'polymorphic_identity':'webdav_storage',
     }
 
+    def __repr__(self):
+        return '<WebDavStorage {}>'.format(self.url)
+
 class FTPStorage(CloudStorage):
     __tablename__ = 'ftp_storage'
-    id = db.Column(db.Integer, db.ForeignKey('cloud_storage.id'), primary_key=True)
-    host = db.Column(db.String(250))
-    port = db.Column(db.Integer)
-    username = db.Column(db.String(30))
-    password = db.Column(db.String(100))
+    id: so.Mapped[int] = so.mapped_column(ForeignKey("cloud_storage.id"), primary_key=True)
+    host: so.Mapped[str] = so.mapped_column(sa.String(250))
+    port: so.Mapped[int] = so.mapped_column(sa.Integer)
+    username: so.Mapped[str] = so.mapped_column(sa.String(30))
+    password: so.Mapped[str] = so.mapped_column(sa.String(100))
 
     __mapper_args__ = {
         'polymorphic_identity':'ftp_storage',
     }
 
-# Add more classes as needed for other protocols """
+    def __repr__(self):
+        return '<CloudStorage {}>'.format(self.host)
+
+
+# Add more classes as needed for other protocols 

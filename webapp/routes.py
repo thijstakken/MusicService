@@ -7,6 +7,7 @@ from webapp import db
 from webapp.models import User
 from webapp.models import Music
 from webapp.models import CloudStorage
+from webapp.models import WebDavStorage
 from webapp.forms import RegistrationForm
 from urllib.parse import urlsplit
 
@@ -32,7 +33,9 @@ from webapp import app
 
 from webapp.forms import LoginForm
 from webapp.forms import MusicForm
-from webapp.forms import CloudStorageForm
+from webapp.forms import WebDAV
+
+from sqlalchemy import select
 
 
 # blueprint will be activeated later
@@ -255,28 +258,112 @@ def intervalStatus(music_id):
 
 ### WEBDAV FUNCTIONS SETTINGS ###
 
-@app.route("/settings")
+@app.route("/settings", methods=["GET", "POST"])
 @login_required
 def settings():
     #    title = "Settings"
 
+
+    # make a form to add the webdav settings to the webdav_storage table
+    
     # create a form to add the settings
-    SettingsForm = CloudStorageForm()
-    if SettingsForm.validate_on_submit():
-        storagesettings = CloudStorage()
-        storagesettings.protocol = SettingsForm.protocol.data
-        storagesettings.url = SettingsForm.url.data
-        storagesettings.directory = SettingsForm.directory.data
-        storagesettings.username = SettingsForm.username.data
-        storagesettings.password = SettingsForm.password.data
-        db.session.add(storagesettings)
+    # WebDAVform = WebDAV()
+    # if WebDAVform.validate_on_submit():
+    #     storagesettings = CloudStorage()
+    #     storagesettings.protocol_type = "webdav_storage"
+    #     storagesettings.user_id = current_user.id
+
+    #     storagesettings.WebdavStorage.url = WebDAVform.url.data
+        
+    #     storagesettings.url = WebDAVform.url.data
+    #     storagesettings.directory = WebDAVform.directory.data
+    #     storagesettings.username = WebDAVform.username.data
+    #     storagesettings.password = WebDAVform.password.data
+    #     db.session.add(storagesettings)
+    #     db.session.commit()
+    #     flash('WebDAV account added!')
+    #     return redirect(url_for('settings'))
+    
+
+    WebDAVform = WebDAV()
+    if WebDAVform.validate_on_submit():
+        WebDAVSettings = WebDavStorage()
+        WebDAVSettings.url = WebDAVform.url.data
+        WebDAVSettings.directory = WebDAVform.directory.data
+        WebDAVSettings.username = WebDAVform.username.data
+        WebDAVSettings.password = WebDAVform.password.data
+
+        WebDAVSettings.user_id = current_user.id
+        WebDAVSettings.protocol_type = "webdav_storage"
+
+        db.session.add(WebDAVSettings)
         db.session.commit()
-        flash('Settings added')
+        flash('WebDAV account added!')
         return redirect(url_for('settings'))
 
 
     # get the CloudStorage settings from the database with scalars
-    WebDAVconfig = db.session.scalars(sa.select(CloudStorage)).all()
+    cloudstorageaccounts = db.session.scalars(sa.select(CloudStorage)).all()
+    for cloudstorageaccount in cloudstorageaccounts:
+        print(cloudstorageaccount)
+        print(cloudstorageaccount.id)
+        print(cloudstorageaccount.owner)
+        print(cloudstorageaccount.protocol_type)
+
+        # print the settings for the webdav_storage protocol
+        # if cloudstorageaccount.protocol_type == "webdav_storage":
+        #     print(cloudstorageaccount.webdav_storage.url)
+        #     print(cloudstorageaccount.directory)
+        #     print(cloudstorageaccount.username)
+        #     print(cloudstorageaccount.password)
+    
+    webdavstor = sa.select(WebDavStorage).order_by(WebDavStorage.id)
+    storages = db.session.scalars(webdavstor).all()
+    for storage in storages:
+        print("hier zijn de storages")
+        print(storages)
+        print("einde storages")
+        print(storage.url)
+        print(storage.directory)
+        print(storage.username)
+        print(storage.password)
+ 
+
+
+    storages = sa.select(CloudStorage).order_by(CloudStorage.id)
+    objects = db.session.scalars(storages).all()
+    for object in objects:
+        if object.protocol_type == "webdav_storage":
+            print("hier zijn de objects")
+            print(object)
+            print("einde objects")
+            print(object.url)
+            print(object.directory)
+            print(object.username)
+            print(object.password)
+   
+    #print("hier zijn de objects")
+    #print(objects)
+    #print("einde objects")
+
+
+    # get and print webdave_storage settings
+    webdav = db.session.scalars(sa.select(WebDavStorage)).all()
+    for webdav in webdav:
+        print("deze loop")
+        print(webdav.url)
+        print(webdav.directory)
+        print(webdav.username)
+        print(webdav.password)
+
+
+        #if cloudstorageaccount.protocol_type == "webdav_storage":
+        #    print(cloudstorageaccount.webdav_storage.url)
+        #    print(cloudstorageaccount.directory)
+        #    print(cloudstorageaccount.username)
+        #    print(cloudstorageaccount.password)
+
+
 
     # get songs archive
     #with open(r"../download_archive/downloaded", 'r') as songs:
@@ -287,7 +374,21 @@ def settings():
     songs = ["youtube 4975498", "youtube 393judjs", "soundcloud 93034303"]
     songs = list(enumerate(songs))
 
-    return render_template("settings.html", WebDAVconfig=WebDAVconfig, songs=songs, title='Settings')
+
+    return render_template("settings.html", cloudstorageaccounts=cloudstorageaccounts, songs=songs, WebDAVform=WebDAVform, title='Settings')
+
+
+@app.route("/settings/delete/<int:cloudstorage_id>")
+@login_required
+def deleteStorageAccount(cloudstorage_id):
+    # get the music object from the database with scalars
+    cloudstorage_id = db.session.scalars(sa.select(CloudStorage).where(CloudStorage.id == cloudstorage_id)).first()
+    db.session.delete(cloudstorage_id)
+    db.session.commit()
+    # add flash message to confirm the interval change
+    flash('CloudStorage account deleted')
+    return redirect(url_for("settings"))
+
 
 @app.route("/settings/save", methods=["POST"])
 @login_required
