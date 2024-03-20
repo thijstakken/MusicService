@@ -191,52 +191,8 @@ youtube.com/video3
 <br>
 
 ## Join the team 👪
-Feel free to contribute, you can [submit issues here](https://github.com/thijstakken/MusicService/issues) and [fix issues/bugs, improve the application!](#developer-instructions-)
+Feel free to contribute, you can [submit issues here](https://github.com/thijstakken/MusicService/issues) and [fix issues/bugs, improve the application!](https://github.com/thijstakken/MusicService/wiki/Development-technical)
 
 <br>
-
-### Developer instructions 👩🏻‍💻👨🏻‍💻
-System requirements: Have [Docker (Desktop or Engine)](https://www.docker.com/) installed on your system <br/>
-Tech stack: 
-1. Backend: [Python](https://www.python.org/)
-2. Web framework: [Flask](https://flask.palletsprojects.com/en/3.0.x/)
-3. Database: [Flask-SQLAlchemy](https://flask-sqlalchemy.palletsprojects.com/en/3.1.x/)
-4. [Docker](https://www.docker.com/)
-5. [youtube-dl](https://youtube-dl.org/)
-6. [WebDAV](http://www.webdav.org/)
-7. Using this for frontend [Bootstrap v5.3](https://getbootstrap.com/docs/5.3/getting-started/introduction/)
-8. For the icons, using [Bootstrap Icons 1.11.2](https://icons.getbootstrap.com/#install)
-9. For the sheduler (schedules playlist downloads) [Schedule](https://github.com/dbader/schedule)
-
-### General things
-1. 🤠 Git clone the project with `git clone https://github.com/thijstakken/MusicService.git`
-2. 🐛 [Pick a issue from the list or create a new issue and use that one](https://github.com/thijstakken/MusicService/issues)
-3. 🐍 Start editing the code (Python)
-4. 🏗 To build your new image, open a command line in the project folder and run `docker build -t musicservice:dev .`
-5. 🧪 For testing with Nextcloud, just do `docker run -d -p 8080:80 nextcloud` to start a fresh Nextcloud environment. When started, go to `http://localhost:8080/` in some cases you have to replace `localhost` with your computers IP. <br/>
-
-Use the [docker compose](docker-compose.yml) file or use this Docker run command, and change it to your needs to get started:
-```
-docker run \
- --name musicservice \
- --restart=no \
- -v config:/config \
- -v musiccache:/music \
- -e URL=https://demo1.nextcloud.com/remote.php/dav/files/wpS97kPjnDJo6gGQ/ \
- -e DIRECTORY= \
- -e USERNAME=wpS97kPjnDJo6gGQ \
- -e PASSWORD=demo \
- -e INTERVAL=0 \
-musicservice:dev
-```
-
-6. 🎉 Create a branch and make your changes. When committing changes please use [Gitmoji](https://gitmoji.dev/) and [close the corresponding issue with "fixed"](https://github.com/gitbucket/gitbucket/wiki/How-to-Close-Reference-issues-and-pull-request) and the number of the issue `git commit -m ":bug: fixed #21 Your commit message"`
-7. ⬆ Create a [pull request](https://github.com/thijstakken/MusicService/pulls)
-8. 🚀 Wait for it to be reviewed and merged!
-
-9. Cleaning up, or starting over with testing: <br>
-- Delete the container with: `docker rm musicservice`
-- Delete the config volume with: `docker volume rm config`
-- Delete the musiccache volume with: `docker volume rm musiccache`
 
 Use at your own risk, never trust the code of a random dude on the internet without first checking it yourself :)

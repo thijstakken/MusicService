@@ -108,6 +108,13 @@
                     {% endfor %}
                   </p>
 
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" onclick="passwordShow()">
+                    <label class="form-check-label" for="flexCheckDefault">
+                        Show password
+                    </label>
+                  </div>
+
 
                   <p>{{ WebDAVform.submit() }}</p>
               </form>
@@ -137,18 +144,24 @@
                       <label>WebDAV password</label>
                       <input type="password" class="form-control" name="WebDAV_Password" placeholder="" id="password">
                   </div>
-                  <div class="form-check">
-                      <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" onclick="passwordShow()">
-                      <label class="form-check-label" for="flexCheckDefault">
-                          Show password
-                      </label>
-                  </div><br>
 
                   
                   <button class="btn btn-primary" type="submit">Save</button>
                   <!-- <button class="btn btn-primary" type="submit">Validate settings</button> -->
               </form>
               </div>
+
+              <script>
+                function passwordShow() {
+                  var x = document.getElementById("password");
+                  if (x.type === "password") {
+                    x.type = "text";
+                  } else {
+                    x.type = "password";
+                  }
+                }
+              </script>
+
 
               <div class="modal-footer">
                 <button class="btn btn-primary" data-bs-target="#exampleModal" data-bs-toggle="modal">Back to previous</button>
@@ -169,85 +182,16 @@
         <a class="btn btn-danger" href="/settings/delete/{{ cloudstorages.id }}">Delete</a>
         {% endfor %}
 
+        <!-- I can drop this weird logic, will start to use simple database model where any sync profile can be added and deleted, but only 1 should the max allowed sync profile to be active-->
 
-        <!-- I can drop this weird logic, will start to use simple database model where any sync profile can be added and deleted, but only 1 is the max allowed sync profile to be active-->
-        
         <!--
-        {% for webdav in WebDAVconfig %}
-        <p>{{webdav.id }} | {{ webdav.WebDAV_URL }} | {{ webdav.WebDAV_Directory }} | {{ webdav.WebDAV_Username }} | {{ webdav.WebDAV_Password }}</p>
-        <form action="/settings/save" method="post">
+        for webdav in WebDAVconfig, (without the correct quotes for memo purposes)
+        webdav.WebDAV_URL
+        webdav.WebDAV_Directory
+        webdav.WebDAV_Username
+        webdav.WebDAV_Password
+        -->
 
-            <div class="mb-3">
-                <label class="form-label">WebDAV URL</label>
-                <input type="text" class="form-control" name="WebDAV_URL" placeholder="https://cloud.yourdomain.com" value="{{ webdav.WebDAV_URL }}"><br>
-            </div>
-            <div class="mb-3">
-                <label>WebDAV directory</label>
-                <input type="text" class="form-control" name="WebDAV_Directory" placeholder="/MyMusic" value="{{ webdav.WebDAV_Directory }}"><br>
-            </div>
-            <div class="mb-3">
-                <label>WebDAV username</label>
-                <input type="text" class="form-control" name="WebDAV_Username" placeholder="Bob" value="{{ webdav.WebDAV_Username }}"><br>
-            </div>
-            <div class="mb-3">
-                <label>WebDAV password</label>
-                <input type="password" class="form-control" name="WebDAV_Password" placeholder="" id="password" value="{{ webdav.WebDAV_Password }}">
-            </div>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" onclick="passwordShow()">
-                <label class="form-check-label" for="flexCheckDefault">
-                    Show password
-                </label>
-            </div><br>
-
-            
-            <button class="btn btn-primary" type="submit">Save</button>
-            <button class="btn btn-primary" type="submit">Validate settings</button>
-        </form>
-        {% else %}
-        <form action="/settings/save" method="post">
-
-            <div class="mb-3">
-                <label class="form-label">WebDAV URL</label>
-                <input type="text" class="form-control" name="WebDAV_URL" placeholder="https://cloud.yourdomain.com"><br>
-            </div>
-            <div class="mb-3">
-                <label>WebDAV directory</label>
-                <input type="text" class="form-control" name="WebDAV_Directory" placeholder="/MyMusic"><br>
-            </div>
-            <div class="mb-3">
-                <label>WebDAV username</label>
-                <input type="text" class="form-control" name="WebDAV_Username" placeholder="Bob"><br>
-            </div>
-            <div class="mb-3">
-                <label>WebDAV password</label>
-                <input type="password" class="form-control" name="WebDAV_Password" placeholder="" id="password">
-            </div>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" onclick="passwordShow()">
-                <label class="form-check-label" for="flexCheckDefault">
-                    Show password
-                </label>
-            </div><br>
-
-            
-            <button class="btn btn-primary" type="submit">Save</button>
-            <button class="btn btn-primary" type="submit">Validate settings</button>
-        </form>
-        {% endfor %}
-    </div>
-    -->
-        
-        <script>
-            function passwordShow() {
-              var x = document.getElementById("password");
-              if (x.type === "password") {
-                x.type = "text";
-              } else {
-                x.type = "password";
-              }
-            }
-            </script>
 
     <br>
     <br>

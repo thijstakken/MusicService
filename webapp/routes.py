@@ -73,7 +73,6 @@ def musicapp():
     # get the music list from the database with scalars
     music_list = db.session.scalars(sa.select(Music)).all()
 
-
     form = MusicForm()
     if form.validate_on_submit():
         music = Music()

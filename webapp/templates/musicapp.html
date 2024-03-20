@@ -57,6 +57,67 @@
                 <p class="card-body">Owner relation is: {{ music.owner.username }}</p>
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item">{{music.url}}</li>
+                    
+                            <script>
+                                $(document).ready(function(){
+                                    var musicId = "{{ music.id }}";
+                                    var intervalStatusElement = $("#intervalStatus" + musicId);
+                                    
+                                    // Send a GET request to the server every 10 seconds
+                                    function updateIntervalStatus() {
+                                        $.get("/intervalstatus/" + musicId, function(data, status){
+                                            // Display the result in the p element with the id "intervalStatus" + musicId
+                                            $(intervalStatusElement).html(data);
+                                        });
+                                    }
+        
+                                    // Update interval status immediately when the page loads
+                                    updateIntervalStatus();
+        
+                                    // Update interval status every 10 seconds
+                                    setInterval(updateIntervalStatus, 10000);
+                                    
+                                    // Error handling
+                                    $.ajaxSetup({
+                                        error: function(jqXHR, exception) {
+                                            if (jqXHR.status === 0) {
+                                                alert('Not connected.\n Verify Network.');
+                                            } else if (jqXHR.status == 404) {
+                                                alert('Requested page not found. [404]');
+                                            } else if (jqXHR.status == 500) {
+                                                alert('Internal Server Error [500].');
+                                            } else if (exception === 'parsererror') {
+                                                alert('Requested JSON parse failed.');
+                                            } else if (exception === 'timeout') {
+                                                alert('Time out error.');
+                                            } else if (exception === 'abort') {
+                                                alert('Ajax request aborted.');
+                                            } else {
+                                                alert('Uncaught Error.\n' + jqXHR.responseText);
+                                            }
+                                        }
+                                    });
+        
+                                });
+                                </script>
+
+
+                                <div class="progress">
+                                    <div class="progress-bar" role="progressbar" style="width: 75%;" aria-valuenow="3000" aria-valuemin="0" aria-valuemax="4000" id="intervalStatus{{ music.id }}"></div>
+                                    <p>seconds</p>
+
+                                
+                                <!-- <div id="intervalStatus{{ music.id }}" class="progress" role="progressbar" aria-label="countdownPlaylist" aria-valuenow= aria-valuemin="0" aria-valuemax="1000">
+                                    <div class="progress-bar" style="width: 50%">seconds left</div> -->
+
+                                <!-- <p id="intervalStatus{{ music.id }}"></p> -->
+                                
+                                <!-- show when the last run was -->
+                                <!-- <p id="lastrun{{ music.id }}">Last run: {{ music.lastrun }}</p> -->
+
+                        <!-- <p id="intervalStatus{{ music.id }}"></p> -->
+                                </div>
+          
                 
                 {% if music.monitored == False %}
                 <form action="/monitor/{{ music.id }}">
@@ -75,6 +136,24 @@
                 </form>
                 {% endif %}
                 </ul>
+                
+                <!-- health indicators -->
+
+                <p>Last run: </p>
+
+                <p>Interval: {{ music.interval }} minutes</p>
+
+                <p>Next run: </p>
+            
+                <!-- if job is running, display spinner -->
+
+                {% if music.running == True %}
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                {% endif %}
+
+
                 <div class="card-body">
                     <!--
                     {% if music.monitored == False %}
@@ -98,54 +177,6 @@
                         </select>
                         <input type="submit" value="Save interval">
                         </form>
-                    <div class="card-footer text-muted">
-                    <script>
-                        $(document).ready(function(){
-                            var musicId = "{{ music.id }}";
-                            var intervalStatusElement = $("#intervalStatus" + musicId);
-                            
-                            // Send a GET request to the server every 10 seconds
-                            function updateIntervalStatus() {
-                                $.get("/intervalstatus/" + musicId, function(data, status){
-                                    // Display the result in the p element with the id "intervalStatus" + musicId
-                                    $(intervalStatusElement).html(data);
-                                });
-                            }
-
-                            // Update interval status immediately when the page loads
-                            updateIntervalStatus();
-
-                            // Update interval status every 10 seconds
-                            setInterval(updateIntervalStatus, 10000);
-                            
-                            // Error handling
-                            $.ajaxSetup({
-                                error: function(jqXHR, exception) {
-                                    if (jqXHR.status === 0) {
-                                        alert('Not connected.\n Verify Network.');
-                                    } else if (jqXHR.status == 404) {
-                                        alert('Requested page not found. [404]');
-                                    } else if (jqXHR.status == 500) {
-                                        alert('Internal Server Error [500].');
-                                    } else if (exception === 'parsererror') {
-                                        alert('Requested JSON parse failed.');
-                                    } else if (exception === 'timeout') {
-                                        alert('Time out error.');
-                                    } else if (exception === 'abort') {
-                                        alert('Ajax request aborted.');
-                                    } else {
-                                        alert('Uncaught Error.\n' + jqXHR.responseText);
-                                    }
-                                }
-                            });
-
-                        });
-                        </script>
-                        <p id="intervalStatus{{ music.id }}"></p>seconds left until next sync
-                        
-                        <!-- show when the last run was -->
-                        <!-- <p id="lastrun{{ music.id }}">Last run: {{ music.lastrun }}</p> -->
-                    </div>
                 </div>
             </div>
         </div>
