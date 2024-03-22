@@ -47,31 +47,14 @@ from sqlalchemy import select
 def profile():
     return render_template('profile.html')
 
-@app.route("/temp")
-@login_required
-def temp():
-    music = [
-        {
-            "title": "test1",
-            "url": "test1",
-            "monitored": True,
-            "interval": 10
-        },
-        {
-            "title": "test2",
-            "url": "test2",
-            "monitored": False,
-            "interval": 10
-        }
-    ]
-
-    return render_template("index.html", title='musicapp Page', music=music)
-
 @app.route("/", methods=["GET", "POST"])
 @login_required
 def musicapp():
     # get the music list from the database with scalars
-    music_list = db.session.scalars(sa.select(Music)).all()
+    #music_list = db.session.scalars(sa.select(Music)).all()
+
+    # get the music_list but only for the logged in user
+    music_list = db.session.scalars(sa.select(Music).where(Music.user_id == current_user.id)).all()
 
     form = MusicForm()
     if form.validate_on_submit():
@@ -178,8 +161,23 @@ def monitor(music_id):
 @app.route("/delete/<int:music_id>")
 @login_required
 def delete(music_id):
+
     # get the music object from the database with scalars
     music = db.session.scalars(sa.select(Music).where(Music.id == music_id)).first()
+
+    # check if song exists
+    if music is None:
+        flash('Song not found')
+        return redirect(url_for("musicapp"))
+    
+    # check if the user is the owner of the song
+    #print("music user id:", music.user_id)
+    #print("current user id:", current_user.id)
+    if music.user_id != current_user.id:
+        flash('You cannot delete songs of others!')
+        return redirect(url_for("musicapp"))
+
+    # delete the music object from the database
     db.session.delete(music)
     db.session.commit()
     # delete the scheduled job for the deleted playlist/song
@@ -302,7 +300,11 @@ def settings():
 
 
     # get the CloudStorage settings from the database with scalars
-    cloudstorageaccounts = db.session.scalars(sa.select(CloudStorage)).all()
+    #cloudstorageaccounts = db.session.scalars(sa.select(CloudStorage)).all()
+
+    # get the CloudStorage settings from the database with scalars for the logged in user
+    cloudstorageaccounts = db.session.scalars(sa.select(CloudStorage).where(CloudStorage.user_id == current_user.id)).all()
+
     for cloudstorageaccount in cloudstorageaccounts:
         print(cloudstorageaccount)
         print(cloudstorageaccount.id)
@@ -316,44 +318,44 @@ def settings():
         #     print(cloudstorageaccount.username)
         #     print(cloudstorageaccount.password)
     
-    webdavstor = sa.select(WebDavStorage).order_by(WebDavStorage.id)
-    storages = db.session.scalars(webdavstor).all()
-    for storage in storages:
-        print("hier zijn de storages")
-        print(storages)
-        print("einde storages")
-        print(storage.url)
-        print(storage.directory)
-        print(storage.username)
-        print(storage.password)
+    # webdavstor = sa.select(WebDavStorage).order_by(WebDavStorage.id)
+    # storages = db.session.scalars(webdavstor).all()
+    # for storage in storages:
+    #     print("hier zijn de storages")
+    #     print(storages)
+    #     print("einde storages")
+    #     print(storage.url)
+    #     print(storage.directory)
+    #     print(storage.username)
+    #     print(storage.password)
  
 
 
-    storages = sa.select(CloudStorage).order_by(CloudStorage.id)
-    objects = db.session.scalars(storages).all()
-    for object in objects:
-        if object.protocol_type == "webdav_storage":
-            print("hier zijn de objects")
-            print(object)
-            print("einde objects")
-            print(object.url)
-            print(object.directory)
-            print(object.username)
-            print(object.password)
+    # storages = sa.select(CloudStorage).order_by(CloudStorage.id)
+    # objects = db.session.scalars(storages).all()
+    # for object in objects:
+    #     if object.protocol_type == "webdav_storage":
+    #         print("hier zijn de objects")
+    #         print(object)
+    #         print("einde objects")
+    #         print(object.url)
+    #         print(object.directory)
+    #         print(object.username)
+    #         print(object.password)
    
     #print("hier zijn de objects")
     #print(objects)
     #print("einde objects")
 
 
-    # get and print webdave_storage settings
-    webdav = db.session.scalars(sa.select(WebDavStorage)).all()
-    for webdav in webdav:
-        print("deze loop")
-        print(webdav.url)
-        print(webdav.directory)
-        print(webdav.username)
-        print(webdav.password)
+    # # get and print webdave_storage settings
+    # webdav = db.session.scalars(sa.select(WebDavStorage)).all()
+    # for webdav in webdav:
+    #     print("deze loop")
+    #     print(webdav.url)
+    #     print(webdav.directory)
+    #     print(webdav.username)
+    #     print(webdav.password)
 
 
         #if cloudstorageaccount.protocol_type == "webdav_storage":
@@ -370,6 +372,7 @@ def settings():
     #    # add song ID's so they are easy to delete/correlate
     #    songs = list(enumerate(songs))
     
+    # still going to save songs in a text file? or in the database?
     songs = ["youtube 4975498", "youtube 393judjs", "soundcloud 93034303"]
     songs = list(enumerate(songs))
 
