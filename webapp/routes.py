@@ -528,10 +528,3 @@ def archiveupload():
             return redirect(url_for('settings'))
   
 ### END ARCHIVE FUNCTIONS ###
-        
-
-
-#if __name__ == "__app__":
-
-    # let's dance: "In 5, 6, 7, 8!"
-#    app.run(debug=True, port=5678)
