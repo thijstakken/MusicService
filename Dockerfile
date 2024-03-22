@@ -28,3 +28,6 @@ ENV INTERVAL=5
 
 # run the Music Service with Python
 CMD [ "python", "./web/app.py"]
+
+# let's dance: "In 5, 6, 7, 8!"
+#flask run --port=5678 --debug
