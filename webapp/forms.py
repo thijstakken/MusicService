@@ -5,7 +5,6 @@ import sqlalchemy as sa
 from webapp import db
 from webapp.models import User
 
-
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
@@ -32,11 +31,6 @@ class MusicForm(FlaskForm):
     monitored = BooleanField('Monitored', default=False)
     # set interval to integer 10 by default
     interval = IntegerField('Interval', default=10)
-
-    #user_id = db.relationship(User, back_populates='musics')
-
-    #user_id = 1
-
     submit = SubmitField('Add Music')
 
 class WebDAV(FlaskForm):

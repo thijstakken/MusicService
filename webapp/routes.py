@@ -253,7 +253,7 @@ def intervalStatus(music_id):
 
 
 
-### WEBDAV FUNCTIONS SETTINGS ###
+### START OF SETTINGS ###
 
 @app.route("/settings", methods=["GET", "POST"])
 @login_required
@@ -391,36 +391,7 @@ def deleteStorageAccount(cloudstorage_id):
     flash('CloudStorage account deleted')
     return redirect(url_for("settings"))
 
-
-@app.route("/settings/save", methods=["POST"])
-@login_required
-def settingsSave():
-    
-    # if the settings are not set, the row will be empty, so "None"
-    # then create the row and save the settings
-    if WebDAV.query.filter_by(id=1).first() is None:
-        
-        WebDAVSettings = WebDAV()
-        WebDAVSettings.WebDAV_URL = request.form.get("WebDAV_URL")
-        WebDAVSettings.WebDAV_Directory = request.form.get("WebDAV_Directory")
-        WebDAVSettings.WebDAV_Username = request.form.get("WebDAV_Username")
-        WebDAVSettings.WebDAV_Password = request.form.get("WebDAV_Password")
-        db.session.add(WebDAVSettings)
-        db.session.commit()
-        return redirect(url_for("settings"))
-    
-    # if query is not "None" then some settings have been configured already and we just want to change those records
-    else:
-        settings = WebDAV.query.filter_by(id=1).first()
-        if settings is not None:
-            settings.WebDAV_URL = request.form.get("WebDAV_URL")
-            settings.WebDAV_Directory = request.form.get("WebDAV_Directory")
-            settings.WebDAV_Username = request.form.get("WebDAV_Username")
-            settings.WebDAV_Password = request.form.get("WebDAV_Password")
-            db.session.commit()
-        return redirect(url_for("settings"))
-
-### END WEBDAV FUNCTIONS SETTINGS ###
+### END OF SETTINGS ###
 
 
 

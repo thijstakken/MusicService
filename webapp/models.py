@@ -9,6 +9,8 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
+import redis
+import rq
 
 
 class User(UserMixin, db.Model):
@@ -45,9 +47,33 @@ class Music(db.Model):
     interval: so.Mapped[int] = so.mapped_column(sa.Integer)
 
     owner: so.Mapped[User] = so.relationship(back_populates='musics')
+    
+    # links the download tasks to the corrosponding playlist/music
+    #musictasks: so.WriteOnlyMapped['MusicTask'] = so.relationship(back_populates='task')
 
     def __repr__(self):
         return '<Music {}>'.format(self.title)
+    
+
+class MusicTask(db.Model):
+    id: so.Mapped[str] = so.mapped_column(sa.String(36), primary_key=True)
+    name: so.Mapped[str] = so.mapped_column(sa.String(128), index=True)
+    description: so.Mapped[Optional[str]] = so.mapped_column(sa.String(128))
+    user_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id))
+    complete: so.Mapped[bool] = so.mapped_column(default=False)
+
+    # task: so.Mapped[User] = so.relationship(back_populates='musictasks')
+
+    # def get_rq_job(self):
+    #     try:
+    #         rq_job = rq.job.Job.fetch(self.id, connection=current_app.redis)
+    #     except (redis.exceptions.RedisError, rq.exceptions.NoSuchJobError):
+    #         return None
+    #     return rq_job
+
+    # def get_progress(self):
+    #     job = self.get_rq_job()
+    #     return job.meta.get('progress', 0) if job is not None else 100
 
 
 # all classes related to CloudStorage are built on a polymorphic relationship
