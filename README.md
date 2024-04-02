@@ -74,4 +74,8 @@ Feel free to contribute, you can [submit issues here](https://github.com/thijsta
 
 <br>
 
-Use at your own risk, never trust the code of a random dude on the internet without first checking it yourself :)
+> [!TIP]
+> Please consider supporting your favorite artists through buying their music on https://bandcamp.com/ or https://www.beatport.com/
+
+> [!TIP]
+> Use at your own risk, never trust the code of a random dude on the internet without first checking it yourself :)
