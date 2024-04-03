@@ -5,21 +5,44 @@ from flask_migrate import Migrate
 from flask_login import LoginManager
 from redis import Redis
 import rq
-    
-# this is the application object
-app = Flask(__name__)
 
-# gets config from config.py
-app.config.from_object(Config)
 
 # this is the database object
-db = SQLAlchemy(app)
-
+db = SQLAlchemy()
 # this is the migration engine
-migrate = Migrate(app, db)
+migrate = Migrate()
+# this is the login manager
+login = LoginManager()
+login.login_view = 'auth.login'
+#login.login_message = _l('Please log in to access this page.')
+#login.login_view = 'login'
 
-login = LoginManager(app)
-login.login_view = 'login'
+def create_app(config_class=Config):
+    # this is the application object
+    app = Flask(__name__)
+    # gets config from config.py
+    app.config.from_object(config_class)
+
+
+    db.init_app(app)
+    migrate.init_app(app, db)
+    login.init_app(app)
+
+    from webapp.errors import bp as errors_bp
+    app.register_blueprint(errors_bp)
+
+    from webapp.auth import bp as auth_bp
+    app.register_blueprint(auth_bp, url_prefix='/auth')
+
+    from webapp.main import bp as main_bp
+    app.register_blueprint(main_bp)
+
+    #from webapp.music import bp as music_bp
+    #app.register_blueprint(music_bp)
+
+
+
+
 
 
 
@@ -87,7 +110,9 @@ However, it's important to note that using global variables can make code harder
 
 
 # gets all the routes for the web application
-from webapp import routes, models
+#from webapp import routes, models
+
+from webapp import models
 
 
 # print Python version for informational purposes

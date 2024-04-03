@@ -1,3 +1,10 @@
+### I do not think this file is till being used, check this later and remove if not needed
+
+### Was this a test file? renamed it from auth.py to authtest.py to avoid conflicts with the auth.py in the webapp folder
+
+### 
+
+
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from . import db
 from werkzeug.security import generate_password_hash, check_password_hash
