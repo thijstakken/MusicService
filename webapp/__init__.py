@@ -15,7 +15,6 @@ migrate = Migrate()
 login = LoginManager()
 login.login_view = 'auth.login'
 #login.login_message = _l('Please log in to access this page.')
-#login.login_view = 'login'
 
 def create_app(config_class=Config):
     # this is the application object
@@ -40,10 +39,15 @@ def create_app(config_class=Config):
     #from webapp.music import bp as music_bp
     #app.register_blueprint(music_bp)
 
+    from webapp.settings import bp as settings_bp
+    app.register_blueprint(settings_bp, url_prefix='/settings')
 
 
+    #if not app.debug and not app.testing:
+    # add testing/debug later
 
 
+    return app
 
 
     # # start running the run_schedule function in the background

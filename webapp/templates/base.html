@@ -17,8 +17,8 @@
     <body>
         <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container">
-            <a class="navbar-brand" href="{{ url_for('musicapp') }}">
-                <img href="{{ url_for('musicapp') }}" src="{{url_for('static', filename='/images/normalLogo.png')}}" alt="Music Service logo" width="30" height="30"/>
+            <a class="navbar-brand" href="{{ url_for('main.musicapp') }}">
+                <img href="{{ url_for('main.musicapp') }}" src="{{url_for('static', filename='/images/normalLogo.png')}}" alt="Music Service logo" width="30" height="30"/>
             Music Service
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -27,23 +27,23 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
               <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                  <a class="nav-link bi bi-house" aria-current="page" href="{{ url_for('musicapp') }}"> Home</a>
+                  <a class="nav-link bi bi-house" aria-current="page" href="{{ url_for('main.musicapp') }}"> Home</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link bi bi-gear-fill" aria-current="page" href="{{ url_for('settings') }}"> Settings</a>
+                  <a class="nav-link bi bi-gear-fill" aria-current="page" href="{{ url_for('settings.settings') }}"> Settings</a>
                 </li>
               </ul>
               <ul class="navbar-nav mb-2 mb-lg-0">
                 {% if current_user.is_anonymous %}
                 <li class="nav-item">
-                  <a class="nav-link bi bi-box-arrow-in-right" aria-current="page" href="{{ url_for('login') }}"> Login</a>
+                  <a class="nav-link bi bi-box-arrow-in-right" aria-current="page" href="{{ url_for('auth.login') }}"> Login</a>
                 </li>
                 {% else %}
                 <li class="nav-item">
-                  <a class="nav-link bi bi-person-circle" aria-current="page" href="{{ url_for('settings', username=current_user.username) }}"> Profile</a>
+                  <a class="nav-link bi bi-person-circle" aria-current="page" href="{{ url_for('settings.settings', username=current_user.username) }}"> Profile</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" aria-current="page" href="{{ url_for('logout') }}">Logout</a>
+                  <a class="nav-link" aria-current="page" href="{{ url_for('auth.logout') }}">Logout</a>
                 </li>
                 {% endif %}
               </ul>

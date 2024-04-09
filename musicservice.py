@@ -1,12 +1,10 @@
-from webapp import app
-
 import sqlalchemy as sa
 import sqlalchemy.orm as so
-from webapp import db
-from webapp.models import User, Music, MusicTask
+from webapp import create_app, db
+from webapp.models import User, Music, MusicTask, CloudStorage, WebDavStorage, FTPStorage
 
-webapp = app
+webapp = create_app()
 
-@app.shell_context_processor
+@webapp.shell_context_processor
 def make_shell_context():
-    return {'sa': sa, 'so': so, 'db': db, 'User': User, 'Music': Music, 'MusicTask': MusicTask}
+    return {'sa': sa, 'so': so, 'db': db, 'User': User, 'Music': Music, 'MusicTask': MusicTask, 'CloudStorage': CloudStorage, 'WebDavStorage': WebDavStorage, 'FTPStorage': FTPStorage}

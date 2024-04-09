@@ -3,9 +3,10 @@ from flask_login import login_user, logout_user, current_user
 import sqlalchemy as sa
 from webapp import db
 from webapp.auth import bp
-from webapp.auth.forms import LoginForm, RegistrationForm, ResetPasswordRequestForm, ResetPasswordForm
+from webapp.auth.forms import LoginForm, RegistrationForm
+# ResetPasswordRequestForm, ResetPasswordForm
 from webapp.models import User
-
+from urllib.parse import urlsplit
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -25,12 +26,12 @@ def login():
         return redirect(next_page)
     return render_template('auth/login.html', title='Sign In', form=form)
 
-@app.route("/logout")
+@bp.route("/logout")
 def logout():
     logout_user()
     return redirect(url_for('main.musicapp'))
 
-@app.route('/register', methods=['GET', 'POST'])
+@bp.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('main.musicapp'))

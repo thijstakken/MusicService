@@ -8,6 +8,7 @@ from webapp.main import bp
 
 import schedule
 from webapp.downloadScheduler import scheduleJobs, deleteJobs, immediateJob, run_schedule
+from webapp.main.forms import MusicForm
 
 @bp.route("/", methods=["GET", "POST"])
 @login_required

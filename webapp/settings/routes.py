@@ -1,50 +1,30 @@
-from __future__ import unicode_literals
-from datetime import datetime
-from flask import Flask, render_template, request, redirect, url_for, send_file, flash, Blueprint
-from flask_login import current_user, login_required
+from flask import render_template, flash, redirect, url_for, request, current_app, send_file
+from flask_login import login_required, current_user
 import sqlalchemy as sa
 from webapp import db
-from webapp.models import User
-from webapp.models import Music
+from webapp.settings import bp
+
+from webapp.settings.forms import WebDAV
+
+from flask_login import current_user, login_required
+import sqlalchemy as sa
 from webapp.models import CloudStorage
 from webapp.models import WebDavStorage
-from webapp.forms import RegistrationForm
-from urllib.parse import urlsplit
+
 
 from werkzeug.utils import secure_filename
-from re import L
-from yt_dlp import YoutubeDL
-import shutil
-import requests
-import os
-import os.path
-import time
-import sys
-from pathlib import Path
-import threading
-
-from webapp import app
-
-from webapp.forms import LoginForm
-from webapp.forms import MusicForm
-from webapp.forms import WebDAV
-
 from sqlalchemy import select
 
 
-# blueprint will be activeated later
-#main = Blueprint('main', __name__)
-
-
-@app.route('/profile')
+@bp.route('/profile')
 @login_required
 def profile():
-    return render_template('profile.html')
+    return render_template('settings/profile.html')
 
 
 ### START OF SETTINGS ###
 
-@app.route("/settings", methods=["GET", "POST"])
+@bp.route("/settings", methods=["GET", "POST"])
 @login_required
 def settings():
     #    title = "Settings"
@@ -85,7 +65,7 @@ def settings():
         db.session.add(WebDAVSettings)
         db.session.commit()
         flash('WebDAV account added!')
-        return redirect(url_for('settings'))
+        return redirect(url_for('settings.settings'))
 
 
     # get the CloudStorage settings from the database with scalars
@@ -166,10 +146,10 @@ def settings():
     songs = list(enumerate(songs))
 
 
-    return render_template("settings.html", cloudstorageaccounts=cloudstorageaccounts, songs=songs, WebDAVform=WebDAVform, title='Settings')
+    return render_template("settings/settings.html", cloudstorageaccounts=cloudstorageaccounts, songs=songs, WebDAVform=WebDAVform, title='Settings')
 
 
-@app.route("/settings/delete/<int:cloudstorage_id>")
+@bp.route("/settings/delete/<int:cloudstorage_id>")
 @login_required
 def deleteStorageAccount(cloudstorage_id):
     # get the music object from the database with scalars
@@ -178,15 +158,14 @@ def deleteStorageAccount(cloudstorage_id):
     db.session.commit()
     # add flash message to confirm the interval change
     flash('CloudStorage account deleted')
-    return redirect(url_for("settings"))
+    return redirect(url_for("settings.settings"))
 
 ### END OF SETTINGS ###
 
 
-
 ### ARCHIVE FUNCTIONS ###
 
-@app.route("/archiveaddsong", methods=["POST"])
+@bp.route("/archiveaddsong", methods=["POST"])
 @login_required
 def archiveaddsong():
     song = request.form.get("song")
@@ -204,9 +183,9 @@ def archiveaddsong():
         # add song if it is not None
         if song is not None:
             archive.write(song)
-    return redirect(url_for("settings"))
+    return redirect(url_for("settings.settings"))
 
-@app.route("/archivedeletesong/<int:song_id>")
+@bp.route("/archivedeletesong/<int:song_id>")
 @login_required
 def archivedeletesong(song_id):
     # get songs archive
@@ -220,9 +199,9 @@ def archivedeletesong(song_id):
             if number not in [song_id]:
                 fileop.write(line)    
 
-    return redirect(url_for("settings"))
+    return redirect(url_for("settings.settings"))
 
-@app.route('/archivedownload') # GET request
+@bp.route('/archivedownload') # GET request
 @login_required
 # based on flask.send_file method: https://flask.palletsprojects.com/en/2.3.x/api/#flask.send_file
 def archivedownload():
@@ -239,7 +218,7 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # used flask uploading files guide https://flask.palletsprojects.com/en/3.0.x/patterns/fileuploads/
-@app.route("/archiveupload", methods=["POST"])
+@bp.route("/archiveupload", methods=["POST"])
 @login_required
 def archiveupload():
     if request.method == "POST":
@@ -285,6 +264,6 @@ def archiveupload():
                     # because of this, after the last item, a newline will also be added, as a result of which you will always have a empty row on the bottom of the archive
                     # which does look a bit weird... look into later
 
-            return redirect(url_for('settings'))
+            return redirect(url_for('settings.settings'))
   
 ### END ARCHIVE FUNCTIONS ###
