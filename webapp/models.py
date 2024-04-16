@@ -13,6 +13,7 @@ import redis
 import rq
 import redis.exceptions
 import rq.exceptions
+from flask import current_app
 
 
 class User(UserMixin, db.Model):
@@ -51,7 +52,7 @@ class Music(db.Model):
     owner: so.Mapped[User] = so.relationship(back_populates='musics')
     
     # links the download tasks to the corrosponding playlist/music
-    musictasks: so.WriteOnlyMapped['MusicTask'] = so.relationship(back_populates='task')
+    #musictasks: so.WriteOnlyMapped['MusicTask'] = so.relationship(back_populates='task')
 
     def __repr__(self):
         return '<Music {}>'.format(self.title)

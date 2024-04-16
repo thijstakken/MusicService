@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request, current_app
 from config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -26,6 +26,9 @@ def create_app(config_class=Config):
     db.init_app(app)
     migrate.init_app(app, db)
     login.init_app(app)
+
+    app.redis = Redis.from_url(app.config['REDIS_URL'])
+    app.task_queue = rq.Queue('music-tasks', connection=app.redis)
 
     from webapp.errors import bp as errors_bp
     app.register_blueprint(errors_bp)
