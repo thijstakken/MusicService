@@ -5,6 +5,7 @@ from webapp import db
 # from webapp.main.forms import MusicForm, CloudStorageForm ???
 from webapp.models import Music, CloudStorage
 from webapp.main import bp
+import datetime
 
 import schedule
 from webapp.downloadScheduler import scheduleJobs, deleteJobs, immediateJob, run_schedule
@@ -115,9 +116,10 @@ def delete(music_id):
 def download(music_id):
     # get the music object from the database with scalars
     music = db.session.scalars(sa.select(Music).where(Music.id == music_id)).first()
-    # execute the download function to download one time
-    if music is not None and settings is not None:
-        immediateJob(music, settings)
+    # the line below, should have music and settings as arguments
+    Music.launch_task('downloadmusic', 'Download Music', music)
+    db.session.commit()
+
     return redirect(url_for("main.musicapp"))
 
 # let users configure their interval value on a per playlist/song basis
@@ -164,7 +166,7 @@ def intervalStatus(music_id):
     
     time_of_next_run = schedule.next_run(music_id)
     # get current time
-    time_now = datetime.now()
+    time_now = datetime.datetime.now()
     
     if time_of_next_run is not None:
         # calculate time left before next run

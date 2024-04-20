@@ -1,8 +1,25 @@
 # youtube-dl stuff
 from yt_dlp import YoutubeDL
+import time
+from rq import get_current_job
+from webapp import db
+from webapp.models import MusicTask
+import sys
+
+# def example(seconds):
+#     job = get_current_job()
+#     print('Starting task')
+#     for i in range(seconds):
+#         job.meta['progress'] = 100.0 * i / seconds
+#         job.save_meta()
+#         print(i)
+#         time.sleep(1)
+#     job.meta['progress'] = 100
+#     job.save_meta()
+#     print('Task completed')
+
 
 def downloadmusic(music_id, url):
-
     print("")
     print("Downloading playlist...", music_id)
 
@@ -13,8 +30,21 @@ def downloadmusic(music_id, url):
 
 # download the playlists
 def downloadPlaylists(ydl_opts, url):
-    with YoutubeDL(ydl_opts) as ydl:
+    try:
+        _set_task_progress(0)
+        with YoutubeDL(ydl_opts) as ydl:
                 ydl.download(url)
+        _set_task_progress(100)
+    except Exception:
+        _set_task_progress(100)
+        #webapp.logger.error('Unhandled exception', exc_info=sys.exc_info())
+        print("Error downloading the playlist")
+        print("")
+    finally:
+        _set_task_progress(100)
+        # some cleanup
+        print("Cleaning up...")
+
 
 # YT-DLP logging
 class MyLogger(object):
@@ -54,3 +84,16 @@ ydl_opts = {
     'download_archive': '../download_archive/downloaded',           # this will update the downloads file which serves as a database/archive for which songs have already been downloaded, so it don't downloads them again
     'nocheckcertificates': True,                                    # mitigates YT-DL bug where it wrongly examins the server certificate, so therefore, ignore invalid certificates for now, to mitigate this bug
 }
+
+
+def _set_task_progress(progress):
+    job = get_current_job()
+    if job:
+        job.meta['progress'] = progress
+        job.save_meta()
+        task = db.session.get(MusicTask, job.get_id())
+        task.user.add_notification('task_progress', {'task_id': job.get_id(),
+                                                     'progress': progress})
+        if progress >= 100:
+            task.complete = True
+        db.session.commit()

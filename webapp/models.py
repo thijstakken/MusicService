@@ -52,7 +52,24 @@ class Music(db.Model):
     owner: so.Mapped[User] = so.relationship(back_populates='musics')
     
     # links the download tasks to the corrosponding playlist/music
-    #musictasks: so.WriteOnlyMapped['MusicTask'] = so.relationship(back_populates='task')
+    musictasks: so.WriteOnlyMapped['MusicTask'] = so.relationship(back_populates='playlist')
+
+    def launch_task(self, name, description, *args, **kwargs):
+        rq_job = current_app.task_queue.enqueue(f'webapp.tasks.{name}', self.id,
+                                                *args, **kwargs)
+        task = MusicTask(id=rq_job.get_id(), name=name, description=description,
+                    playlist=self)
+        db.session.add(task)
+        return task
+
+    def get_tasks_in_progress(self):
+        query = self.musictasks.select().where(MusicTask.complete == False)
+        return db.session.scalars(query)
+
+    def get_task_in_progress(self, name):
+        query = self.musictasks.select().where(MusicTask.name == name,
+                                          MusicTask.complete == False)
+        return db.session.scalar(query)
 
     def __repr__(self):
         return '<Music {}>'.format(self.title)
@@ -62,10 +79,10 @@ class MusicTask(db.Model):
     id: so.Mapped[str] = so.mapped_column(sa.String(36), primary_key=True)
     name: so.Mapped[str] = so.mapped_column(sa.String(128), index=True)
     description: so.Mapped[Optional[str]] = so.mapped_column(sa.String(128))
-    user_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id))
+    music_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(Music.id))
     complete: so.Mapped[bool] = so.mapped_column(default=False)
 
-    # task: so.Mapped[User] = so.relationship(back_populates='musictasks')
+    playlist: so.Mapped[Music] = so.relationship(back_populates='musictasks')
 
     def get_rq_job(self):
         try:
