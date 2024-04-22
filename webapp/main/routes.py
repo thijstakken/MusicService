@@ -117,7 +117,7 @@ def download(music_id):
     # get the music object from the database with scalars
     music = db.session.scalars(sa.select(Music).where(Music.id == music_id)).first()
     # the line below, should have music and settings as arguments
-    Music.launch_task('downloadmusic', 'Download Music', music)
+    current_user.launch_task('downloadmusic', music.id, music.url)
     db.session.commit()
 
     return redirect(url_for("main.musicapp"))

@@ -29,6 +29,18 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         # returns True if password is correct
         return check_password_hash(self.password_hash, password)
+    
+    def launch_task(self, name, music_id, url, *args, **kwargs):
+        rq_job = current_app.task_queue.enqueue(f'webapp.tasks.{name}', self.id, url,
+                                                *args, **kwargs)
+        task = MusicTask
+        task.id = rq_job.get_id()
+        task.name = name
+        task.description = 'temp'
+        task.music_id = music_id
+        task.url = url
+        db.session.add(task)
+        return task
 
     musics: so.WriteOnlyMapped['Music'] = so.relationship(back_populates='owner')
     cloud_storages: so.WriteOnlyMapped['CloudStorage'] = so.relationship(back_populates='owner')
@@ -54,14 +66,6 @@ class Music(db.Model):
     # links the download tasks to the corrosponding playlist/music
     musictasks: so.WriteOnlyMapped['MusicTask'] = so.relationship(back_populates='playlist')
 
-    def launch_task(self, name, description, *args, **kwargs):
-        rq_job = current_app.task_queue.enqueue(f'webapp.tasks.{name}', self.id,
-                                                *args, **kwargs)
-        task = MusicTask(id=rq_job.get_id(), name=name, description=description,
-                    playlist=self)
-        db.session.add(task)
-        return task
-
     def get_tasks_in_progress(self):
         query = self.musictasks.select().where(MusicTask.complete == False)
         return db.session.scalars(query)
@@ -80,6 +84,7 @@ class MusicTask(db.Model):
     name: so.Mapped[str] = so.mapped_column(sa.String(128), index=True)
     description: so.Mapped[Optional[str]] = so.mapped_column(sa.String(128))
     music_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(Music.id))
+    url: so.Mapped[str] = so.mapped_column(sa.String(200))
     complete: so.Mapped[bool] = so.mapped_column(default=False)
 
     playlist: so.Mapped[Music] = so.relationship(back_populates='musictasks')

@@ -2,9 +2,12 @@
 from yt_dlp import YoutubeDL
 import time
 from rq import get_current_job
-from webapp import db
+from webapp import db, create_app
 from webapp.models import MusicTask
 import sys
+
+webapp = create_app()
+webapp.app_context().push()
 
 # def example(seconds):
 #     job = get_current_job()
@@ -92,8 +95,8 @@ def _set_task_progress(progress):
         job.meta['progress'] = progress
         job.save_meta()
         task = db.session.get(MusicTask, job.get_id())
-        task.user.add_notification('task_progress', {'task_id': job.get_id(),
-                                                     'progress': progress})
+        #task.user.add_notification('task_progress', {'task_id': job.get_id(),
+        #                                             'progress': progress})
         if progress >= 100:
             task.complete = True
         db.session.commit()
