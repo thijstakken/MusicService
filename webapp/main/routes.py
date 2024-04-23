@@ -8,7 +8,9 @@ from webapp.main import bp
 import datetime
 
 import schedule
-from webapp.downloadScheduler import scheduleJobs, deleteJobs, immediateJob, run_schedule
+
+### commented out because of circular import, going to refactor this later, so will be fixed then.
+#from webapp.downloadScheduler import scheduleJobs, deleteJobs, immediateJob, run_schedule
 from webapp.main.forms import MusicForm
 
 @bp.route("/", methods=["GET", "POST"])
@@ -115,9 +117,13 @@ def delete(music_id):
 @login_required
 def download(music_id):
     # get the music object from the database with scalars
-    music = db.session.scalars(sa.select(Music).where(Music.id == music_id)).first()
+    
+    #music = db.session.scalars(sa.select(Music).where(Music.id == music_id)).first()
+    ######
+    
     # the line below, should have music and settings as arguments
-    current_user.launch_task('downloadmusic', music.id, music.url)
+    #current_user.launch_task('downloadmusic', music.id, music.url)
+    current_user.launch_task('downloadmusic', 'description123')
     db.session.commit()
 
     return redirect(url_for("main.musicapp"))

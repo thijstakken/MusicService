@@ -30,15 +30,16 @@ class User(UserMixin, db.Model):
         # returns True if password is correct
         return check_password_hash(self.password_hash, password)
     
-    def launch_task(self, name, music_id, url, *args, **kwargs):
-        rq_job = current_app.task_queue.enqueue(f'webapp.tasks.{name}', self.id, url,
+    def launch_task(self, name, description, *args, **kwargs):
+        rq_job = current_app.task_queue.enqueue(f'webapp.tasks.{name}', self.musics.musictasks.id,
                                                 *args, **kwargs)
         task = MusicTask
         task.id = rq_job.get_id()
         task.name = name
-        task.description = 'temp'
-        task.music_id = music_id
-        task.url = url
+        task.description = description
+        #task.playlist = self
+        #task.url = music.url
+        #task.music_id = music.id
         db.session.add(task)
         return task
 
