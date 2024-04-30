@@ -38,8 +38,20 @@ def downloadmusic(music_id):
     #downloadPlaylists(ydl_opts, url)
     try:
         _set_task_progress(0)
+
+        # we want to look at the music object and get the DownloadedSongs object
+
+        # we want to put the contents in a text file so YT-DLP can work with it
+        # like create /archive/userid/playlistid/downloaded.txt, then put the contents in there
+
+        # we want to download the music from the URL
         with YoutubeDL(ydl_opts) as ydl:
                 ydl.download(music.url)
+
+        # we want to add the downloaded songs text file to the DownloadedSongs object
+
+        # we want to remove the text file from the local storage
+
         _set_task_progress(100)
     except Exception:
         _set_task_progress(100)

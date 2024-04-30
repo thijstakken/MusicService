@@ -12,6 +12,9 @@ def download_and_upload(music, settings):
 
     if settings is not None:   
         # call upload function to upload the music to the cloud
+
+        # get the latest settings from the database
+        ###settings = CloudStorage.query.filter_by(id=1).first()
         uploadmusic(settings.WebDAV_URL, settings.WebDAV_Username, settings.WebDAV_Password, settings.WebDAV_Directory)
 
     # if tag immidiate is present, then delete the job after it has run once
