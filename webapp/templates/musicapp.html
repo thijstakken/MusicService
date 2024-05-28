@@ -24,8 +24,8 @@
         <p>{{ form.submit() }}</p>
     </form>
 
-    <br>
 
+    <!--
     <form action="/" method="post">
         <div class="mb-3">
             <label class="form-label">Playlist title</label>
@@ -44,6 +44,7 @@
     </form>
 
     <br>
+    -->
 
     <hr>
     
@@ -53,8 +54,8 @@
         <div class="col-sm-4 mb-3 mb-sm-0">
             <div class="card" style="width: 18rem;">
                 <p class="card-body">{{music.id }} | {{ music.title }}</p>
-                <p class="card-body">Owner ID is: {{ music.user_id }}</p>
-                <p class="card-body">Related MusicTasks are: {{ music.musictasks.id }}</p>
+                <!-- <p class="card-body">Owner ID is: {{ music.user_id }}</p> -->
+                <!-- <p class="card-body">Related MusicTasks are: music.musictasks.id </p>  add brackets arround music.musictasks,id to make it work again-->
                 <p class="card-body">Owner relation is: {{ music.owner.username }}</p>
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item">{{music.url}}</li>

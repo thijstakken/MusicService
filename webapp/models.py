@@ -29,7 +29,12 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         # returns True if password is correct
         return check_password_hash(self.password_hash, password)
-    
+
+    musics: so.WriteOnlyMapped['Music'] = so.relationship(back_populates='musicowner')
+    cloud_storages: so.WriteOnlyMapped['CloudStorage'] = so.relationship(back_populates='storageowner')
+    # links the download tasks to the corrosponding playlist/music
+    musictasks: so.WriteOnlyMapped['MusicTask'] = so.relationship(back_populates='downloadmusictask')
+
     def launch_task(self, name, description, *args, **kwargs):
         rq_job = current_app.task_queue.enqueue(f'webapp.tasks.{name}', self.musics.musictasks.id,
                                                 *args, **kwargs)
@@ -41,10 +46,7 @@ class User(UserMixin, db.Model):
         #task.url = music.url
         #task.music_id = music.id
         db.session.add(task)
-        return task
-
-    musics: so.WriteOnlyMapped['Music'] = so.relationship(back_populates='owner')
-    cloud_storages: so.WriteOnlyMapped['CloudStorage'] = so.relationship(back_populates='owner')
+        return task    
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -62,19 +64,17 @@ class Music(db.Model):
     monitored: so.Mapped[bool] = so.mapped_column(sa.Boolean)
     interval: so.Mapped[int] = so.mapped_column(sa.Integer)
 
-    owner: so.Mapped[User] = so.relationship(back_populates='musics')
-    
-    # links the download tasks to the corrosponding playlist/music
-    musictasks: so.WriteOnlyMapped['MusicTask'] = so.relationship(back_populates='playlist')
+    musicowner: so.Mapped[User] = so.relationship(back_populates='musics')
 
-    def get_tasks_in_progress(self):
-        query = self.musictasks.select().where(MusicTask.complete == False)
-        return db.session.scalars(query)
 
-    def get_task_in_progress(self, name):
-        query = self.musictasks.select().where(MusicTask.name == name,
-                                          MusicTask.complete == False)
-        return db.session.scalar(query)
+    #def get_tasks_in_progress(self):
+    #    query = self.musictasks.select().where(MusicTask.complete == False)
+    #    return db.session.scalars(query)
+
+    #def get_task_in_progress(self, name):
+    #    query = self.musictasks.select().where(MusicTask.name == name,
+    #                                      MusicTask.complete == False)
+    #    return db.session.scalar(query)
 
     def __repr__(self):
         return '<Music {}>'.format(self.title)
@@ -84,11 +84,10 @@ class MusicTask(db.Model):
     id: so.Mapped[str] = so.mapped_column(sa.String(36), primary_key=True)
     name: so.Mapped[str] = so.mapped_column(sa.String(128), index=True)
     description: so.Mapped[Optional[str]] = so.mapped_column(sa.String(128))
-    music_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(Music.id))
-    url: so.Mapped[str] = so.mapped_column(sa.String(200))
+    user_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id))
     complete: so.Mapped[bool] = so.mapped_column(default=False)
 
-    playlist: so.Mapped[Music] = so.relationship(back_populates='musictasks')
+    downloadmusictask: so.Mapped[User] = so.relationship(back_populates='musictasks')
 
     def get_rq_job(self):
         try:
@@ -123,7 +122,7 @@ class CloudStorage(db.Model):
     # we want to be able to know which protocol to use
     protocol_type: so.Mapped[str] = so.mapped_column(sa.String(30))
     
-    owner: so.Mapped[User] = so.relationship(back_populates='cloud_storages')
+    storageowner: so.Mapped[User] = so.relationship(back_populates='cloud_storages')
 
     __mapper_args__ = {
         'polymorphic_identity':'cloud_storage',
