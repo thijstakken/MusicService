@@ -47,16 +47,40 @@
     -->
 
     <hr>
+
+
+    <div class="modal" tabindex="-1" id="exampleModal">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Download logs</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              {% for musictask in musictasks %}
+              <!-- <p>{{ musictask.name }}</p> -->
+              <p class="card-body">Related MusicTasks are: {{ musictask.id }} | Succes: {{ musictask.complete }} | Belongs to PL ID: {{ musictask.music_id }}</p>
+                {% endfor %}
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    <hr>
     
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <div class="row">
     {% for music in music_list %}
         <div class="col-sm-4 mb-3 mb-sm-0">
             <div class="card" style="width: 18rem;">
-                <p class="card-body">{{music.id }} | {{ music.title }}</p>
+                <p class="card-body">{{ music.id }} | {{ music.title }}</p>
                 <!-- <p class="card-body">Owner ID is: {{ music.user_id }}</p> -->
                 <!-- <p class="card-body">Related MusicTasks are: music.musictasks.id </p>  add brackets arround music.musictasks,id to make it work again-->
-                <p class="card-body">Owner relation is: {{ music.owner.username }}</p>
+                <p class="card-body">Owner relation is: {{ music.musicowner.username }}</p>
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item">{{music.url}}</li>
                     
@@ -138,6 +162,10 @@
                 </form>
                 {% endif %}
                 </ul>
+                
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    See downloads logs
+                </button>
                 
                 <!-- health indicators -->
 

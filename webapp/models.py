@@ -35,18 +35,32 @@ class User(UserMixin, db.Model):
     # links the download tasks to the corrosponding playlist/music
     musictasks: so.WriteOnlyMapped['MusicTask'] = so.relationship(back_populates='downloadmusictask')
 
-    def launch_task(self, name, description, *args, **kwargs):
-        rq_job = current_app.task_queue.enqueue(f'webapp.tasks.{name}', self.musics.musictasks.id,
+    def launch_task(self, name, description, musicid, *args, **kwargs):
+        rq_job = current_app.task_queue.enqueue(f'webapp.tasks.{name}', musicid,
                                                 *args, **kwargs)
-        task = MusicTask
-        task.id = rq_job.get_id()
-        task.name = name
-        task.description = description
+        task = MusicTask(id=rq_job.get_id(), name=name, description=description, downloadmusictask=self, music_id=musicid)
+
+        #task = MusicTask
+        #task.id = rq_job.get_id()
+        #task.name = name
+        #task.description = description
+        
         #task.playlist = self
         #task.url = music.url
         #task.music_id = music.id
+        
+        #task.downloadmusictask = self
         db.session.add(task)
-        return task    
+        return task
+    
+    def get_tasks_in_progress(self):
+       query = self.musictasks.select().where(MusicTask.complete == False)
+       return db.session.scalars(query)
+
+    def get_task_in_progress(self, name):
+       query = self.musictasks.select().where(MusicTask.name == name,
+                                         MusicTask.complete == False)
+       return db.session.scalar(query)
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -65,16 +79,7 @@ class Music(db.Model):
     interval: so.Mapped[int] = so.mapped_column(sa.Integer)
 
     musicowner: so.Mapped[User] = so.relationship(back_populates='musics')
-
-
-    #def get_tasks_in_progress(self):
-    #    query = self.musictasks.select().where(MusicTask.complete == False)
-    #    return db.session.scalars(query)
-
-    #def get_task_in_progress(self, name):
-    #    query = self.musictasks.select().where(MusicTask.name == name,
-    #                                      MusicTask.complete == False)
-    #    return db.session.scalar(query)
+    #tasks = so.relationship('MusicTask', backref='music')
 
     def __repr__(self):
         return '<Music {}>'.format(self.title)
@@ -86,6 +91,7 @@ class MusicTask(db.Model):
     description: so.Mapped[Optional[str]] = so.mapped_column(sa.String(128))
     user_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id))
     complete: so.Mapped[bool] = so.mapped_column(default=False)
+    music_id: so.Mapped[int] = so.mapped_column(sa.Integer)
 
     downloadmusictask: so.Mapped[User] = so.relationship(back_populates='musictasks')
 

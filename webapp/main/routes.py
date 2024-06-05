@@ -21,6 +21,7 @@ def musicapp():
 
     # get the music_list but only for the logged in user
     music_list = db.session.scalars(sa.select(Music).where(Music.user_id == current_user.id)).all()
+    musictasks = db.session.scalars(sa.select(MusicTask).where(MusicTask.user_id == current_user.id)).all()
 
     form = MusicForm()
     if form.validate_on_submit():
@@ -35,7 +36,7 @@ def musicapp():
         flash('Song added')
         return redirect(url_for('main.musicapp'))
 
-    return render_template("musicapp.html", music_list=music_list, form=form)
+    return render_template("musicapp.html", music_list=music_list, form=form, musictasks=musictasks)
     #return "musicapppage"
 
 @bp.route("/add", methods=["POST"])
@@ -123,9 +124,7 @@ def download(music_id):
     
     # the line below, should have music and settings as arguments
     #current_user.launch_task('downloadmusic', music.id, music.url)
-    current_user.launch_task('downloadmusic', 'description123')
-
-    MusicTask.launch_task('downloadmusic', 'description123')
+    current_user.launch_task('downloadmusic', 'description123', music_id)
 
     db.session.commit()
 

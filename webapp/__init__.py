@@ -6,7 +6,6 @@ from flask_login import LoginManager
 from redis import Redis
 import rq
 
-
 # this is the database object
 db = SQLAlchemy()
 # this is the migration engine
