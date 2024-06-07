@@ -2,6 +2,9 @@
 
 {% block content %}
 
+<!-- for loading download history data into modals -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
 <div style="margin-top: 50px;" class="ui container">
     <h1 class="ui center aligned header">Music Service</h1>
 
@@ -46,33 +49,23 @@
     <br>
     -->
 
-    <hr>
-
-
-    <div class="modal" tabindex="-1" id="exampleModal">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Download logs</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <!-- modal for displaying the historical download logs of playlists -->
+      <div class="modal" id="downloadhistorymodal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Download History</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="downloadHistory"></div>
+                </div>
             </div>
-            <div class="modal-body">
-              {% for musictask in musictasks %}
-              <!-- <p>{{ musictask.name }}</p> -->
-              <p class="card-body">Related MusicTasks are: {{ musictask.id }} | Succes: {{ musictask.complete }} | Belongs to PL ID: {{ musictask.music_id }}</p>
-                {% endfor %}
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary">Save changes</button>
-            </div>
-          </div>
         </div>
-      </div>
+    </div>
 
     <hr>
     
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <div class="row">
     {% for music in music_list %}
         <div class="col-sm-4 mb-3 mb-sm-0">
@@ -163,7 +156,7 @@
                 {% endif %}
                 </ul>
                 
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#downloadhistorymodal" data-music-id="{{ music.id }}">
                     See downloads logs
                 </button>
                 
@@ -213,4 +206,45 @@
     {% endfor %}
     </div>
 </div>
+
+
+<script type="text/javascript">
+        // Show download history in modal
+    $('#downloadhistorymodal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var musicId = button.data('music-id');
+
+        $.get('/download_history/' + musicId, function (data) {
+            $('#downloadHistory').empty();
+            $('#downloadHistory').append(`
+                <table class="table table-striped" id="historyTable">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">ID</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Succes</th>
+                            <th scope="col">Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            `);
+            data.forEach(function (item, index) {
+                $('#historyTable tbody').append(`
+                    <tr>
+                        <th scope="row">${index + 1}</th>
+                        <td><a href="/getruninfo/${item.id}">${item.id}</a></td>
+                        <td>${item.name}</td>
+                        <td>${item.complete ? '<i class="bi bi-check-circle-fill" style="color: green;"></i>' : '<i class="bi bi-x-circle-fill" style="color: red;"></i>'}</td>
+                        <td>${item.time}</td>
+                    </tr>
+                `);
+            });
+        });
+    });
+</script>
+
+
 {% endblock %}

@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect, url_for, request, current_app
+from flask import render_template, flash, redirect, url_for, request, current_app, jsonify
 from flask_login import login_required, current_user
 import sqlalchemy as sa
 from webapp import db
@@ -16,12 +16,9 @@ from webapp.main.forms import MusicForm
 @bp.route("/", methods=["GET", "POST"])
 @login_required
 def musicapp():
-    # get the music list from the database with scalars
-    #music_list = db.session.scalars(sa.select(Music)).all()
 
     # get the music_list but only for the logged in user
     music_list = db.session.scalars(sa.select(Music).where(Music.user_id == current_user.id)).all()
-    musictasks = db.session.scalars(sa.select(MusicTask).where(MusicTask.user_id == current_user.id)).all()
 
     form = MusicForm()
     if form.validate_on_submit():
@@ -36,7 +33,7 @@ def musicapp():
         flash('Song added')
         return redirect(url_for('main.musicapp'))
 
-    return render_template("musicapp.html", music_list=music_list, form=form, musictasks=musictasks)
+    return render_template("musicapp.html", music_list=music_list, form=form)
     #return "musicapppage"
 
 @bp.route("/add", methods=["POST"])
@@ -186,3 +183,16 @@ def intervalStatus(music_id):
     
     # return the time left before the next run
     return str(time_left)
+
+@bp.route("/download_history/<int:music_id>")
+@login_required
+def download_history(music_id):
+
+    # get the download history for the music object
+    musictaskshistory = db.session.scalars(sa.select(MusicTask).where((MusicTask.music_id == music_id) & (MusicTask.user_id == current_user.id))).all()
+
+    # convert the object to a list of dictionaries
+    musictaskshistory_dicts = [musictask.to_dict() for musictask in musictaskshistory]
+
+    # return the dictionaries as a JSON response
+    return jsonify(musictaskshistory_dicts)

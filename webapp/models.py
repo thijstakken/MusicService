@@ -105,6 +105,9 @@ class MusicTask(db.Model):
     def get_progress(self):
         job = self.get_rq_job()
         return job.meta.get('progress', 0) if job is not None else 100
+    
+    def to_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
 # all classes related to CloudStorage are built on a polymorphic relationship
