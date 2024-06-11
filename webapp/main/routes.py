@@ -192,8 +192,8 @@ def intervalStatus(music_id):
 @login_required
 def download_history(music_id):
 
-    # get the download history for the music object
-    musictaskshistory = db.session.scalars(sa.select(MusicTask).where((MusicTask.music_id == music_id) & (MusicTask.user_id == current_user.id))).all()
+    # get the download history for the music object, sorted by date added
+    musictaskshistory = db.session.scalars(sa.select(MusicTask).where((MusicTask.music_id == music_id) & (MusicTask.user_id == current_user.id)).order_by(MusicTask.timestamp.desc())).all()
 
     # convert the object to a list of dictionaries
     musictaskshistory_dicts = [musictask.to_dict() for musictask in musictaskshistory]
