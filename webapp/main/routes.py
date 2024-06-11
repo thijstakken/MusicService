@@ -118,10 +118,14 @@ def download(music_id):
     
     #music = db.session.scalars(sa.select(Music).where(Music.id == music_id)).first()
     ######
+
+    # set actiontype to False, because this is a manual download
+    # true is only used for scheduled (or "automated") downloads
+    actiontype = False
     
     # the line below, should have music and settings as arguments
     #current_user.launch_task('downloadmusic', music.id, music.url)
-    current_user.launch_task('downloadmusic', 'description123', music_id)
+    current_user.launch_task('downloadmusic', 'description123', music_id, actiontype)
 
     db.session.commit()
 

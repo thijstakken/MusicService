@@ -224,6 +224,7 @@
                             <th scope="col">ID</th>
                             <th scope="col">Name</th>
                             <th scope="col">Success</th>
+                            <th scope="col">Type</th>
                             <th scope="col">Elapsed Time</th>
                         </tr>
                     </thead>
@@ -238,6 +239,7 @@
                         <td><a href="/getruninfo/${item.id}">${item.id}</a></td>
                         <td>${item.name}</td>
                         <td>${item.complete ? '<i class="bi bi-check-circle-fill" style="color: green;"></i>' : '<i class="bi bi-x-circle-fill" style="color: red;"></i>'}</td>
+                        <td>${item.actiontype ? 'automated' : 'manual'}</td>
                         <td>
                             <span data-bs-toggle="tooltip" data-bs-placement="bottom" title="${moment(item.timestamp).format('YYYY-MM-DD HH:mm:ss')}">${moment(item.timestamp).fromNow()}</span>
                         </td>
