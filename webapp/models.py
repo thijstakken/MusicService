@@ -14,6 +14,7 @@ import rq
 import redis.exceptions
 import rq.exceptions
 from flask import current_app
+from datetime import datetime, timezone
 
 
 class User(UserMixin, db.Model):
@@ -92,6 +93,7 @@ class MusicTask(db.Model):
     user_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id))
     complete: so.Mapped[bool] = so.mapped_column(default=False)
     music_id: so.Mapped[int] = so.mapped_column(sa.Integer)
+    timestamp: so.Mapped[datetime] = so.mapped_column(index=True, default=lambda: datetime.now(timezone.utc))
 
     downloadmusictask: so.Mapped[User] = so.relationship(back_populates='musictasks')
 

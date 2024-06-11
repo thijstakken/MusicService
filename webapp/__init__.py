@@ -5,6 +5,7 @@ from flask_migrate import Migrate
 from flask_login import LoginManager
 from redis import Redis
 import rq
+from flask_moment import Moment
 
 # this is the database object
 db = SQLAlchemy()
@@ -14,6 +15,7 @@ migrate = Migrate()
 login = LoginManager()
 login.login_view = 'auth.login'
 #login.login_message = _l('Please log in to access this page.')
+moment = Moment()
 
 def create_app(config_class=Config):
     # this is the application object
@@ -25,6 +27,7 @@ def create_app(config_class=Config):
     db.init_app(app)
     migrate.init_app(app, db)
     login.init_app(app)
+    moment.init_app(app)
 
     app.redis = Redis.from_url(app.config['REDIS_URL'])
     app.task_queue = rq.Queue('music-tasks', connection=app.redis)
