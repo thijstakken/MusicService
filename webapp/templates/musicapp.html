@@ -236,7 +236,14 @@
                 $('#historyTable tbody').append(`
                     <tr>
                         <th scope="row">${index + 1}</th>
-                        <td><a href="/getruninfo/${item.id}">${item.id}</a></td>
+                        <td>
+                            <button type="button" class="btn btn-outline-secondary">
+                                <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="/getruninfo/${item.id}">
+                                    <code>${item.id.substring(0, 8)}</code>
+                                </a>
+                            </button>
+                        </td>
+                        </td>
                         <td>${item.name}</td>
                         <td>${item.complete ? '<i class="bi bi-check-circle-fill" style="color: green;"></i>' : '<i class="bi bi-x-circle-fill" style="color: red;"></i>'}</td>
                         <td>${item.actiontype ? 'automated' : 'manual'}</td>
