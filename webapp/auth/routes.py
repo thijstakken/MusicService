@@ -10,6 +10,9 @@ from urllib.parse import urlsplit
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
+    # if there are no users in the database, redirect to the registration page for signing up the first admin user
+    if User.query.first() is None:
+        return redirect(url_for('auth.register'))
     if current_user.is_authenticated:
         return redirect(url_for('main.musicapp'))
     form = LoginForm()
@@ -33,12 +36,21 @@ def logout():
 
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
+    # if at least one user exists, no other users should be registered
+    # this is to block GET requests to the register page if a user already exists
+    if User.query.first() is not None:
+        return redirect(url_for('auth.login'))
     if current_user.is_authenticated:
         return redirect(url_for('main.musicapp'))
     form = RegistrationForm()
     if form.validate_on_submit():
+        # this is to block POST requests to the register page if a user already exists
+        if User.query.first() is not None:
+            return redirect(url_for('auth.login'))
         user = User(username=form.username.data)
         user.set_password(form.password.data)
+        # make the first user an admin
+        user.is_admin = True
         db.session.add(user)
         db.session.commit()
         flash('Congratulations, you are now a registered user!')

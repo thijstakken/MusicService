@@ -21,7 +21,7 @@ class User(UserMixin, db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     username: so.Mapped[str] = so.mapped_column(sa.String(64), index=True, unique=True)
     password_hash: so.Mapped[Optional[str]] = so.mapped_column(sa.String(256))
-    #email: so.Mapped[str] = so.mapped_column(sa.String(120), index=True, unique=True)
+    is_admin: so.Mapped[bool] = so.mapped_column(sa.Boolean, default=False)
 
     def set_password(self, password):
         # sets the password for the user
