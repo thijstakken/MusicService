@@ -36,8 +36,8 @@ class User(UserMixin, db.Model):
     # links the download tasks to the corrosponding playlist/music
     musictasks: so.WriteOnlyMapped['MusicTask'] = so.relationship(back_populates='downloadmusictask')
 
-    def launch_task(self, name, description, musicid, actiontype, *args, **kwargs):
-        rq_job = current_app.task_queue.enqueue(f'webapp.tasks.{name}', musicid,
+    def launch_task(self, name, description, musicid, actiontype, username, *args, **kwargs):
+        rq_job = current_app.task_queue.enqueue(f'webapp.tasks.{name}', musicid, username,
                                                 *args, **kwargs)
         task = MusicTask(id=rq_job.get_id(), name=name, description=description, downloadmusictask=self, music_id=musicid, actiontype=actiontype)
 

@@ -125,7 +125,11 @@ def download(music_id):
     
     # the line below, should have music and settings as arguments
     #current_user.launch_task('downloadmusic', music.id, music.url)
-    current_user.launch_task('downloadmusic', 'description123', music_id, actiontype)
+
+    if current_user.is_authenticated:
+        username = current_user.username
+    
+    current_user.launch_task('downloadmusic', 'description123', music_id, actiontype, username)
 
     db.session.commit()
 

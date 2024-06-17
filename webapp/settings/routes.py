@@ -135,15 +135,27 @@ def settings():
 
 
 
+    # have to start using the following, where are using a text file, this is simple and native to yt-dlp
+    # therefore we can find the download archive for each user here:
+    # /music/{username}/download_archive.txt
     # get songs archive
-    #with open(r"../download_archive/downloaded", 'r') as songs:
-    #    songs = songs.readlines()
-    #    # add song ID's so they are easy to delete/correlate
-    #    songs = list(enumerate(songs))
+
+    # get current username
+    username = current_user.username
+
+    path = f"./music/{username}/download_archive.txt"
+
+    with open(path, 'r') as songs:
+       songs = songs.readlines()
+       # add song ID's so they are easy to delete/correlate
+       songs = list(enumerate(songs))
     
     # still going to save songs in a text file? or in the database?
-    songs = ["youtube 4975498", "youtube 393judjs", "soundcloud 93034303"]
-    songs = list(enumerate(songs))
+
+
+    
+    #songs = ["youtube 4975498", "youtube 393judjs", "soundcloud 93034303"]
+    #songs = list(enumerate(songs))
 
 
     return render_template("settings/settings.html", cloudstorageaccounts=cloudstorageaccounts, songs=songs, WebDAVform=WebDAVform, title='Settings')

@@ -5,7 +5,6 @@ from rq import get_current_job
 from webapp import db, create_app
 from webapp.models import MusicTask
 from webapp.models import Music
-import sqlalchemy as sa
 
 
 # uploading files to a server logic
@@ -29,7 +28,8 @@ webapp.app_context().push()
 #     print('Task completed')
 
 
-def downloadmusic(music_id):
+def downloadmusic(music_id, username):
+
     music = db.session.get(Music, music_id)
     #music = db.session.scalars(sa.select(MusicTask).where(MusicTask.id == music_id)).first()
     print("Downloading music...", music.url)
@@ -42,13 +42,72 @@ def downloadmusic(music_id):
         # we want to look at the music object and get the DownloadedSongs object
 
         # we want to put the contents in a text file so YT-DLP can work with it
-        # like create /archive/userid/playlistid/downloaded.txt, then put the contents in there
+        # path: /music/{username}/download_archive.txt, then put the contents in there
+
+
+        # get the playlist name of an url with yt-dlp    
+        # this has so far proofed to not be reliable, will use a standard archive location for ALL playlists
+        # youtube-dlp is designed to work with a single static download_archive, not multiple ones, so therefore a lot of custom code should be worked out.
+        # Use the title of the playlist (if present) as the folder name
+        # Configure YouTube DL options for the title extraction
+
+
+        # ydl_title = {
+        #     'dump_single_json': True,
+        #     'extract_flat': True,
+        # }
+
+        # with YoutubeDL(ydl_title) as ydl:
+        #     info = ydl.extract_info(music.url, download=False)
+        #     #print("Info:", info)
+        #     # Check if the extracted info is for a playlist
+        #     if info.get('_type') == 'playlist':
+        #         # It's a playlist, get the playlist title
+        #         playlistname = info.get('title', None)
+        #         print("This is a playlist, the name is:", playlistname)
+        #     else:
+        #         # It's not a playlist, ignore the output
+        #         print("Not a playlist, ignoring output.")
+        #         # set the playlistname to NA, because it's not a playlist, yt-dlp will use the NA folder for music that has no playlist title
+        #         playlistname = "NA"
+        #     # get an item from the info dictionary
+
+        #     #playlistname = info.get('title', None)
+            
+        #     #playlistname = info.get('playlist', None)
+        #     print("Title name is:", playlistname)
+        #     #print("Playlist name:", playlistname)
+        #     #print("Playlist name:", playlistname)
+
+
+        # create the music directory for the user
+        #path = f'./music/{username}/{playlistname}'
+
+        path = f'./music/{username}'
+
+        #archivefilename = f'%(playlist)s/download_archive.txt'
+        archivefilename = '/download_archive.txt'
+
+        # create the directory if it does not exist
+        if not os.path.exists(path):
+            os.makedirs(path)
+            print("Directory ", path, " Created ")
+
+        #combine path and file into one path
+        fullpath = path + archivefilename
+        #print('This is the full archive path for all playlists', fullpath)
+
+        ydl_opts['download_archive'] = fullpath # this will update the downloads file which serves as a database/archive for which songs have already been downloaded, so it don't downloads them again
+        
+        # output template for the downloaded music
+        musicpath = f'{path}/%(playlist)s/%(title)s-%(id)s.%(ext)s'
+        ydl_opts['outtmpl'] = musicpath # save music to the /music folder. and it's corrosponding folder which will be named after the playlist name
 
         # we want to download the music from the URL
         with YoutubeDL(ydl_opts) as ydl:
+                #print(ydl_opts)
                 ydl.download(music.url)
 
-        # we want to add the downloaded songs text file to the DownloadedSongs object
 
         # we want to remove the text file from the local storage
 
@@ -97,10 +156,8 @@ ydl_opts = {
     ],
     'logger': MyLogger(),
     'progress_hooks': [my_hook],
-    'outtmpl': './music/%(playlist)s/%(title)s-%(id)s.%(ext)s',     # save music to the /music folder. and it's corrosponding folder which will be named after the playlist name
     'simulate': False,                                              # to dry test the YT-DL, if set to True, it will skip the downloading. Can be True/False
     'cachedir': False,                                              # turn off caching, this should mitigate 403 errors which are commonly seen when downloading from Youtube
-    'download_archive': './download_archive/downloaded',           # this will update the downloads file which serves as a database/archive for which songs have already been downloaded, so it don't downloads them again
     'nocheckcertificates': True,                                    # mitigates YT-DL bug where it wrongly examins the server certificate, so therefore, ignore invalid certificates for now, to mitigate this bug
 }
 
