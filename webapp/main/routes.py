@@ -6,8 +6,8 @@ from webapp import db
 from webapp.models import Music, CloudStorage, MusicTask
 from webapp.main import bp
 import datetime
-
 import schedule
+from webapp.scheduler import scheduleJobs, deleteJobs
 
 ### commented out because of circular import, going to refactor this later, so will be fixed then.
 #from webapp.downloadScheduler import scheduleJobs, deleteJobs, immediateJob, run_schedule
@@ -34,7 +34,6 @@ def musicapp():
         return redirect(url_for('main.musicapp'))
 
     return render_template("musicapp.html", music_list=music_list, form=form)
-    #return "musicapppage"
 
 @bp.route("/add", methods=["POST"])
 @login_required
@@ -67,12 +66,16 @@ def monitor(music_id):
     if music is not None:
         music.monitored = not music.monitored
         db.session.commit()
-        if music.monitored is True and settings is not None:
+        #if music.monitored is True and settings is not None:
+        if music.monitored is True:
             print("monitor is ON")
             print("Going to schedule the music to be downloaded on repeat")
             print(music.monitored)
             # schedule a job for the newly added playlist/song with the corrosponding interval value
-            scheduleJobs(music, settings)
+            #scheduleJobs(music, settings)
+            
+            scheduletask(music)
+
             # add flash message to confirm the interval change
             flash('Monitoring: On for ' + str(music.title))
         elif music.monitored is False:
@@ -115,23 +118,13 @@ def delete(music_id):
 @login_required
 def download(music_id):
     # get the music object from the database with scalars
-    
     #music = db.session.scalars(sa.select(Music).where(Music.id == music_id)).first()
-    ######
 
     # set actiontype to False, because this is a manual download
     # true is only used for scheduled (or "automated") downloads
     actiontype = False
-    
-    # the line below, should have music and settings as arguments
-    #current_user.launch_task('downloadmusic', music.id, music.url)
-
-    if current_user.is_authenticated:
-        username = current_user.username
-    
-    current_user.launch_task('downloadmusic', 'description123', music_id, actiontype, username)
-
-    db.session.commit()
+    # download the music
+    downloadmusic(music_id, actiontype)
 
     return redirect(url_for("main.musicapp"))
 
@@ -149,7 +142,7 @@ def interval(music_id):
 
 
     # get the CloudStorage settings from the database with scalars
-    settings = db.session.scalars(sa.select(CloudStorage).where(CloudStorage.id == music_id)).first()
+    #settings = db.session.scalars(sa.select(CloudStorage).where(CloudStorage.id == music_id)).first()
 
     # settings = WebDAV.query.filter_by(id=1).first()
 
@@ -168,7 +161,9 @@ def interval(music_id):
             # delete the scheduled job for the deleted playlist/song
             deleteJobs(music_id)
             # schedule a job for the newly added playlist/song with the corrosponding interval value
-            scheduleJobs(music, settings)
+            #scheduleJobs(music, settings)
+            schedule.every(music.interval).minutes.do(download,music_id).tag(music_id)
+            print("Interval set for:", music.title, music.interval, "minutes")
 
     return redirect(url_for("main.musicapp"))
 
@@ -204,3 +199,25 @@ def download_history(music_id):
 
     # return the dictionaries as a JSON response
     return jsonify(musictaskshistory_dicts)
+
+def scheduletask(music):
+    # set actiontype to True, because this is a automated download
+    # true is only used for scheduled (or "automated") downloads
+    actiontype = True
+    
+    # https://github.com/dbader/schedule
+    # https://schedule.readthedocs.io/en/stable/
+    #schedule.every(music.interval).minutes.do(download_and_upload,music,settings).tag(music.id)
+    schedule.every(music.interval).minutes.do(downloadmusic,music.id, actiontype).tag(music.id)
+    print("Interval set for:", music.title, music.interval, "minutes")
+
+
+def downloadmusic(music_id, actiontype):
+    if current_user.is_authenticated:
+        username = current_user.username
+    
+        # the line below, should have music and settings as arguments
+        current_user.launch_task('downloadmusic', 'description123', music_id, actiontype, username)
+
+        # saves the launch task to the database
+        db.session.commit()

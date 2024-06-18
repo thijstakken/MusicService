@@ -6,6 +6,9 @@ from flask_login import LoginManager
 from redis import Redis
 import rq
 from flask_moment import Moment
+import threading
+import schedule
+import time
 
 # this is the database object
 db = SQLAlchemy()
@@ -52,11 +55,8 @@ def create_app(config_class=Config):
     # add testing/debug later
 
 
-    return app
-
-
-    # # start running the run_schedule function in the background
-    # # get all the playlists/songs
+    # start running the run_schedule function in the background
+    # get all the playlists/songs
     # music_list = Music.query.all()
     # settings = WebDAV.query.filter_by(id=1).first()
     # # iterate over the playlists/songs
@@ -67,13 +67,23 @@ def create_app(config_class=Config):
     #         scheduleJobs(music, settings)
     # print('here are all jobs', schedule.get_jobs())
 
-    # #interval_check()
+    #interval_check()
 
-    # # start the schedule in the background as a seperated thread from the main thread
-    # # this is needed to let the scheduler run in the background, while the main thread is used for the webserver
-    # t = threading.Thread(target=run_schedule, args=(app.app_context(),), daemon=True)
-    # t.start()
+    # this functions runs in a seperate thread to monitor scheduled jobs and run them when needed
+    def run_schedule(app_context):
+        app_context.push()
+        # run the schedule in the background
+        while True:
+            schedule.run_pending()
+            time.sleep(1)
 
+    # start the schedule in the background as a seperated thread from the main thread
+    # this is needed to let the scheduler run in the background, while the main thread is used for the webserver
+    t = threading.Thread(target=run_schedule, args=(app.app_context(),), daemon=True)
+    t.start()
+
+
+    return app
 
     # setting general variables
     # 'music' always use music as local, this can't be changed at the moment, due to some hardcoding

@@ -3,14 +3,11 @@ from yt_dlp import YoutubeDL
 import time
 from rq import get_current_job
 from webapp import db, create_app
-from webapp.models import MusicTask
-from webapp.models import Music
-
+from webapp.models import MusicTask, Music
 
 # uploading files to a server logic
 import os
 import requests
-
 
 webapp = create_app()
 webapp.app_context().push()
@@ -29,8 +26,18 @@ webapp.app_context().push()
 
 
 def downloadmusic(music_id, username):
-
+    
+    print('this is username original', username)
     music = db.session.get(Music, music_id)
+
+    # get the username that owns the music
+    usernametest = music.musicowner.username
+
+    print("Username new one:", usernametest)
+    print("Username:", usernametest)
+    print("Username:", usernametest)
+    print("Username:", usernametest)
+
     #music = db.session.scalars(sa.select(MusicTask).where(MusicTask.id == music_id)).first()
     print("Downloading music...", music.url)
     print("")
