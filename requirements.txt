@@ -1,5 +1,5 @@
 #youtube_dl==2021.12.17
-yt-dlp==2023.10.13
+yt-dlp==2024.3.10
 python-dotenv
 #os
 requests
