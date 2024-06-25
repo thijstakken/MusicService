@@ -3,7 +3,7 @@ from flask_login import login_required, current_user
 import sqlalchemy as sa
 from webapp import db
 # from webapp.main.forms import MusicForm, CloudStorageForm ???
-from webapp.models import Music, CloudStorage, MusicTask
+from webapp.models import Music, CloudStorage, MusicTask, User
 from webapp.main import bp
 import datetime
 import schedule
@@ -204,20 +204,39 @@ def scheduletask(music):
     # set actiontype to True, because this is a automated download
     # true is only used for scheduled (or "automated") downloads
     actiontype = True
+
+    # get the user that belongs to the music object
+    songowner = db.session.scalars(sa.select(Music).where(Music.id == music.id)).first()
+    if songowner:
+        username = songowner.musicowner.username
+    else: 
+        username = None
+    
+    # get the user object
+    # this user object is used to launch the task
+    user = db.session.scalars(sa.select(User).where(User.username == username)).first()
     
     # https://github.com/dbader/schedule
     # https://schedule.readthedocs.io/en/stable/
     #schedule.every(music.interval).minutes.do(download_and_upload,music,settings).tag(music.id)
-    schedule.every(music.interval).minutes.do(downloadmusic,music.id, actiontype).tag(music.id)
+    schedule.every(music.interval).minutes.do(downloadmusic,music.id, actiontype, user).tag(music.id)
     print("Interval set for:", music.title, music.interval, "minutes")
 
 
-def downloadmusic(music_id, actiontype):
-    if current_user.is_authenticated:
-        username = current_user.username
+def downloadmusic(music_id, actiontype, user=None):
+    # the user object is supplied by the scheduletask function if it's an automated "scheduled" download
+    # if the user is not given, then use the current_user, which is the logged in user
+    if user is None and current_user.is_authenticated:
+        user = current_user
     
-        # the line below, should have music and settings as arguments
-        current_user.launch_task('downloadmusic', 'description123', music_id, actiontype, username)
+    # get the username for the function
+    if user:
+        username = user.username
+
+    if user:
+        user.launch_task('downloadmusic', 'description123', music_id, actiontype, username)
 
         # saves the launch task to the database
         db.session.commit()
+    else:
+        print("No user found, ERROR")
