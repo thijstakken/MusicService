@@ -165,8 +165,26 @@
                 <p>Last run: </p>
 
                 <p>Interval: {{ music.interval }} minutes</p>
+                
+                <p>THIS is scheduled to run: {{ scheduledJobs }} </p>
 
-                <p>Next run: </p>
+                {% for job in scheduledJobs %}
+                    {% set tag_number = job.tags|replace('{', '')|replace('}', '') %}
+                        <p>tag number: {{ tag_number }}</p>
+                        <p>music id: {{ music.id }} </p>
+                {% endfor %}
+
+                {% if scheduledJobs %}
+                    {% for job in scheduledJobs %}
+                        {% set tag_number = job.tags|replace('{', '')|replace('}', '') %}
+                            {% if tag_number == music.id|string %}
+                                <p>Next run: {{ moment(job.next_run).fromNow() }}</p>
+                                <p>it works!!!!</p>
+                            {% else %}
+                                <p>tag and music.id do not match</p>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
             
                 <!-- if job is running, display spinner -->
 

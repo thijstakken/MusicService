@@ -8,6 +8,7 @@ from webapp.main import bp
 import datetime
 import schedule
 from webapp.scheduler import scheduleJobs, deleteJobs
+from datetime import datetime
 
 ### commented out because of circular import, going to refactor this later, so will be fixed then.
 #from webapp.downloadScheduler import scheduleJobs, deleteJobs, immediateJob, run_schedule
@@ -33,7 +34,38 @@ def musicapp():
         flash('Song added')
         return redirect(url_for('main.musicapp'))
 
-    return render_template("musicapp.html", music_list=music_list, form=form)
+    # get the schedule with tag music.id
+    print("All jobs", schedule.get_jobs())
+
+    scheduledJobs = schedule.get_jobs()
+
+    # print the next run time for each scheduled job
+    for job in scheduledJobs:
+        print("Next run time for job:", job.next_run)
+        # print the tag for the job
+        print("Tag for job:", job.tags)
+        # the job.next_run is an datetime object
+        # convert the datetime format into the ISO 8601 format
+        # this is needed for the frontend to display the time correctly
+        #job.next_run = job.next_run.strftime('%Y-%m-%dT%H:%M:%SZ')  # Adjust format as needed
+
+        job.next_run = job.next_run.isoformat()
+        
+        # it's using the local time, not the UTC time
+        # so we need to adjust the time to the UTC time
+        # this is needed for the frontend to display the time correctly
+        
+        #job.next_run = job.next_run.strftime('%Y-%m-%dT%H:%M:%SZ')
+
+        #job_next_run_datetime = datetime.strptime(job.next_run, '%Y-%m-%d %H:%M:%S.%f')
+
+        #job.next_run = job_next_run_datetime.strftime('%Y-%m-%dT%H:%M:%SZ')  # Adjust format as needed
+
+        # print the next run time for the job
+        print("This is the ADJUSTED run time for job:", job.next_run)
+        
+
+    return render_template("musicapp.html", music_list=music_list, form=form, scheduledJobs=scheduledJobs)
 
 @bp.route("/add", methods=["POST"])
 @login_required
