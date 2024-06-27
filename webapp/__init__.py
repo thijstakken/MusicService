@@ -48,7 +48,7 @@ def create_app(config_class=Config):
     #app.register_blueprint(music_bp)
 
     from webapp.settings import bp as settings_bp
-    app.register_blueprint(settings_bp, url_prefix='/settings')
+    app.register_blueprint(settings_bp)
 
 
     #if not app.debug and not app.testing:

@@ -4,12 +4,11 @@ import sqlalchemy as sa
 from webapp import db
 from webapp.settings import bp
 
-from webapp.settings.forms import WebDAV
+from webapp.settings.forms import WebDAVForm, LocalStorageForm
 
 from flask_login import current_user, login_required
 import sqlalchemy as sa
-from webapp.models import CloudStorage
-from webapp.models import WebDavStorage
+from webapp.models import CloudStorage, WebDavStorage, LocalStorage
 
 
 from werkzeug.utils import secure_filename
@@ -27,45 +26,33 @@ def profile():
 @bp.route("/settings", methods=["GET", "POST"])
 @login_required
 def settings():
-    #    title = "Settings"
 
-
-    # make a form to add the webdav settings to the webdav_storage table
-    
-    # create a form to add the settings
-    # WebDAVform = WebDAV()
-    # if WebDAVform.validate_on_submit():
-    #     storagesettings = CloudStorage()
-    #     storagesettings.protocol_type = "webdav_storage"
-    #     storagesettings.user_id = current_user.id
-
-    #     storagesettings.WebdavStorage.url = WebDAVform.url.data
-        
-    #     storagesettings.url = WebDAVform.url.data
-    #     storagesettings.directory = WebDAVform.directory.data
-    #     storagesettings.username = WebDAVform.username.data
-    #     storagesettings.password = WebDAVform.password.data
-    #     db.session.add(storagesettings)
-    #     db.session.commit()
-    #     flash('WebDAV account added!')
-    #     return redirect(url_for('settings'))
-    
-
-    WebDAVform = WebDAV()
+    # this form is used to add a new WebDAV account
+    WebDAVform = WebDAVForm()
     if WebDAVform.validate_on_submit():
         WebDAVSettings = WebDavStorage()
         WebDAVSettings.url = WebDAVform.url.data
         WebDAVSettings.directory = WebDAVform.directory.data
         WebDAVSettings.username = WebDAVform.username.data
         WebDAVSettings.password = WebDAVform.password.data
-
         WebDAVSettings.user_id = current_user.id
         WebDAVSettings.protocol_type = "webdav_storage"
-
         db.session.add(WebDAVSettings)
         db.session.commit()
         flash('WebDAV account added!')
         return redirect(url_for('settings.settings'))
+    
+    # this form is used to add a local storage account
+    LocalstrorageForm = LocalStorageForm()
+    if LocalstrorageForm.validate_on_submit():
+        LocalStorageSettings = LocalStorage()
+        LocalStorageSettings.user_id = current_user.id
+        LocalStorageSettings.protocol_type = "local_storage"
+        db.session.add(LocalStorageSettings)
+        db.session.commit()
+        flash('Local account added!')
+        return redirect(url_for('settings.settings'))
+    
 
 
     # get the CloudStorage settings from the database with scalars
@@ -77,7 +64,7 @@ def settings():
     for cloudstorageaccount in cloudstorageaccounts:
         print(cloudstorageaccount)
         print(cloudstorageaccount.id)
-        print(cloudstorageaccount.owner)
+        print(cloudstorageaccount.storageowner)
         print(cloudstorageaccount.protocol_type)
 
         # print the settings for the webdav_storage protocol
@@ -149,24 +136,20 @@ def settings():
        songs = songs.readlines()
        # add song ID's so they are easy to delete/correlate
        songs = list(enumerate(songs))
-    
-    # still going to save songs in a text file? or in the database?
 
-
-    
+    # test code:
     #songs = ["youtube 4975498", "youtube 393judjs", "soundcloud 93034303"]
     #songs = list(enumerate(songs))
 
-
-    return render_template("settings/settings.html", cloudstorageaccounts=cloudstorageaccounts, songs=songs, WebDAVform=WebDAVform, title='Settings')
+    return render_template("settings/settings.html", cloudstorageaccounts=cloudstorageaccounts, songs=songs, WebDAVform=WebDAVform, LocalstrorageForm=LocalstrorageForm, title='Settings')
 
 
 @bp.route("/settings/delete/<int:cloudstorage_id>")
 @login_required
 def deleteStorageAccount(cloudstorage_id):
     # get the music object from the database with scalars
-    cloudstorage_id = db.session.scalars(sa.select(CloudStorage).where(CloudStorage.id == cloudstorage_id)).first()
-    db.session.delete(cloudstorage_id)
+    cloudstorage = db.session.scalars(sa.select(CloudStorage).where(CloudStorage.id == cloudstorage_id)).first()
+    db.session.delete(cloudstorage)
     db.session.commit()
     # add flash message to confirm the interval change
     flash('CloudStorage account deleted')

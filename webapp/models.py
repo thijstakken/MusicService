@@ -159,6 +159,17 @@ class WebDavStorage(CloudStorage):
 
     def __repr__(self):
         return '<WebDavStorage {}>'.format(self.url)
+    
+class LocalStorage(CloudStorage):
+    __tablename__ = 'local_storage'
+    id: so.Mapped[int] = so.mapped_column(ForeignKey("cloud_storage.id"), primary_key=True)
+
+    __mapper_args__ = {
+        'polymorphic_identity':'local_storage',
+    }
+
+    def __repr__(self):
+        return '<CloudStorage {}>'.format(self.protocol_type)
 
 class FTPStorage(CloudStorage):
     __tablename__ = 'ftp_storage'

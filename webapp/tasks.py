@@ -3,7 +3,8 @@ from yt_dlp import YoutubeDL
 import time
 from rq import get_current_job
 from webapp import db, create_app
-from webapp.models import MusicTask, Music
+import sqlalchemy as sa
+from webapp.models import MusicTask, Music, CloudStorage, WebDavStorage
 
 # uploading files to a server logic
 import os
@@ -118,6 +119,46 @@ def downloadmusic(music_id, username):
 
         # we want to remove the text file from the local storage
 
+
+        # determine where the music should go next
+        # if the user has no storage account configured we want to store the music locally as a fallback/default option
+        # if the user has a local storage account, we want to store the music locally
+        # if the user has a cloud storage account, we want to upload the music to the cloud
+
+        # Assuming music.musicowner is the user object you want to filter by
+        
+        
+        #storages = db.session.scalars(
+        #    CloudStorage.query.filter(CloudStorage.storageowner == music.musicowner)).all()
+
+        storages = db.session.scalars(
+            sa.select(CloudStorage).where(CloudStorage.storageowner == music.musicowner)).all()
+
+        print("These are the storage object(s):", storages)
+        if storages:
+            for storage in storages:
+                print("This is the storage protocol:", storage.protocol_type)
+
+                if storage.protocol_type == "webdav_storage":
+                    # get the cloud storage account settings for webdav
+                    webdavsettings = db.session.scalars(sa.select(WebDavStorage).where(WebDavStorage.id == storage.id)).first()
+                    print("This is the webdav object", webdavsettings)
+                    webdav(webdavsettings.url, webdavsettings.username, webdavsettings.password, webdavsettings.directory)
+
+
+                if storage.protocol_type == "local_storage":
+                    localmusic()
+
+        else:
+            # if there a no cloud storage accounts configured, we want to store the music locally
+            print("No cloud storage accounts found")
+            # Logic to handle when no cloud storages are found
+            pass
+        
+        #if music.musicowner.cloud_storages == 'local':
+        #    print("User has local storage configured")
+        #    print("Moving music to local storage...")
+
         _set_task_progress(100)
     except Exception:
         _set_task_progress(100)
@@ -184,6 +225,19 @@ def _set_task_progress(progress):
 
 
 # webdav
+
+def webdav(url, username, password, directory):
+    print("User has WebDAV storage configured")
+    print("Moving music to WebDAV storage...")
+    
+    print("This is the storage URL:", url)
+    print("This is the storage directory:", directory)
+    print("This is the storage username:", username)
+    print("This is the storage password:", password)
+    print("This is the webdav function")
+    print("Music moved to WebDAV storage")
+
+    # this function will call all sub functions in order
 
 # start uploading the music to the cloud using WebDAV
 def uploadmusic(url, username, password, remoteDirectory):
@@ -349,5 +403,16 @@ def upload_music(remoteDirectory, url, username, password):
     print("Finished uploading music files")
 
 
+
+# local music storage
+
+def localmusic():
+    print("User has local storage configured")
+    print("Moving music to local storage...")
+    print("This is the localmusic function")
+    # this function basically does not have to do anything since the music is already stored locally by default now
+    print("Music moved to local storage")
+
+    # this function will call all sub functions in order
 
 # ftp/sftp

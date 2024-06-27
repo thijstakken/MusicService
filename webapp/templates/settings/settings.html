@@ -38,10 +38,8 @@
                 </div>
 
                 <div class="card w-75 mb-3 mx-auto">
-                  <div class="card-body">
-                    <div class="d-grid gap-2">
-                    <a href="#" class="btn stretched-link">Local</a>
-                    </div>
+                  <div class="card-body d-grid gap-2">
+                      <button class="btn stretched-link" data-bs-target="#localstorage" data-bs-toggle="modal">Local</button>
                   </div>
                 </div>
 
@@ -171,10 +169,41 @@
         </div>
 
 
+        <div class="modal fade" id="localstorage" aria-hidden="true" aria-labelledby="localstorage" tabindex="-1">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="localstorage">Local</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              
+              <div class="modal-body">
+                <form action="/settings" method="post" novalidate>
+                  {{ LocalstrorageForm.hidden_tag() }}
+                  <!-- <p>
+                    {{ WebDAVform.password.label }}<br>
+                    {{ WebDAVform.password(size=50) }}<br>
+                    {% for error in WebDAVform.password.errors %}
+                        <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                  </p> -->
+
+                  <p>{{ LocalstrorageForm.submit() }}</p>
+              </form>
+              </div>
+
+              <div class="modal-footer">
+                <button class="btn btn-primary" data-bs-target="#exampleModal" data-bs-toggle="modal">Back to previous</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
         {% for cloudstorages in cloudstorageaccounts %}
         <div class="card w-50">
           <div class="card-body">
-            <h5 class="card-title">{{ cloudstorages.id }} | {{ cloudstorages.owner.username }} | {{ cloudstorages.protocol_type }} | {{ cloudstorages.CloudStorage_Username }} | {{ cloudstorages.CloudStorage_Password }}</h5>
+            <h5 class="card-title">{{ cloudstorages.id }} | {{ cloudstorages.storageowner }} | {{ cloudstorages.protocol_type }} | {{ cloudstorages.CloudStorage_Username }} | {{ cloudstorages.CloudStorage_Password }}</h5>
           </div>
         </div>
         <a class="btn btn-danger" href="/settings/delete/{{ cloudstorages.id }}">Delete</a>
