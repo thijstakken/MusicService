@@ -133,8 +133,17 @@ def downloadmusic(music_id, username):
 
         storages = db.session.scalars(
             sa.select(CloudStorage).where(CloudStorage.storageowner == music.musicowner)).all()
+        
+        # check if there are more then one storage accounts configured
+        # the app can only handle one storage account at a time, so we want to check if there are more then one storage account configured
+        if len(storages) > 1:
+            print("More then one storage account found")
+            print("The app can only handle one storage account at a time")
+            print("Please remove the extra storage accounts")
+            print("Stopping the download...")
+            return
 
-        print("These are the storage object(s):", storages)
+        print("This is the storage object:", storages)
         if storages:
             for storage in storages:
                 print("This is the storage protocol:", storage.protocol_type)
@@ -152,7 +161,9 @@ def downloadmusic(music_id, username):
         else:
             # if there a no cloud storage accounts configured, we want to store the music locally
             print("No cloud storage accounts found")
+            print("Storing music in local storage...")
             # Logic to handle when no cloud storages are found
+            ### NO LOGIC NEEDED, SINCE THE MUSIC IS ALREADY STORED LOCALLY BY DEFAULT ###
             pass
         
         #if music.musicowner.cloud_storages == 'local':

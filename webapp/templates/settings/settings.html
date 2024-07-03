@@ -12,7 +12,39 @@
           <div class="card-body">
             <h5 class="card-title">Synchronization</h5>
             <div class="d-grid gap-2 col-6 mx-auto">
+            {% if cloudstorageaccounts %}
+            <!-- displays modal that says that only 1 profile can be added -->
+            <button type="button" class="btn btn-success btn-lg bi bi-plus-square-dotted" data-bs-toggle="modal" data-bs-target="#notallowed"> Add</button>
+            {% else %}
             <button type="button" class="btn btn-success btn-lg bi bi-plus-square-dotted" data-bs-toggle="modal" data-bs-target="#exampleModal"> Add</button>
+            
+            <!-- also inform user of the fallback option (local file storage is active if no other syncprofile is configured) -->
+            <p>Default active: Local file storage is used when no sync profile is configured.</p>
+            <a href="#" data-bs-toggle="modal" data-bs-target="#fallbackModal">Click here for more info</a>
+
+            <!-- Modal -->
+            <div class="modal fade" id="fallbackModal" tabindex="-1" aria-labelledby="fallbackModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="fallbackModalLabel">Fallback Option: Local File Storage</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <p>When no sync profile is configured, the application uses local file storage as the default option. This means that your music files will be stored locally in your container.</p>
+                    <p>If you want to sync your music with a cloud storage service or any other storage target, you can add a sync profile by clicking the "Add" button.</p>
+                    <p>Once you have added a sync profile, it will become the active storage target for your music files.</p>
+                    <p>All music stored locally will automatically be synced to the storage target if it get's configured.</p>
+                    <p>Want to use the local file storage? You can mount the music folder to your device and play the music files directly from your device.</p>
+                    <p>Please mount the volume: /music/ on your docker container to make it persistant.</p>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endif %}
             </div>
           </div>
         </div>
@@ -65,6 +97,24 @@
           </div>
         </div>
 
+        <!-- write an modal that says that only 1 profile can be added -->
+        <div class="modal fade" id="notallowed" tabindex="-1" aria-labelledby="notallowed" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="notallowed">Max sync profiles reached</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <p>Only 1 profile can be added, please delete the current profile before adding a new one</p>
+              </div>
+              
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div class="modal fade" id="exampleModalToggle2" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
           <div class="modal-dialog modal-dialog-centered">
@@ -179,7 +229,7 @@
               
               <div class="modal-body">
                 <form action="/settings" method="post" novalidate>
-                  {{ LocalstrorageForm.hidden_tag() }}
+                  {{ LocalStorageform.hidden_tag() }}
                   <!-- <p>
                     {{ WebDAVform.password.label }}<br>
                     {{ WebDAVform.password(size=50) }}<br>
@@ -188,7 +238,7 @@
                     {% endfor %}
                   </p> -->
 
-                  <p>{{ LocalstrorageForm.submit() }}</p>
+                  <p>{{ LocalStorageform.submit() }}</p>
               </form>
               </div>
 

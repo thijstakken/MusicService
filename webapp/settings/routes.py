@@ -27,9 +27,20 @@ def profile():
 @login_required
 def settings():
 
-    # this form is used to add a new WebDAV account
+    # get the CloudStorage settings from the database with scalars for the logged in user
+    cloudstorageaccounts = db.session.scalars(sa.select(CloudStorage).where(CloudStorage.user_id == current_user.id)).all()
+
+    for cloudstorageaccount in cloudstorageaccounts:
+        print(cloudstorageaccount)
+        print(cloudstorageaccount.id)
+        print(cloudstorageaccount.storageowner)
+        print(cloudstorageaccount.protocol_type)        
+
     WebDAVform = WebDAVForm()
     if WebDAVform.validate_on_submit():
+        if cloudstorageaccounts:
+            flash('You already have a sync profile configured. Please delete the current profile before adding a new one.')
+            return redirect(url_for('settings.settings'))
         WebDAVSettings = WebDavStorage()
         WebDAVSettings.url = WebDAVform.url.data
         WebDAVSettings.directory = WebDAVform.directory.data
@@ -43,8 +54,11 @@ def settings():
         return redirect(url_for('settings.settings'))
     
     # this form is used to add a local storage account
-    LocalstrorageForm = LocalStorageForm()
-    if LocalstrorageForm.validate_on_submit():
+    LocalStorageform = LocalStorageForm()
+    if LocalStorageform.validate_on_submit():
+        if cloudstorageaccounts:
+            flash('You already have a sync profile configured. Please delete the current profile before adding a new one.')
+            return redirect(url_for('settings.settings'))
         LocalStorageSettings = LocalStorage()
         LocalStorageSettings.user_id = current_user.id
         LocalStorageSettings.protocol_type = "local_storage"
@@ -57,15 +71,6 @@ def settings():
 
     # get the CloudStorage settings from the database with scalars
     #cloudstorageaccounts = db.session.scalars(sa.select(CloudStorage)).all()
-
-    # get the CloudStorage settings from the database with scalars for the logged in user
-    cloudstorageaccounts = db.session.scalars(sa.select(CloudStorage).where(CloudStorage.user_id == current_user.id)).all()
-
-    for cloudstorageaccount in cloudstorageaccounts:
-        print(cloudstorageaccount)
-        print(cloudstorageaccount.id)
-        print(cloudstorageaccount.storageowner)
-        print(cloudstorageaccount.protocol_type)
 
         # print the settings for the webdav_storage protocol
         # if cloudstorageaccount.protocol_type == "webdav_storage":
@@ -141,7 +146,7 @@ def settings():
     #songs = ["youtube 4975498", "youtube 393judjs", "soundcloud 93034303"]
     #songs = list(enumerate(songs))
 
-    return render_template("settings/settings.html", cloudstorageaccounts=cloudstorageaccounts, songs=songs, WebDAVform=WebDAVform, LocalstrorageForm=LocalstrorageForm, title='Settings')
+    return render_template("settings/settings.html", cloudstorageaccounts=cloudstorageaccounts, songs=songs, WebDAVform=WebDAVform, LocalStorageform=LocalStorageform, title='Settings')
 
 
 @bp.route("/settings/delete/<int:cloudstorage_id>")
