@@ -49,7 +49,7 @@ def musicapp():
         # this is needed for the frontend to display the time correctly
         #job.next_run = job.next_run.strftime('%Y-%m-%dT%H:%M:%SZ')  # Adjust format as needed
 
-        job.next_run = job.next_run.isoformat()
+        # job.next_run = job.next_run.isoformat()
         
         # it's using the local time, not the UTC time
         # so we need to adjust the time to the UTC time
@@ -156,7 +156,7 @@ def download(music_id):
     # true is only used for scheduled (or "automated") downloads
     actiontype = False
     # download the music
-    downloadmusic(music_id, actiontype)
+    downloadmusicAction(music_id, actiontype)
 
     return redirect(url_for("main.musicapp"))
 
@@ -251,11 +251,11 @@ def scheduletask(music):
     # https://github.com/dbader/schedule
     # https://schedule.readthedocs.io/en/stable/
     #schedule.every(music.interval).minutes.do(download_and_upload,music,settings).tag(music.id)
-    schedule.every(music.interval).minutes.do(downloadmusic,music.id, actiontype, user).tag(music.id)
+    schedule.every(music.interval).minutes.do(downloadmusicAction,music.id, actiontype, user).tag(music.id)
     print("Interval set for:", music.title, music.interval, "minutes")
 
 
-def downloadmusic(music_id, actiontype, user=None):
+def downloadmusicAction(music_id, actiontype, user=None):
     # the user object is supplied by the scheduletask function if it's an automated "scheduled" download
     # if the user is not given, then use the current_user, which is the logged in user
     if user is None and current_user.is_authenticated:
@@ -272,3 +272,22 @@ def downloadmusic(music_id, actiontype, user=None):
         db.session.commit()
     else:
         print("No user found, ERROR")
+
+
+def schedulerbootup():
+    # start all the schedulers for the playlists/songs that are monitored
+    
+    # get the music object from the database with scalars
+    music = db.session.scalars(sa.select(Music))
+
+    # check if there are any playlists/songs in the database
+    if music is not None:
+        # add the schedules for every playlists/songs
+        for musics in music:
+            #if music.monitored is True and settings is not None:
+            if musics.monitored is True:
+                print("monitor is ON")
+                print("Going to schedule the music to be downloaded on repeat")
+                print(musics.monitored)
+                # schedule the job   
+                scheduletask(musics)

@@ -178,7 +178,8 @@
                     {% for job in scheduledJobs %}
                         {% set tag_number = job.tags|replace('{', '')|replace('}', '') %}
                             {% if tag_number == music.id|string %}
-                                <p>Next run: {{ moment(job.next_run).fromNow() }}</p>
+                                <!-- <p>Next run: {{ moment(job.next_run).fromNow() }}</p> -->
+                                <p>Next run: {{ job.next_run }}</p>
                                 <p>it works!!!!</p>
                             {% else %}
                                 <p>tag and music.id do not match</p>

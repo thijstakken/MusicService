@@ -5,13 +5,12 @@ from rq import get_current_job
 from webapp import db, create_app
 import sqlalchemy as sa
 from webapp.models import MusicTask, Music, CloudStorage, WebDavStorage
+#from webapp import current_app
 
 # uploading files to a server logic
 import os
 import requests
 
-webapp = create_app()
-webapp.app_context().push()
 
 # def example(seconds):
 #     job = get_current_job()
@@ -26,162 +25,174 @@ webapp.app_context().push()
 #     print('Task completed')
 
 
+#webapp = create_app()
+#webapp.app_context().push()
+
 def downloadmusic(music_id, username):
+    # the function needs an app context, because it needs to work with the database
+    # the solution used here is to start a new app context, so we can work with the database
+
+    # create a new app context
+    # submit a option in the function that will stopsome of the create_app functions, like starting background tasks again, because this will cause a loop
+    app = create_app(baseconfig=True)
+    # we always need to have the app context to work with the database
+    # this whole function is run from the redis worker, which is a seperate process from the main app
+    with app.app_context():
     
-    print('this is username original', username)
-    music = db.session.get(Music, music_id)
+        print('this is username original', username)
+        music = db.session.get(Music, music_id)
 
-    # get the username that owns the music
-    usernametest = music.musicowner.username
+        # get the username that owns the music
+        usernametest = music.musicowner.username
 
-    print("Username new one:", usernametest)
-    print("Username:", usernametest)
-    print("Username:", usernametest)
-    print("Username:", usernametest)
+        print("Username new one:", usernametest)
+        print("Username:", usernametest)
+        print("Username:", usernametest)
+        print("Username:", usernametest)
 
-    #music = db.session.scalars(sa.select(MusicTask).where(MusicTask.id == music_id)).first()
-    print("Downloading music...", music.url)
-    print("")
-    print("Downloading playlist...", music_id)
-    #downloadPlaylists(ydl_opts, url)
-    try:
-        _set_task_progress(0)
+        #music = db.session.scalars(sa.select(MusicTask).where(MusicTask.id == music_id)).first()
+        print("Downloading music...", music.url)
+        print("")
+        print("Downloading playlist...", music_id)
+        #downloadPlaylists(ydl_opts, url)
+        try:
+            _set_task_progress(0)
 
-        # we want to look at the music object and get the DownloadedSongs object
+            # we want to look at the music object and get the DownloadedSongs object
 
-        # we want to put the contents in a text file so YT-DLP can work with it
-        # path: /music/{username}/download_archive.txt, then put the contents in there
-
-
-        # get the playlist name of an url with yt-dlp    
-        # this has so far proofed to not be reliable, will use a standard archive location for ALL playlists
-        # youtube-dlp is designed to work with a single static download_archive, not multiple ones, so therefore a lot of custom code should be worked out.
-        # Use the title of the playlist (if present) as the folder name
-        # Configure YouTube DL options for the title extraction
+            # we want to put the contents in a text file so YT-DLP can work with it
+            # path: /music/{username}/download_archive.txt, then put the contents in there
 
 
-        # ydl_title = {
-        #     'dump_single_json': True,
-        #     'extract_flat': True,
-        # }
+            # get the playlist name of an url with yt-dlp    
+            # this has so far proofed to not be reliable, will use a standard archive location for ALL playlists
+            # youtube-dlp is designed to work with a single static download_archive, not multiple ones, so therefore a lot of custom code should be worked out.
+            # Use the title of the playlist (if present) as the folder name
+            # Configure YouTube DL options for the title extraction
 
-        # with YoutubeDL(ydl_title) as ydl:
-        #     info = ydl.extract_info(music.url, download=False)
-        #     #print("Info:", info)
-        #     # Check if the extracted info is for a playlist
-        #     if info.get('_type') == 'playlist':
-        #         # It's a playlist, get the playlist title
-        #         playlistname = info.get('title', None)
-        #         print("This is a playlist, the name is:", playlistname)
-        #     else:
-        #         # It's not a playlist, ignore the output
-        #         print("Not a playlist, ignoring output.")
-        #         # set the playlistname to NA, because it's not a playlist, yt-dlp will use the NA folder for music that has no playlist title
-        #         playlistname = "NA"
-        #     # get an item from the info dictionary
 
-        #     #playlistname = info.get('title', None)
+            # ydl_title = {
+            #     'dump_single_json': True,
+            #     'extract_flat': True,
+            # }
+
+            # with YoutubeDL(ydl_title) as ydl:
+            #     info = ydl.extract_info(music.url, download=False)
+            #     #print("Info:", info)
+            #     # Check if the extracted info is for a playlist
+            #     if info.get('_type') == 'playlist':
+            #         # It's a playlist, get the playlist title
+            #         playlistname = info.get('title', None)
+            #         print("This is a playlist, the name is:", playlistname)
+            #     else:
+            #         # It's not a playlist, ignore the output
+            #         print("Not a playlist, ignoring output.")
+            #         # set the playlistname to NA, because it's not a playlist, yt-dlp will use the NA folder for music that has no playlist title
+            #         playlistname = "NA"
+            #     # get an item from the info dictionary
+
+            #     #playlistname = info.get('title', None)
+                
+            #     #playlistname = info.get('playlist', None)
+            #     print("Title name is:", playlistname)
+            #     #print("Playlist name:", playlistname)
+            #     #print("Playlist name:", playlistname)
+
+
+            # create the music directory for the user
+            #path = f'./music/{username}/{playlistname}'
+
+            path = f'./music/{username}'
+
+            #archivefilename = f'%(playlist)s/download_archive.txt'
+            archivefilename = '/download_archive.txt'
+
+            # create the directory if it does not exist
+            if not os.path.exists(path):
+                os.makedirs(path)
+                print("Directory ", path, " Created ")
+
+            #combine path and file into one path
+            fullpath = path + archivefilename
+            #print('This is the full archive path for all playlists', fullpath)
+
+            ydl_opts['download_archive'] = fullpath # this will update the downloads file which serves as a database/archive for which songs have already been downloaded, so it don't downloads them again
             
-        #     #playlistname = info.get('playlist', None)
-        #     print("Title name is:", playlistname)
-        #     #print("Playlist name:", playlistname)
-        #     #print("Playlist name:", playlistname)
+            # output template for the downloaded music
+            musicpath = f'{path}/%(playlist)s/%(title)s-%(id)s.%(ext)s'
+            ydl_opts['outtmpl'] = musicpath # save music to the /music folder. and it's corrosponding folder which will be named after the playlist name
+
+            # we want to download the music from the URL
+            with YoutubeDL(ydl_opts) as ydl:
+                    #print(ydl_opts)
+                    ydl.download(music.url)
 
 
-        # create the music directory for the user
-        #path = f'./music/{username}/{playlistname}'
-
-        path = f'./music/{username}'
-
-        #archivefilename = f'%(playlist)s/download_archive.txt'
-        archivefilename = '/download_archive.txt'
-
-        # create the directory if it does not exist
-        if not os.path.exists(path):
-            os.makedirs(path)
-            print("Directory ", path, " Created ")
-
-        #combine path and file into one path
-        fullpath = path + archivefilename
-        #print('This is the full archive path for all playlists', fullpath)
-
-        ydl_opts['download_archive'] = fullpath # this will update the downloads file which serves as a database/archive for which songs have already been downloaded, so it don't downloads them again
-        
-        # output template for the downloaded music
-        musicpath = f'{path}/%(playlist)s/%(title)s-%(id)s.%(ext)s'
-        ydl_opts['outtmpl'] = musicpath # save music to the /music folder. and it's corrosponding folder which will be named after the playlist name
-
-        # we want to download the music from the URL
-        with YoutubeDL(ydl_opts) as ydl:
-                #print(ydl_opts)
-                ydl.download(music.url)
+            # we want to remove the text file from the local storage
 
 
-        # we want to remove the text file from the local storage
+            # determine where the music should go next
+            # if the user has no storage account configured we want to store the music locally as a fallback/default option
+            # if the user has a local storage account, we want to store the music locally
+            # if the user has a cloud storage account, we want to upload the music to the cloud
+
+            # Assuming music.musicowner is the user object you want to filter by
+            
+            
+            #storages = db.session.scalars(
+            #    CloudStorage.query.filter(CloudStorage.storageowner == music.musicowner)).all()
+
+            storages = db.session.scalars(
+                sa.select(CloudStorage).where(CloudStorage.storageowner == music.musicowner)).all()
+            
+            # check if there are more then one storage accounts configured
+            # the app can only handle one storage account at a time, so we want to check if there are more then one storage account configured
+            if len(storages) > 1:
+                print("More then one storage account found")
+                print("The app can only handle one storage account at a time")
+                print("Please remove the extra storage accounts")
+                print("Stopping the download...")
+                return
+
+            print("This is the storage object:", storages)
+            if storages:
+                for storage in storages:
+                    print("This is the storage protocol:", storage.protocol_type)
+
+                    if storage.protocol_type == "webdav_storage":
+                        # get the cloud storage account settings for webdav
+                        webdavsettings = db.session.scalars(sa.select(WebDavStorage).where(WebDavStorage.id == storage.id)).first()
+                        print("This is the webdav object", webdavsettings)
+                        webdav(webdavsettings.url, webdavsettings.username, webdavsettings.password, webdavsettings.directory)
 
 
-        # determine where the music should go next
-        # if the user has no storage account configured we want to store the music locally as a fallback/default option
-        # if the user has a local storage account, we want to store the music locally
-        # if the user has a cloud storage account, we want to upload the music to the cloud
+                    if storage.protocol_type == "local_storage":
+                        localmusic()
 
-        # Assuming music.musicowner is the user object you want to filter by
-        
-        
-        #storages = db.session.scalars(
-        #    CloudStorage.query.filter(CloudStorage.storageowner == music.musicowner)).all()
+            else:
+                # if there a no cloud storage accounts configured, we want to store the music locally
+                print("No cloud storage accounts found")
+                print("Storing music in local storage...")
+                # Logic to handle when no cloud storages are found
+                ### NO LOGIC NEEDED, SINCE THE MUSIC IS ALREADY STORED LOCALLY BY DEFAULT ###
+                pass
+            
+            #if music.musicowner.cloud_storages == 'local':
+            #    print("User has local storage configured")
+            #    print("Moving music to local storage...")
 
-        storages = db.session.scalars(
-            sa.select(CloudStorage).where(CloudStorage.storageowner == music.musicowner)).all()
-        
-        # check if there are more then one storage accounts configured
-        # the app can only handle one storage account at a time, so we want to check if there are more then one storage account configured
-        if len(storages) > 1:
-            print("More then one storage account found")
-            print("The app can only handle one storage account at a time")
-            print("Please remove the extra storage accounts")
-            print("Stopping the download...")
-            return
-
-        print("This is the storage object:", storages)
-        if storages:
-            for storage in storages:
-                print("This is the storage protocol:", storage.protocol_type)
-
-                if storage.protocol_type == "webdav_storage":
-                    # get the cloud storage account settings for webdav
-                    webdavsettings = db.session.scalars(sa.select(WebDavStorage).where(WebDavStorage.id == storage.id)).first()
-                    print("This is the webdav object", webdavsettings)
-                    webdav(webdavsettings.url, webdavsettings.username, webdavsettings.password, webdavsettings.directory)
-
-
-                if storage.protocol_type == "local_storage":
-                    localmusic()
-
-        else:
-            # if there a no cloud storage accounts configured, we want to store the music locally
-            print("No cloud storage accounts found")
-            print("Storing music in local storage...")
-            # Logic to handle when no cloud storages are found
-            ### NO LOGIC NEEDED, SINCE THE MUSIC IS ALREADY STORED LOCALLY BY DEFAULT ###
-            pass
-        
-        #if music.musicowner.cloud_storages == 'local':
-        #    print("User has local storage configured")
-        #    print("Moving music to local storage...")
-
-        _set_task_progress(100)
-    except Exception:
-        _set_task_progress(100)
-        #webapp.logger.error('Unhandled exception', exc_info=sys.exc_info())
-        print("Error downloading the playlist")
-        print("")
-    finally:
-        _set_task_progress(100)
-        # some cleanup
-        print("Cleaning up...")
-        print("Downloading complete for:", music_id)
-        print("")
+            _set_task_progress(100)
+        except Exception:
+            _set_task_progress(100)
+            #webapp.logger.error('Unhandled exception', exc_info=sys.exc_info())
+            print("Error downloading the playlist")
+            print("")
+        finally:
+            _set_task_progress(100)
+            # some cleanup
+            print("Cleaning up...")
+            print("Downloading complete for:", music_id)
+            print("")
 
 # YT-DLP logging
 class MyLogger(object):
