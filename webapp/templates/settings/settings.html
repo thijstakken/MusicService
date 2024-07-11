@@ -120,7 +120,10 @@
           <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
               <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalToggleLabel2">WebDAV</h1>
+                <div>
+                  <h1 class="modal-title fs-5" id="exampleModalToggleLabel2">WebDAV</h1>
+                  <a href="https://github.com/thijstakken/MusicService/wiki/Configuring-WebDAV" class="btn btn-info" role="button" target="_blank">User Guide</a>
+                </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               
@@ -162,7 +165,7 @@
                         Show password
                     </label>
                   </div>
-
+                  <br>
 
                   <p>{{ WebDAVform.submit() }}</p>
               </form>
@@ -171,9 +174,8 @@
 
 
 
-
+              <!--
               <div class="modal-body">
-                <!-- show a placeholder form for WebDAV values-->
                 <form action="/settings/save" method="post">
 
                   <div class="mb-3">
@@ -195,9 +197,10 @@
 
                   
                   <button class="btn btn-primary" type="submit">Save</button>
-                  <!-- <button class="btn btn-primary" type="submit">Validate settings</button> -->
+                  <button class="btn btn-primary" type="submit">Validate settings</button>
               </form>
               </div>
+              -->
 
               <script>
                 function passwordShow() {
