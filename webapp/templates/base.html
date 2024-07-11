@@ -39,9 +39,9 @@
                   <a class="nav-link bi bi-box-arrow-in-right" aria-current="page" href="{{ url_for('auth.login') }}"> Login</a>
                 </li>
                 {% else %}
-                <li class="nav-item">
+                <!-- <li class="nav-item">
                   <a class="nav-link bi bi-person-circle" aria-current="page" href="{{ url_for('settings.settings', username=current_user.username) }}"> Profile</a>
-                </li>
+                </li> -->
                 <li class="nav-item">
                   <a class="nav-link" aria-current="page" href="{{ url_for('auth.logout') }}">Logout</a>
                 </li>
