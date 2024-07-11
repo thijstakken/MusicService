@@ -37,6 +37,11 @@ The Music Service is a microservice application and runs as a [Docker container]
 
 1. Prepare the code (required):
     - Option 1 Docker Compose (recommended): Copy the [docker-compose](docker-compose.yml) file contents to your editor and follow the steps
+    - Comment out the local music volume line???
+    - Should I add a volume for the music folder, for people who will locally access the files?
+    - Should the music folder always be mounted, for the purpose of saving progress and temp data?
+    - IT should always be mounted, otherwise users lose their archive files.
+
     - Option 2 (Docker run): Copy the code below to your favorite editor, Notepad, Word etc. 
 
 ```
