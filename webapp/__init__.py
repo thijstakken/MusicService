@@ -52,8 +52,6 @@ def create_app(config_class=Config, baseconfig=False):
         #if not app.debug and not app.testing:
         # add testing/debug later
 
-        #interval_check()
-
 
         # this functions runs in a seperate thread to monitor scheduled jobs and run them when needed
         def run_schedule(app_context):
@@ -69,7 +67,7 @@ def create_app(config_class=Config, baseconfig=False):
                 finally:
                     # Any necessary cleanup can go here
                     pass
-        #if baseconfig == False:
+
         # start the schedule in the background as a separated thread from the main thread
         # this is needed to let the scheduler run in the background, while the main thread is used for the webserver
         t = threading.Thread(target=run_schedule, args=(app.app_context(),), daemon=True)
@@ -86,7 +84,6 @@ def create_app(config_class=Config, baseconfig=False):
                 # Log the exception or handle it as needed
                 print(f"Error initializing scheduler: {e}")
         
-        #if baseconfig == False:
         # the app_context pushes and pops the context automatically
         with app.app_context():
             schedulerboot()
@@ -97,41 +94,6 @@ def create_app(config_class=Config, baseconfig=False):
 
     return app
 
-
-
-### DOES YT_DLP CREATE THE ARCHIVE AUTOMATICALLY??? IF YES, then the code below can be fully removed
-
-# # check if file ../download_archive/downloaded exists
-# archive_directory = '../download_archive/'
-# archive_file = 'downloaded'
-# download_archive = os.path.join(archive_directory, archive_file)
-
-# if os.path.isfile(download_archive) == False:
-#     # tries to create the archive directory and file
-
-#     print("Download archive does not exist")
-
-#     # tries to create archive directory
-#     try:
-#         print("Creating directory...")
-#         output = os.mkdir(archive_directory)
-#         print("Directory '% s' created" % archive_directory)
-#     except OSError as error:
-#         print(error)
-
-#     # tries to create archive file
-#     try:
-#         print("Creating file...")
-#         open(download_archive, 'x')
-#         print("File '% s' created" % download_archive)
-#     except OSError as error:
-#         print(error)
-
-#     else:
-#         print("Download archive exists, nothing to do...")
-
-
-
 from webapp import models
 
 
@@ -140,5 +102,5 @@ from webapp import models
 
 # welcome message
 print("Starting MusicService")
-version = '2024.3'
+version = '2024.7'
 print("Version:", version)
