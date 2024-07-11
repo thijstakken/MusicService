@@ -3,6 +3,7 @@ from flask_login import login_required, current_user
 import sqlalchemy as sa
 from webapp import db
 from webapp.settings import bp
+import os
 
 from webapp.settings.forms import WebDAVForm, LocalStorageForm
 
@@ -170,12 +171,21 @@ def deleteStorageAccount(cloudstorage_id):
 def archiveaddsong():
     song = request.form.get("song")
 
+    path = os.path.join('./music', current_user.username)
+    archivefilename = 'download_archive.txt'
+    fullpath = os.path.join(path, archivefilename)
+
+    # create the directory if it does not exist
+    if not os.path.exists(path):
+        os.makedirs(path)
+        print("Directory ", path, " Created ")
+
     # get archive for analysis
-    with open("../download_archive/downloaded") as file:
+    with open(fullpath) as file:
         text = file.read()
 
     # add new song to archive
-    with open(r"../download_archive/downloaded", 'a') as archive:
+    with open(fullpath, 'a') as archive:
         # check if a newline already exists
         if not text.endswith('\n'):
             # if it does not end with a newline, then add it
@@ -183,21 +193,34 @@ def archiveaddsong():
         # add song if it is not None
         if song is not None:
             archive.write(song)
+            archive.write('\n')
     return redirect(url_for("settings.settings"))
 
 @bp.route("/archivedeletesong/<int:song_id>")
 @login_required
 def archivedeletesong(song_id):
+
+    path = os.path.join('./music', current_user.username)
+    archivefilename = 'download_archive.txt'
+    fullpath = os.path.join(path, archivefilename)
+
+    # create the directory if it does not exist
+    if not os.path.exists(path):
+        os.makedirs(path)
+        print("Directory ", path, " Created ")
+
     # get songs archive
-    with open(r"../download_archive/downloaded", 'r') as fileop:
+    with open(fullpath, 'r') as fileop:
         songs = fileop.readlines()
 
     # delete/clear the correct row
-    with open(r"../download_archive/downloaded", 'w') as fileop:
+    with open(fullpath , 'w') as fileop:
         for number, line in enumerate(songs):
         # delete/clear the song_id line
             if number not in [song_id]:
-                fileop.write(line)    
+                fileop.write(line)
+    
+    flash('Song deleted from archive')
 
     return redirect(url_for("settings.settings"))
 
@@ -205,8 +228,22 @@ def archivedeletesong(song_id):
 @login_required
 # based on flask.send_file method: https://flask.palletsprojects.com/en/2.3.x/api/#flask.send_file
 def archivedownload():
+
+    path = os.path.join('./music', current_user.username)
+    archivefilename = 'download_archive.txt'
+    fullpath = os.path.join(path, archivefilename)
+
+    # create the directory if it does not exist
+    if not os.path.exists(path):
+        os.makedirs(path)
+        print("Directory ", path, " Created ")
+
+    # Convert the relative path to an absolute path
+    # the send file funcion requires an absolute path
+    absolute_path = os.path.abspath(fullpath)
+
     return send_file(
-        '../download_archive/downloaded',
+        absolute_path,
         mimetype='text/plain',
         download_name='download_archive.txt',
         as_attachment=True
@@ -241,12 +278,21 @@ def archiveupload():
             # split each line, and put each line into lines_list
             lines_list = archive_content.split('\n')
 
+            path = os.path.join('./music', current_user.username)
+            archivefilename = 'download_archive.txt'
+            fullpath = os.path.join(path, archivefilename)
+
+            # create the directory if it does not exist
+            if not os.path.exists(path):
+                os.makedirs(path)
+                print("Directory ", path, " Created ")
+
             # read existing archive
-            with open("../download_archive/downloaded") as archive_data:
+            with open(fullpath) as archive_data:
                 text = archive_data.read()
 
             # add new songs to archive
-            with open(r"../download_archive/downloaded", 'a') as archive:
+            with open(fullpath, 'a') as archive:
                 
                 # check if newline already exists, always start with a newline
                 if not text.endswith('\n'):
