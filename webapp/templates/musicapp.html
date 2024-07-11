@@ -121,9 +121,9 @@
                                 </script> -->
 
 
-                                <div class="progress">
+                                <!-- <div class="progress">
                                     <div class="progress-bar" role="progressbar" style="width: 75%;" aria-valuenow="3000" aria-valuemin="0" aria-valuemax="4000" id="intervalStatus{{ music.id }}"></div>
-                                    <p>seconds</p>
+                                    <p>seconds</p> -->
 
                                 
                                 <!-- <div id="intervalStatus{{ music.id }}" class="progress" role="progressbar" aria-label="countdownPlaylist" aria-valuenow= aria-valuemin="0" aria-valuemax="1000">
@@ -135,7 +135,7 @@
                                 <!-- <p id="lastrun{{ music.id }}">Last run: {{ music.lastrun }}</p> -->
 
                         <!-- <p id="intervalStatus{{ music.id }}"></p> -->
-                                </div>
+                                <!-- </div> -->
           
                 
                 {% if music.monitored == False %}
@@ -162,28 +162,27 @@
                 
                 <!-- health indicators -->
 
-                <p>Last run: </p>
-
-                <p>Interval: {{ music.interval }} minutes</p>
+                <!-- <p>Interval: {{ music.interval }} minutes</p> -->
                 
-                <p>THIS is scheduled to run: {{ scheduledJobs }} </p>
+                <!-- <p>THIS is scheduled to run: {{ scheduledJobs }} </p> -->
 
-                {% for job in scheduledJobs %}
+                <!-- {% for job in scheduledJobs %}
                     {% set tag_number = job.tags|replace('{', '')|replace('}', '') %}
                         <p>tag number: {{ tag_number }}</p>
                         <p>music id: {{ music.id }} </p>
-                {% endfor %}
+                {% endfor %} -->
 
-                {% if scheduledJobs %}
+
+                {% if music.monitored and scheduledJobs %}
                     {% for job in scheduledJobs %}
                         {% set tag_number = job.tags|replace('{', '')|replace('}', '') %}
                             {% if tag_number == music.id|string %}
                                 <!-- <p>Next run: {{ moment(job.next_run).fromNow() }}</p> -->
+                                <!-- <p>monitored: {{ music.monitored }} </p> -->
+                                <p>Last run: {{ job.last_run }} </p>
                                 <p>Next run: {{ job.next_run }}</p>
-                                <p>it works!!!!</p>
-                            {% else %}
-                                <p>tag and music.id do not match</p>
-                        {% endif %}
+                                <!-- <p>it works!!!!</p> -->
+                            {% endif %}
                     {% endfor %}
                 {% endif %}
             
@@ -241,7 +240,7 @@
                         <tr>
                             <th scope="col">#</th>
                             <th scope="col">ID</th>
-                            <th scope="col">Name</th>
+                            <!-- <th scope="col">Name</th> -->
                             <th scope="col">Success</th>
                             <th scope="col">Type</th>
                             <th scope="col">Elapsed Time <i class="bi bi-arrow-down"></i></th>
@@ -263,7 +262,7 @@
                             </button>
                         </td>
                         </td>
-                        <td>${item.name}</td>
+                        <!-- <td>${item.name}</td> -->
                         <td>${item.complete ? '<i class="bi bi-check-circle-fill" style="color: green;"></i>' : '<i class="bi bi-x-circle-fill" style="color: red;"></i>'}</td>
                         <td>${item.actiontype ? 'automated' : 'manual'}</td>
                         <td>
