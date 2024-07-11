@@ -291,3 +291,11 @@ def schedulerbootup():
                 print(musics.monitored)
                 # schedule the job   
                 scheduletask(musics)
+
+
+@bp.route("/getruninfo/<string:task_id>")
+@login_required
+def getruninfo(task_id):
+    # empty for now
+    return "You requested the task with id: " + task_id + " this function has not been build yet. <br> Please see the worker container logs to see the information."
+
