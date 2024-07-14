@@ -32,11 +32,6 @@ ENV PYTHONUNBUFFERED=1
 # users can overrule the default by simply providing their own INTERVAL variable
 ENV INTERVAL=5
 
-# run the Music Service with Python
-#CMD [ "python", "./web/app.py"]
-
-#flask run --port=5678 --debug
-
 # let's dance: "In 5, 6, 7, 8!"
 EXPOSE 5678
 ENTRYPOINT ["./boot.sh"]
