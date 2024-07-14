@@ -281,7 +281,7 @@ def schedulerbootup():
     music = db.session.scalars(sa.select(Music))
 
     # check if there are any playlists/songs in the database
-    if music.first() is not None:
+    if music is not None:
         # add the schedules for every playlists/songs
         for musics in music:
             #if music.monitored is True and settings is not None:

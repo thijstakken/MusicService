@@ -28,6 +28,24 @@ def profile():
 @login_required
 def settings():
 
+    # create the download_archive if it does not exist
+    if current_user.is_authenticated:
+        # check if the archive file exists, if not create it
+        path = os.path.join('./music', current_user.username)
+        archivefilename = 'download_archive.txt'
+        fullpath = os.path.join(path, archivefilename)
+
+        # create the directory if it does not exist
+        if not os.path.exists(path):
+            os.makedirs(path)
+            print("Directory ", path, " Created ")
+        
+        # create the download_archive.txt
+        if not os.path.exists(fullpath):
+            with open(fullpath, 'w') as file:
+                file.write('')
+
+
     # get the CloudStorage settings from the database with scalars for the logged in user
     cloudstorageaccounts = db.session.scalars(sa.select(CloudStorage).where(CloudStorage.user_id == current_user.id)).all()
 
