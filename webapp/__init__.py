@@ -9,6 +9,7 @@ from flask_moment import Moment
 import threading
 import schedule
 import time
+import os
 
 # this is the database object
 db = SQLAlchemy()
@@ -67,11 +68,12 @@ def create_app(config_class=Config, baseconfig=False):
                 finally:
                     # Any necessary cleanup can go here
                     pass
-
-        # start the schedule in the background as a separated thread from the main thread
-        # this is needed to let the scheduler run in the background, while the main thread is used for the webserver
-        t = threading.Thread(target=run_schedule, args=(app.app_context(),), daemon=True)
-        t.start()
+        
+        if os.environ.get('FLASK_DB_UPGRADE') != '1':
+            # start the schedule in the background as a separated thread from the main thread
+            # this is needed to let the scheduler run in the background, while the main thread is used for the webserver
+            t = threading.Thread(target=run_schedule, args=(app.app_context(),), daemon=True)
+            t.start()
 
 
         # this function will start the scheduler for all the scheduled jobs
@@ -84,9 +86,10 @@ def create_app(config_class=Config, baseconfig=False):
                 # Log the exception or handle it as needed
                 print(f"Error initializing scheduler: {e}")
         
-        # the app_context pushes and pops the context automatically
-        with app.app_context():
-            schedulerboot()
+        if os.environ.get('FLASK_DB_UPGRADE') != '1':
+            # the app_context pushes and pops the context automatically
+            with app.app_context():
+                schedulerboot()
 
     # always register the error handler
     from webapp.errors import bp as errors_bp
