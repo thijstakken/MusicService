@@ -7,7 +7,7 @@ WORKDIR /
 # to COPY the remote file at working directory in container
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
-RUN pip install gunicorn
+RUN pip install gunicorn pymysql cryptography
 
 
 COPY webapp webapp

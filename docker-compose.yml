@@ -1,20 +1,64 @@
 version: '3.8'
 
 volumes:
-  config:
-  musiccache:
+  music:
+  db:
+  redis_data:
 
 services:
   musicservice:
     container_name: musicservice
-    image: thijstakken/musicservice:latest
+    #image: thijstakken/musicservice:latest
+    image: musicservice:webgui
     restart: always
+    links: 
+      - database
+    ports: 
+      - 5678:5678
     volumes:
-      - config:/config
-      - musiccache:/music
+      - music:/music
+    depends_on:
+      - database
+      - redis
     environment:
-      - URL=https://demo2.nextcloud.com/remote.php/dav/files/kA2kSpbk2tMwCPpB/
-      - DIRECTORY=/some/01%20my%20music
-      - USERNAME=kA2kSpbk2tMwCPpB
-      - PASSWORD=demo
-      - INTERVAL=5
+      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=mysql+pymysql://musicservice:musicservice@database/musicservice
+
+  database:
+    container_name: mysql
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: musicservice
+      MYSQL_USER: musicservice
+      MYSQL_PASSWORD: musicservice
+    volumes:
+      - db:/var/lib/mysql
+
+  # this is the redis server, which is used for the task queue
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: always
+
+
+  # this worker runs the tasks for the musicservice, so it can download the music
+  taskworker:
+    container_name: taskworker
+    image: musicservice:webgui
+    command: worker -u redis://redis:6379/0 music-tasks
+    # use custom entrypoint to run the taskworker
+    entrypoint: rq
+    volumes:
+      - music:/music
+    depends_on:
+      - redis
+      - database
+    environment:
+      - DATABASE_URL=mysql+pymysql://musicservice:musicservice@database/musicservice
+    restart: always
