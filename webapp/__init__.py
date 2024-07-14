@@ -68,7 +68,7 @@ def create_app(config_class=Config, baseconfig=False):
                 finally:
                     # Any necessary cleanup can go here
                     pass
-        
+
         if os.environ.get('FLASK_DB_UPGRADE') != '1':
             # start the schedule in the background as a separated thread from the main thread
             # this is needed to let the scheduler run in the background, while the main thread is used for the webserver
@@ -86,6 +86,8 @@ def create_app(config_class=Config, baseconfig=False):
                 # Log the exception or handle it as needed
                 print(f"Error initializing scheduler: {e}")
         
+        # check if the environment variable is set to upgrade the database
+        # then this is a database upgrade and we don't want to start the scheduler
         if os.environ.get('FLASK_DB_UPGRADE') != '1':
             # the app_context pushes and pops the context automatically
             with app.app_context():
