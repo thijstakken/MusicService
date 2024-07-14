@@ -1,8 +1,3 @@
-there is a new environment variable called: DATABASE_URL
-through that variable you can configure your own database to run the app with
-
-Also: REDIS_URL can be used
-
 <img src="images/normalLogo.png" alt="MusicServiceLogo" align="left" width="130"/>
 
 # Music sync Service (youtube-dl-sync) <br> ![Release version](https://img.shields.io/github/v/release/thijstakken/musicservice?label=latest) ![Docker Pulls](https://img.shields.io/docker/pulls/thijstakken/musicservice?label=downloads) ![DevOps Build](https://img.shields.io/azure-devops/build/mydevCloudThijsHVA/d94ee522-5f5b-43cf-a9e3-175c5cf1fb03/3) ![License](https://img.shields.io/github/license/thijstakken/musicservice) ![Issues](https://img.shields.io/github/issues/thijstakken/musicservice)
@@ -29,50 +24,13 @@ The Music Service is a microservice application and runs as a [Docker container]
 
 > :warning: **You must have Docker installed**: Either the Docker [Desktop](https://www.docker.com/products/docker-desktop/) (with GUI) or [Engine](https://docs.docker.com/engine/install/) (no GUI) installed on your system.
 
-> :information_source: **Tip**: If you just want to test this application, luckily there is a good tool to use. Just do `docker run -d -p 8080:80 nextcloud` to start a fresh Nextcloud environment. When started, go to `http://localhost:8080/` in some cases you have to replace `localhost` with your computers IP. And you can continue to follow the steps below!
-
-> :information_source: **Recommendation**: For the best experience, install this container on a computer/server which runs 24/7, so you will always have your music in sync.
 
 <br>
 
-1. Prepare the code (required):
-    - Option 1 Docker Compose (recommended): Copy the [docker-compose](docker-compose.yml) file contents to your editor and follow the steps
-    - Comment out the local music volume line???
-    - Should I add a volume for the music folder, for people who will locally access the files?
-    - Should the music folder always be mounted, for the purpose of saving progress and temp data?
-    - IT should always be mounted, otherwise users lose their archive files.
+1. How to run the musicservice:
+    - Docker Compose (recommended): Copy the [docker-compose](docker-compose.yml) file contents to your editor and follow the steps
+    - Run `docker compose up -d` in your terminal to start the stack
 
-    - Option 2 (Docker run): Copy the code below to your favorite editor, Notepad, Word etc. 
-
-```
-docker run -d \
- --name musicservice \
- --restart=always \
- -v config:/config \
- -v musiccache:/music \
- -e URL=https://demo2.nextcloud.com/remote.php/dav/files/kA2kSpbk2tMwCPpB/ \
- -e DIRECTORY=/some/01%20my%20music \
- -e USERNAME=kA2kSpbk2tMwCPpB \
- -e PASSWORD=demo \
- -e INTERVAL=5 \
-thijstakken/musicservice:latest
-```
-
-Before you can run the docker-compose or docker run command, you will first have to make a few changes.
-
-
-## How to best migrate from existing youtube-dl solution
-If you where already using youtube-dl with the archive function, you probably have an downloaded.txt or similar file with all the songs you have already downloaded.
-
-1. :warning: Shut down the musicservice container first
-
-2. To migrate, just copy the contents of the old file over to the `/config/downloaded` file. You can find that file at the musicdatabase volume
-
-3. Run `docker volume inspect config` at your command line to find the location of that volume on your disk
-
-4. Open the file, paste the old information in and save it.
-
-5. That's it!
 
 <br>
 
@@ -80,6 +38,8 @@ If you where already using youtube-dl with the archive function, you probably ha
 Feel free to contribute, you can [submit issues here](https://github.com/thijstakken/MusicService/issues) and [fix issues/bugs, improve the application!](https://github.com/thijstakken/MusicService/wiki/Development-technical)
 
 <br>
+
+> :information_source: **Recommendation**: For the best experience, install this container on a computer/server which runs 24/7, so you will always have your music in sync.
 
 > [!TIP]
 > Please consider supporting your favorite artists through buying their music on https://bandcamp.com/ or https://www.beatport.com/
