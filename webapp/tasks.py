@@ -1,6 +1,5 @@
 # youtube-dl stuff
 from yt_dlp import YoutubeDL
-import time
 from rq import get_current_job
 from webapp import db, create_app
 import sqlalchemy as sa
@@ -58,49 +57,9 @@ def downloadmusic(music_id, username):
         try:
             _set_task_progress(0)
 
-            # we want to look at the music object and get the DownloadedSongs object
-
             # we want to put the contents in a text file so YT-DLP can work with it
             # path: /music/{username}/download_archive.txt, then put the contents in there
-
-
-            # get the playlist name of an url with yt-dlp    
-            # this has so far proofed to not be reliable, will use a standard archive location for ALL playlists
-            # youtube-dlp is designed to work with a single static download_archive, not multiple ones, so therefore a lot of custom code should be worked out.
-            # Use the title of the playlist (if present) as the folder name
-            # Configure YouTube DL options for the title extraction
-
-
-            # ydl_title = {
-            #     'dump_single_json': True,
-            #     'extract_flat': True,
-            # }
-
-            # with YoutubeDL(ydl_title) as ydl:
-            #     info = ydl.extract_info(music.url, download=False)
-            #     #print("Info:", info)
-            #     # Check if the extracted info is for a playlist
-            #     if info.get('_type') == 'playlist':
-            #         # It's a playlist, get the playlist title
-            #         playlistname = info.get('title', None)
-            #         print("This is a playlist, the name is:", playlistname)
-            #     else:
-            #         # It's not a playlist, ignore the output
-            #         print("Not a playlist, ignoring output.")
-            #         # set the playlistname to NA, because it's not a playlist, yt-dlp will use the NA folder for music that has no playlist title
-            #         playlistname = "NA"
-            #     # get an item from the info dictionary
-
-            #     #playlistname = info.get('title', None)
-                
-            #     #playlistname = info.get('playlist', None)
-            #     print("Title name is:", playlistname)
-            #     #print("Playlist name:", playlistname)
-            #     #print("Playlist name:", playlistname)
-
-
-            # create the music directory for the user
-            #path = f'./music/{username}/{playlistname}'
+            # a single archive file per user is used, instead of per playlist, because YT-DLP is not designed to work with multiple archive files
 
             path = f'./music/{username}'
 
@@ -163,7 +122,7 @@ def downloadmusic(music_id, username):
                         # get the cloud storage account settings for webdav
                         webdavsettings = db.session.scalars(sa.select(WebDavStorage).where(WebDavStorage.id == storage.id)).first()
                         print("This is the webdav object", webdavsettings)
-                        webdav(webdavsettings.url, webdavsettings.username, webdavsettings.password, webdavsettings.directory)
+                        webdav(webdavsettings.url, webdavsettings.username, webdavsettings.password, webdavsettings.directory, username)
 
 
                     if storage.protocol_type == "local_storage":
@@ -181,7 +140,7 @@ def downloadmusic(music_id, username):
             #    print("User has local storage configured")
             #    print("Moving music to local storage...")
 
-            _set_task_progress(100)
+            #_set_task_progress(100)
         except Exception:
             _set_task_progress(100)
             #webapp.logger.error('Unhandled exception', exc_info=sys.exc_info())
@@ -248,27 +207,19 @@ def _set_task_progress(progress):
 
 # webdav
 
-def webdav(url, username, password, directory):
+def webdav(url, username, password, directory, localusername):
     print("User has WebDAV storage configured")
     print("Moving music to WebDAV storage...")
-    
-    print("This is the storage URL:", url)
-    print("This is the storage directory:", directory)
-    print("This is the storage username:", username)
-    print("This is the storage password:", password)
-    print("This is the webdav function")
+    uploadmusic(url, username, password, directory, localusername)
     print("Music moved to WebDAV storage")
 
-    # this function will call all sub functions in order
 
 # start uploading the music to the cloud using WebDAV
-def uploadmusic(url, username, password, remoteDirectory):
+def uploadmusic(url, username, password, remoteDirectory, localusername):
     # Whenever the function is called it will upload all music present in the local music folder
     # At the moment it does not make a distinction between songs from other jobs, it will just upload everything...
     
-    # THIS IS TEMPORARY ###
-    localDirectory = 'music'
-    ###
+    localDirectory = f'./music/{localusername}'
 
     print("")
     print('Creating cloud folder structure based on local directories...')
@@ -288,9 +239,12 @@ def uploadmusic(url, username, password, remoteDirectory):
 def create_folders(localDirectory, remoteDirectory, url, username, password):
     
     # for every local directory create a directory at the users remote cloud directory
-    for localDirectory, dirs, files in os.walk(localDirectory):
+    for root, dirs, files in os.walk(localDirectory):
+        
         for subdir in dirs:
-            
+            # skip the root directory by checking if the subdir is the same as the root
+            if subdir == localDirectory:
+                continue
             # construct URl to make calls to
             print(os.path.join(localDirectory, subdir))
 
@@ -340,6 +294,7 @@ def create_folders(localDirectory, remoteDirectory, url, username, password):
 def upload_music(remoteDirectory, url, username, password):
     # THIS IS TEMPORARY
     localDirectory = 'music'
+    archivefilename = 'download_archive.txt'
     for root, dirs, files in os.walk(localDirectory):
         for filename in files:
             
@@ -362,7 +317,7 @@ def upload_music(remoteDirectory, url, username, password):
             existCheck = requests.get(fullurl, auth=(username, password))
             
             # if the file does not yet exist (everything except 200 code) then create that file
-            if not existCheck.status_code == 200:
+            if not existCheck.status_code == 200 and archivefilename != filename:
             # error handling, when an error occurs, it will print the error and stop the script from running
                 try:
 
@@ -397,8 +352,10 @@ def upload_music(remoteDirectory, url, username, password):
                 print("File already exists, skipping: " + fullurl)
 
             # in the event that the file either has been uploaded or already existed, we can delete the local copy
-            print("Removing local file,", path, "no longer needed after upload")
-            os.remove(path)
+            # do not delete the archivefile
+            if archivefilename != filename:
+                print("Removing local file,", path, "no longer needed after upload")
+                os.remove(path)
 
         # check if there are any directories left, if there are, we can delete them if they are empty
         # we want to remove unneeded files and dirs so they don't pile up until your storage runs out of space
