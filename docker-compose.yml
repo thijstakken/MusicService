@@ -8,8 +8,7 @@ volumes:
 services:
   musicservice:
     container_name: musicservice
-    #image: thijstakken/musicservice:latest
-    image: musicservice:webgui
+    image: thijstakken/musicservice:latest
     restart: always
     links: 
       - database
@@ -50,7 +49,7 @@ services:
   # this worker runs the tasks for the musicservice, so it can download the music
   taskworker:
     container_name: taskworker
-    image: musicservice:webgui
+    image: thijstakken/musicservice:latest
     command: worker -u redis://redis:6379/0 music-tasks
     # use custom entrypoint to run the taskworker
     entrypoint: rq

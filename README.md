@@ -28,8 +28,9 @@ The Music Service is a microservice application and runs as a [Docker container]
 <br>
 
 1. How to run the musicservice:
-    - Docker Compose (recommended): Copy the [docker-compose](docker-compose.yml) file contents to your editor and follow the steps
-    - Run `docker compose up -d` in your terminal to start the stack
+    - Download the Docker Compose file: [docker-compose](docker-compose.yml) 
+    - Run `docker compose up -d` in your terminal to start the stack, wait a few seconds (use without -d if you want to see the logs)
+    - Then go to [http://localhost:5678/](http://localhost:5678/) (localhost or IP of your machine)
 
 
 <br>
