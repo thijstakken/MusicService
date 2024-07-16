@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Hi, {{ current_user.username }}!</h1>
+    
+
+    {% for music in music %}
+    <div><p>{{ music.title }} and URL: <b>{{ music.url }}</b></p></div>
+    {% endfor %}
+
+{% endblock %}

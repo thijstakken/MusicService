@@ -1,21 +1,26 @@
 # using the latest Python image
-FROM python:latest
+FROM python:slim
 
 # any working directory can be chosen as per choice like '/' or '/home' etc
 WORKDIR /
 
 # to COPY the remote file at working directory in container
-COPY example-config ./config
-COPY example-music ./music
-COPY main.py ./
-COPY requirements.txt ./
-
-# install Python module requirements
+COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
+RUN pip install gunicorn pymysql cryptography
+
+
+COPY webapp webapp
+COPY migrations migrations
+COPY musicservice.py config.py boot.sh ./
+#COPY example-music ./music
+#COPY main.py ./
+RUN chmod a+x boot.sh
+
+ENV FLASK_APP musicservice.py
 
 # update the enviroment
 RUN apt-get update
-
 # install ffmpeg, this is needed for .m4a/.mp4 to mp3 conversion
 RUN apt-get install ffmpeg -y
 
@@ -27,5 +32,6 @@ ENV PYTHONUNBUFFERED=1
 # users can overrule the default by simply providing their own INTERVAL variable
 ENV INTERVAL=5
 
-# run the Music Service with Python
-CMD [ "python", "./main.py"]
+# let's dance: "In 5, 6, 7, 8!"
+EXPOSE 5678
+ENTRYPOINT ["./boot.sh"]

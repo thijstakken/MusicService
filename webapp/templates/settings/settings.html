@@ -1,0 +1,354 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div style="margin-top: 50px;" class="ui container">
+        <h1 class="ui center aligned header">Settings</h1>
+
+        <!-- add some spacing between the H1 and the first div -->
+        <br>
+        
+
+        <div class="card w-50">
+          <div class="card-body">
+            <h5 class="card-title">Synchronization</h5>
+            <div class="d-grid gap-2 col-6 mx-auto">
+            {% if cloudstorageaccounts %}
+            <!-- displays modal that says that only 1 profile can be added -->
+            <button type="button" class="btn btn-success btn-lg bi bi-plus-square-dotted" data-bs-toggle="modal" data-bs-target="#notallowed"> Add</button>
+            {% else %}
+            <button type="button" class="btn btn-success btn-lg bi bi-plus-square-dotted" data-bs-toggle="modal" data-bs-target="#exampleModal"> Add</button>
+            
+            <!-- also inform user of the fallback option (local file storage is active if no other syncprofile is configured) -->
+            <p>Default active: Local file storage is used when no sync profile is configured.</p>
+            <a href="#" data-bs-toggle="modal" data-bs-target="#fallbackModal">Click here for more info</a>
+
+            <!-- Modal -->
+            <div class="modal fade" id="fallbackModal" tabindex="-1" aria-labelledby="fallbackModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="fallbackModalLabel">Fallback Option: Local File Storage</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <p>When no sync profile is configured, the application uses local file storage as the default option. This means that your music files will be stored locally in your container.</p>
+                    <p>If you want to sync your music with a cloud storage service or any other storage target, you can add a sync profile by clicking the "Add" button.</p>
+                    <p>Once you have added a sync profile, it will become the active storage target for your music files.</p>
+                    <p>All music stored locally will automatically be synced to the storage target if it get's configured.</p>
+                    <p>Want to use the local file storage? You can mount the music folder to your device and play the music files directly from your device.</p>
+                    <p>Please mount the volume: /music/ on your docker container to make it persistant.</p>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+            </div>
+          </div>
+        </div>
+        <br>
+
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Select your storage target</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                
+
+              
+              <!-- instead of hardcoded, we could use some loop to auto populate based on the CloudStorage Models available-->
+
+                <div class="card w-75 mb-3 mx-auto">
+                  <div class="card-body d-grid gap-2">
+                      <button class="btn stretched-link" data-bs-target="#exampleModalToggle2" data-bs-toggle="modal">WebDAV</button>
+                  </div>
+                </div>
+
+                <div class="card w-75 mb-3 mx-auto">
+                  <div class="card-body d-grid gap-2">
+                      <button class="btn stretched-link" data-bs-target="#localstorage" data-bs-toggle="modal">Local</button>
+                  </div>
+                </div>
+
+                <div class="card w-75 mb-3 mx-auto">
+                  <div class="card-body">
+                    <div class="d-grid gap-2">
+                    <a href="#" class="btn stretched-link">FTP</a>
+                    </div>
+                  </div>
+                </div>
+                
+                <br>
+                <!-- Suggest your storage target here, github issues link -->
+                <p>Don't see your storage target? <a href="https://github.com/thijstakken/MusicService/issues/new" target="_blank">Suggest it here</a></p>
+
+
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- write an modal that says that only 1 profile can be added -->
+        <div class="modal fade" id="notallowed" tabindex="-1" aria-labelledby="notallowed" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="notallowed">Max sync profiles reached</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <p>Only 1 profile can be added, please delete the current profile before adding a new one</p>
+              </div>
+              
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal fade" id="exampleModalToggle2" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <div>
+                  <h1 class="modal-title fs-5" id="exampleModalToggleLabel2">WebDAV</h1>
+                  <a href="https://github.com/thijstakken/MusicService/wiki/Configuring-WebDAV" class="btn btn-info" role="button" target="_blank">User Guide</a>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              
+              <div class="modal-body">
+                <form action="/settings" method="post" novalidate>
+                  {{ WebDAVform.hidden_tag() }}
+                  <p>
+                      {{ WebDAVform.url.label }}<br>
+                      {{ WebDAVform.url(size=22) }}<br>
+                      {% for error in WebDAVform.url.errors %}
+                          <span style="color: red;">[{{ error }}]</span>
+                      {% endfor %}
+                  </p>
+                  <p>
+                      {{ WebDAVform.directory.label }}<br>
+                      {{ WebDAVform.directory(size=50) }}<br>
+                      {% for error in WebDAVform.directory.errors %}
+                          <span style="color: red;">[{{ error }}]</span>
+                      {% endfor %}
+                  </p>
+                  <p>
+                    {{ WebDAVform.username.label }}<br>
+                    {{ WebDAVform.username(size=50) }}<br>
+                    {% for error in WebDAVform.username.errors %}
+                        <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                  </p>
+                  <p>
+                    {{ WebDAVform.password.label }}<br>
+                    {{ WebDAVform.password(size=50) }}<br>
+                    {% for error in WebDAVform.password.errors %}
+                        <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                  </p>
+
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" onclick="passwordShow()">
+                    <label class="form-check-label" for="flexCheckDefault">
+                        Show password
+                    </label>
+                  </div>
+                  <br>
+
+                  <p>{{ WebDAVform.submit() }}</p>
+              </form>
+              </div>
+
+
+
+
+              <!--
+              <div class="modal-body">
+                <form action="/settings/save" method="post">
+
+                  <div class="mb-3">
+                      <label class="form-label">WebDAV URL</label>
+                      <input type="text" class="form-control" name="WebDAV_URL" placeholder="https://cloud.yourdomain.com"><br>
+                  </div>
+                  <div class="mb-3">
+                      <label>WebDAV directory</label>
+                      <input type="text" class="form-control" name="WebDAV_Directory" placeholder="/MyMusic"><br>
+                  </div>
+                  <div class="mb-3">
+                      <label>WebDAV username</label>
+                      <input type="text" class="form-control" name="WebDAV_Username" placeholder="Bob"><br>
+                  </div>
+                  <div class="mb-3">
+                      <label>WebDAV password</label>
+                      <input type="password" class="form-control" name="WebDAV_Password" placeholder="" id="password">
+                  </div>
+
+                  
+                  <button class="btn btn-primary" type="submit">Save</button>
+                  <button class="btn btn-primary" type="submit">Validate settings</button>
+              </form>
+              </div>
+              -->
+
+              <script>
+                function passwordShow() {
+                  var x = document.getElementById("password");
+                  if (x.type === "password") {
+                    x.type = "text";
+                  } else {
+                    x.type = "password";
+                  }
+                }
+              </script>
+
+
+              <div class="modal-footer">
+                <button class="btn btn-primary" data-bs-target="#exampleModal" data-bs-toggle="modal">Back to previous</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="modal fade" id="localstorage" aria-hidden="true" aria-labelledby="localstorage" tabindex="-1">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="localstorage">Local</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              
+              <div class="modal-body">
+                <form action="/settings" method="post" novalidate>
+                  {{ LocalStorageform.hidden_tag() }}
+                  <!-- <p>
+                    {{ WebDAVform.password.label }}<br>
+                    {{ WebDAVform.password(size=50) }}<br>
+                    {% for error in WebDAVform.password.errors %}
+                        <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                  </p> -->
+
+                  <p>{{ LocalStorageform.submit() }}</p>
+              </form>
+              </div>
+
+              <div class="modal-footer">
+                <button class="btn btn-primary" data-bs-target="#exampleModal" data-bs-toggle="modal">Back to previous</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        {% for cloudstorages in cloudstorageaccounts %}
+        <div class="card w-50">
+          <div class="card-body">
+            <h5 class="card-title">{{ cloudstorages.id }} | {{ cloudstorages.storageowner }} | {{ cloudstorages.protocol_type }} | {{ cloudstorages.CloudStorage_Username }} | {{ cloudstorages.CloudStorage_Password }}</h5>
+          </div>
+        </div>
+        <a class="btn btn-danger" href="/settings/delete/{{ cloudstorages.id }}">Delete</a>
+        {% endfor %}
+
+        <!-- I can drop this weird logic, will start to use simple database model where any sync profile can be added and deleted, but only 1 should the max allowed sync profile to be active-->
+
+        <!--
+        for webdav in WebDAVconfig, (without the correct quotes for memo purposes)
+        webdav.WebDAV_URL
+        webdav.WebDAV_Directory
+        webdav.WebDAV_Username
+        webdav.WebDAV_Password
+        -->
+
+
+
+
+    <div style="margin-top: 50px;" class="ui container">
+        <h1 class="ui center aligned header">Songs archive</h1>
+        <p>Here you can find all songs that have been downloaded already</p>
+        <br>
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-light bi bi-cloud-upload" data-bs-toggle="modal" data-bs-target="#importArchive">
+          Import
+        </button>
+
+        <a class="btn btn-dark bi bi-download" href="/archivedownload"> Export</a>
+        <br>
+        <br>
+        <form action="/archiveaddsong" method="post">
+        <label class="form-label">Add song</label>
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" name="song" placeholder="youtube BaW_jenozKc">
+                <div class="input-group-append">
+                  <button class="btn btn-success" type="submit">Add</button>
+                </div>
+            </div>
+            <br>
+        </form>
+
+        <!-- add a search bar for the songs, does not work yet -->
+        <!-- <form action="/searchsong" method="post">
+        <label class="form-label">Search song</label>
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" name="search" placeholder="Search for a song...">
+                <div class="input-group-append">
+                  <button class="btn btn-primary" type="submit">Search</button>
+                </div>
+            </div>
+        </form> -->
+            
+            <!-- want to add pagination for every 10 songs -->
+            <label class="form-label">Song</label>
+            {% for song in songs %}
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" placeholder="Song" value="{{ song[1] }}" readonly>
+                <div class="input-group-append">
+                  <a class="btn btn-danger" href="/archivedeletesong/{{ song[0] }}">Delete</a>
+                </div>
+              </div>
+            {% endfor %}
+        <br>
+        <br>
+    </div>
+
+
+
+<!-- upload archive Modal -->
+<div class="modal fade" id="importArchive" tabindex="-1" aria-labelledby="importArchiveLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="importArchiveLabel">Import music archive</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>You can upload your YT-DL(P) archive here if you have one. By doing this, it will not try to download these songs again, saving time and resources.</p>
+        <br>
+        <p>Select archive file to upload</p>
+        <form action="/archiveupload" method="post" enctype="multipart/form-data">
+          <input name=file type="file" class="form-control" aria-label="file example" required/>
+          <p>Only .txt files are allowed</p>
+          <button type="submit" class="btn btn-primary bi bi-cloud-upload"> Import</button>
+          <div class="invalid-feedback">Example invalid form file feedback</div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
+{% endblock %}
