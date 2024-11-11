@@ -7,5 +7,5 @@ schedule==1.2.2
 python-dotenv==1.0.0
 flask-wtf==1.2.1
 Flask-Migrate==4.0.7
-rq==1.16.1
+rq==2.0.0
 Flask-Moment==1.0.6
