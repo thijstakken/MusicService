@@ -1,4 +1,4 @@
-yt-dlp==2024.9.27
+yt-dlp==2024.12.6
 requests==2.32.3
 Flask==3.0.3
 Flask-SQLAlchemy==3.1.1
