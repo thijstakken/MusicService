@@ -6,6 +6,6 @@ Flask-Login==0.6.3
 python-dotenv==1.0.1
 schedule==1.2.2
 flask-wtf==1.2.2
-Flask-Migrate==4.0.7
+Flask-Migrate==4.1.0
 rq==2.1.0
 Flask-Moment==1.0.6
