@@ -3,8 +3,8 @@ requests==2.32.3
 Flask==3.1.0
 Flask-SQLAlchemy==3.1.1
 Flask-Login==0.6.3
+python-dotenv==1.0.1
 schedule==1.2.2
-python-dotenv==1.0.0
 flask-wtf==1.2.2
 Flask-Migrate==4.0.7
 rq==2.1.0
