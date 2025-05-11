@@ -1,4 +1,4 @@
-yt-dlp==2025.3.31
+yt-dlp==2025.4.30
 requests==2.32.3
 Flask==3.1.0
 Flask-SQLAlchemy==3.1.1
@@ -7,5 +7,5 @@ python-dotenv==1.1.0
 schedule==1.2.2
 flask-wtf==1.2.2
 Flask-Migrate==4.1.0
-rq==2.3.1
+rq==2.3.2
 Flask-Moment==1.0.6
