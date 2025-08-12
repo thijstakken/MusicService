@@ -35,6 +35,19 @@ The Music Service is a microservice application and runs as a [Docker container]
 
 <br>
 
+## GitHub stars matter!
+Please consider starring the repo's you like, this helps others discover more great tools!
+
+<a href="https://www.star-history.com/#thijstakken/MusicService&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=thijstakken/MusicService&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=thijstakken/MusicService&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=thijstakken/MusicService&type=Date" />
+ </picture>
+</a>
+
+<br>
+
 ## Join the team 👪
 Feel free to contribute, you can [submit issues here](https://github.com/thijstakken/MusicService/issues) and [fix issues/bugs, improve the application!](https://github.com/thijstakken/MusicService/wiki/Development-technical)
 
