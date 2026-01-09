@@ -15,9 +15,10 @@
 - 🗃 It's aware of the songs that have already been downloaded. This saves a lot of time since they don't get redownloaded every time the application runs again.
 
 <br>
+<img src="images/ShowCaseApp.gif" alt="GIFShowcase" height="700"/>
+<br>
+
 <img src="images/syncShowcase.png" alt="syncShowcase" width="700"/>
-<br>
-<br>
 
 ## How to install
 The Music Service is a microservice application and runs as a [Docker container](https://www.docker.com/resources/what-container/). Because of using Docker, every installation runs the same, for everyone. This brings programming efficiency and improves reliability. [Docker image release](https://hub.docker.com/r/thijstakken/musicservice)
