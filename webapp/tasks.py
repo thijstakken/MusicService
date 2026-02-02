@@ -41,14 +41,6 @@ def downloadmusic(music_id, username):
         print('this is username original', username)
         music = db.session.get(Music, music_id)
 
-        # get the username that owns the music
-        usernametest = music.musicowner.username
-
-        print("Username new one:", usernametest)
-        print("Username:", usernametest)
-        print("Username:", usernametest)
-        print("Username:", usernametest)
-
         #music = db.session.scalars(sa.select(MusicTask).where(MusicTask.id == music_id)).first()
         print("Downloading music...", music.url)
         print("")
@@ -148,9 +140,14 @@ def downloadmusic(music_id, username):
             print("")
         finally:
             _set_task_progress(100)
-            # some cleanup
-            print("Cleaning up...")
             print("Downloading complete for:", music_id)
+            
+            # clean up tasks
+            print("Cleaning up...")
+
+            # clean up download logs for the current song/playlist ID, only keep 30 last entries
+            cleanup_old_tasks(music_id)
+
             print("")
 
 # YT-DLP logging
@@ -203,6 +200,27 @@ def _set_task_progress(progress):
             task.complete = True
         db.session.commit()
 
+
+def cleanup_old_tasks(music_id):
+    
+    subq = (
+        db.session.query(MusicTask.id)
+        .filter(MusicTask.music_id == music_id)
+        .order_by(MusicTask.timestamp.desc())
+        .limit(10)
+        .subquery()
+    )
+    
+    # delete all recrods except the most recent 10
+    deleteaction = db.session.query(MusicTask).filter(
+        MusicTask.music_id == music_id,
+        ~MusicTask.id.in_(sa.select(subq.c.id))
+    ).delete(synchronize_session=False)
+    
+    print("Old download logs deleted:")
+    print(deleteaction)
+    
+    db.session.commit()
 
 
 # webdav
